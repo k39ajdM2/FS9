@@ -18,7 +18,8 @@ setwd("~/Desktop/FS9/FS9_RWorkspace")
 #Load library packages
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
-BiocManager::install(c("phyloseq", "DESeq2"))
+BiocManager::install(c("DESeq2"))
+#Couldn't get DESeq2 library to install
 
 #Load library packages
 library(DESeq2)
@@ -29,6 +30,7 @@ library("wesanderson")
 library(plotly)
 library(gapminder)
 library("ggsci")
+library("apeglm")
 
 sessionInfo()
 
@@ -202,6 +204,11 @@ resultsNames(FS9.DNEG3.De)
 
 res.DNEG3.ji = results(FS9.DNEG3.De, contrast=c("Set", "-3_INF_InjOTC", "-3_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.DNEG3.De, contrast=c("Set","-3_INF_InjOTC", "-3_INF_NoTRMT")) 
+
+res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, res=res.DNEG3.ji, coef = 2, type = 'apeglm')
+#Error in lfcShrink(FS9.DNEG3.De, res = res.DNEG3.ji, coef = 2, type = "apeglm") : 
+#'coef' should specify same coefficient as in results 'res'
+
 sigtab.DNEG3.ji = res.DNEG3.ji[which(res.DNEG3.ji$padj < .05), ]
 sigtab.DNEG3.ji = cbind(as(sigtab.DNEG3.ji, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.ji), ], "matrix"))
 format(sigtab.DNEG3.ji$padj, scientific = TRUE)
