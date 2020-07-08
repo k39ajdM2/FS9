@@ -212,11 +212,14 @@ res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, res=res.DNEG3.ji, coef = "2", type = 'ape
 #I tried reordering the contrasts so that it was listed as:
 #contrast=c("Set", "-3_INF_NoTRMT", "-3_INF_InjOTC") to match vector 2 (from resultsNames(FS9.DNEG3.De))
 #but I still got the same error message
+<<<<<<< HEAD
 
 res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, res=res.DNEG3.ji, coef = "Set_.3_INF_NoTRMT_vs_.3_INF_InjOTC", type = 'apeglm')
 #Error in lfcShrink(FS9.DNEG3.De, res = res.DNEG3.ji, coef = "Set_.3_INF_NoTRMT_vs_.3_INF_InjOTC",  : 
 #'coef' should specify same coefficient as in results 'res'
 #Same error message
+=======
+>>>>>>> e53124e73a5df2f28840c78ba9af163a82076363
 
 sigtab.DNEG3.ji = res.DNEG3.ji[which(res.DNEG3.ji$padj < .05), ]
 sigtab.DNEG3.ji = cbind(as(sigtab.DNEG3.ji, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.ji), ], "matrix"))
