@@ -9,20 +9,21 @@
 
 
 #Clear workspace and load necessary packages
-rm(list=ls())
+# rm(list=ls())
 
 #Set working directory (either on local or network drive, Mac or PC)
 #Mac
-setwd("~/Desktop/FS9/FS9_RWorkspace")
+#Jules note: With R projects we shouldnt need to do this setwd anymore.
+# setwd("~/Desktop/FS9/FS9_RWorkspace")
 
 #Load library packages
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("XML")
-BiocManager::install("annotate")
-BiocManager::install("genefilter")
-BiocManager::install("geneplotter")
-BiocManager::install("DESeq2")
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install("XML")
+# BiocManager::install("annotate")
+# BiocManager::install("genefilter")
+# BiocManager::install("geneplotter")
+# BiocManager::install("DESeq2")
 #Couldn't get DESeq2 library to install
 
 #Load library packages
@@ -45,13 +46,13 @@ sessionInfo()
 
 
 #Load image file 
-load("FS9_DESeq2.RData")
+# load("FS9_DESeq2.RData")
 
 
 
 
 #Save image file
-save.image(file="FS9_DESeq2.RData")
+# save.image(file="FS9_DESeq2.RData")
 
 #Additional notes
 #Jules says plots describes the log-fold changes seen in differential abundance plots as
@@ -75,9 +76,14 @@ theme_set(theme_gray())
 # will work in and location 
 
 #Load files
-otu <- import_mothur(mothur_shared_file = '/ssd/kathy.mou/FS9_RWorkspace/stability.outsingletons.abund.opti_mcc.shared') #use unrarified data
-taxo <- import_mothur(mothur_constaxonomy_file = '/ssd/kathy.mou/FS9_RWorkspace/stability.outsingletons.abund.opti_mcc.0.03.cons.taxonomy')
-meta <- read.table(file = '/ssd/kathy.mou/FS9_RWorkspace/FS9_metadata.csv', sep = ',', header = TRUE)
+# Jules change.  I altered the structure of the project/repo,
+# now there is a data folder for the input, a scripts folder for the code and 
+# i reccommend making an output folder for figs and tables.
+# these lines will now work on any computer from any location so long as they have cloned the git repo
+# these paths are now all relative to the Rproj base directory
+otu <- import_mothur(mothur_shared_file = './data/stability.outsingletons.abund.opti_mcc.shared') #use unrarified data
+taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outsingletons.abund.opti_mcc.0.03.cons.taxonomy')
+meta <- read.table(file = './data/FS9_metadata.csv', sep = ',', header = TRUE)
 
 #Organize meta file
 rownames(meta) <- meta$Sample
@@ -152,7 +158,7 @@ FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
 
 ######################################################### Day -3 #########################################################
 
-sample_data(FS9.order)
+unique(sample_data(FS9.order)$Set)
 
 FS9.DNEG3 <- subset_samples(FS9.order, Day == '-3')
 sample_sums(FS9.DNEG3)
@@ -162,7 +168,7 @@ FS9.DNEG3 <- prune_taxa(taxa_sums(FS9.DNEG3) > 1, FS9.DNEG3)
 rowSums(FS9.DNEG3@otu_table)
 
 #Look at what Set is
-sample_data(FS9.DNEG3)
+unique(sample_data(FS9.DNEG3)$Set)
 
 FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
 # ~Set: whatever you want to group data by, whatever column you used to designate ellipses with
@@ -203,29 +209,41 @@ FS9.DNEG3.De$Set
 
 # Jules Add
 resultsNames(FS9.DNEG3.De)
+#Jules Add
+#
+# commentet out the following line:
+# res.DNEG3.ji = results(FS9.DNEG3.De, name="Set_.3_INF_NoTRMT_vs_.3_INF_InjOTC", cooksCutoff = FALSE, pAdjustMethod = 'BH')
 
-res.DNEG3.ji = results(FS9.DNEG3.De, contrast=c("Set", "-3_INF_InjOTC", "-3_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+# Reading the lfcshrink help page revealed that it is not necessary to call results
+# as results() is called internally by lfcshrink()
 
-res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, res=res.DNEG3.ji, coef = "2", type = 'apeglm')
-#Error in lfcShrink(FS9.DNEG3.De, res = res.DNEG3.ji, coef = 2, type = "apeglm") : 
-#'coef' should specify same coefficient as in results 'res'
-#I tried reordering the contrasts so that it was listed as:
-#contrast=c("Set", "-3_INF_NoTRMT", "-3_INF_InjOTC") to match vector 2 (from resultsNames(FS9.DNEG3.De))
-#but I still got the same error message
-<<<<<<< HEAD
+# these two are equivalent
+res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, coef = "Set_.3_INF_NoTRMT_vs_.3_INF_InjOTC", type = 'apeglm')
+res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, coef = 2 , type = 'apeglm')
 
-res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, res=res.DNEG3.ji, coef = "Set_.3_INF_NoTRMT_vs_.3_INF_InjOTC", type = 'apeglm')
-#Error in lfcShrink(FS9.DNEG3.De, res = res.DNEG3.ji, coef = "Set_.3_INF_NoTRMT_vs_.3_INF_InjOTC",  : 
-#'coef' should specify same coefficient as in results 'res'
-#Same error message
-=======
->>>>>>> e53124e73a5df2f28840c78ba9af163a82076363
+# This line is the first from printing the results table:
+# log2 fold change (MAP): Set .3 INF NoTRMT vs .3 INF InjOTC 
+
+# positive log2foldchanges are associated with the first group from this line
+# .3 INF NoTRMT
+
+# negative log2foldchanges are associated with the second group from this line
+# .3 INF InjOTC
+
+# you may want to consider changing your group names as they contain some characters
+# that DESeq2 and R complain about.
+# Also, if you do that, you can better control the order of your factor levels
+# and therefore the sign of the l2fc values (so that negatives are always control etc.)
+# you can also do this by specifying the 3 value vector contrast thing like we did before
+# yeah its super confusing and there are liek 100 ways of getting to the same spot.
+
 
 sigtab.DNEG3.ji = res.DNEG3.ji[which(res.DNEG3.ji$padj < .05), ]
 sigtab.DNEG3.ji = cbind(as(sigtab.DNEG3.ji, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.ji), ], "matrix"))
 format(sigtab.DNEG3.ji$padj, scientific = TRUE)
 sigtab.DNEG3.ji$newp <- format(round(sigtab.DNEG3.ji$padj, digits = 3), scientific = TRUE)
-sigtab.DNEG3.ji$Treatment <- ifelse(sigtab.DNEG3.ji$log2FoldChange >=0, "INF_InjOTC", "INF_NoTRMT")
+# I CHANGED THIS FOLLOWING LINE TO MATCH THE NEW REALITY
+sigtab.DNEG3.ji$Treatment <- ifelse(sigtab.DNEG3.ji$log2FoldChange >=0, "INF_NoTRMT", "INF_InjOTC")
 
 #Summarize sigtab.DNEG3.ji
 sum.sigtab.DNEG3.ji <- summary(sigtab.DNEG3.ji)
@@ -278,7 +296,61 @@ deseq.DNEG3.ji_JULES3 <-
 deseq.DNEG3.ji_JULES3
 
 
+
+# To re-order your group levels so that no trt is negative values
+# If you are interested in this I would actually change it in your metadata before
+# you create the phyloseq object
+#################
+
+
+FS9.DNEG3 <- subset_samples(FS9.order, Day == '-3')
+FS9.DNEG3 <- prune_taxa(taxa_sums(FS9.DNEG3) > 1, FS9.DNEG3)
+unique(sample_data(FS9.DNEG3)$Set)
+
+# the first level in the factor will be used to compare all the other once against it
+# sometimes not all the comparisons are present in the results names and 
+# so you have to re-level your factor and re-run DESeq2
+sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+                                     levels =c('-3_INF_NoTRMT',"-3_NONINF_NoTRMT",
+                                               "-3_INF_InjOTC", "-3_INF_OralOTC"))
+
+
+FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
+FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
+FS9.DNEG3.De$Set
+resultsNames(FS9.DNEG3.De)
+
+res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, coef = "Set_.3_INF_InjOTC_vs_.3_INF_NoTRMT", type = 'apeglm')
+# This line is the first from printing the results table:
+# log2 fold change (MAP): Set .3 INF NoTRMT vs .3 INF InjOTC 
+
+# positive log2foldchanges are associated with the first group from this line
+
+# negative log2foldchanges are associated with the second group from this line
+
+sigtab.DNEG3.ji = res.DNEG3.ji[which(res.DNEG3.ji$padj < .05), ]
+sigtab.DNEG3.ji = cbind(as(sigtab.DNEG3.ji, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.ji), ], "matrix"))
+sigtab.DNEG3.ji$newp <- format(round(sigtab.DNEG3.ji$padj, digits = 3), scientific = TRUE)
+sigtab.DNEG3.ji$Treatment <- ifelse(sigtab.DNEG3.ji$log2FoldChange >=0, "INF_InjOTC", "INF_NoTRMT")
+
+deseq.DNEG3.ji_JULES2 <- 
+  ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day -3')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c(INF_InjOTC='#E69F00', INF_NoTRMT='#CC0066'))
+
+deseq.DNEG3.ji_JULES2
+
+
+
+# I have not made changes below here
 ######### END JULES #######
+
+
 
 #ggplot
 deseq.DNEG3.ji <- 
