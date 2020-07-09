@@ -3,7 +3,7 @@
 #Kathy Mou
 
 #Purpose: This code uses DESeq2 package to identify nasal microbial genera that were differentially 
-#abundant between the three groups on the three days sampled
+#abundant between the four groups on the four days sampled
 
 #Files needed:
 
@@ -38,7 +38,7 @@ library("apeglm")
 
 sessionInfo()
 
-# Jules note:  I reccommend against doing things like this
+# Jules note:  I recommend against doing things like this
 # best to load the data from csv files etc
 # for example, I have no idea what commands generated the .RData files you
 # are loading here so when you're having issues I need to start from the 
@@ -177,19 +177,8 @@ FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
 #DESeq calculation: Differential expression analysis 
 #based on the Negative Binomial (a.k.a. Gamma-Poisson) distribution
 FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
-#estimating size factors
-#estimating dispersions
-#gene-wise dispersion estimates
-#mean-dispersion relationship
-#final dispersion estimates
-#fitting model and testing
-#-- replacing outliers and refitting for 7 genes
-#-- DESeq argument 'minReplicatesForReplace' = 7 
-#-- original counts are preserved in counts(dds)
-#estimating dispersions
-#fitting model and testing
 
-######### Day -3 INF_NoTRMT vs INF_InjOTC ###################
+######### Day -3 INF_NoTRMT vs INF_InjOTC - Jules edits ###################
 
 #NONINF_NoTRMT = N
 #INF_NoTRMT = I
@@ -209,9 +198,9 @@ FS9.DNEG3.De$Set
 
 # Jules Add
 resultsNames(FS9.DNEG3.De)
-#Jules Add
+
 #
-# commentet out the following line:
+# commented out the following line:
 # res.DNEG3.ji = results(FS9.DNEG3.De, name="Set_.3_INF_NoTRMT_vs_.3_INF_InjOTC", cooksCutoff = FALSE, pAdjustMethod = 'BH')
 
 # Reading the lfcshrink help page revealed that it is not necessary to call results
@@ -245,11 +234,21 @@ sigtab.DNEG3.ji$newp <- format(round(sigtab.DNEG3.ji$padj, digits = 3), scientif
 # I CHANGED THIS FOLLOWING LINE TO MATCH THE NEW REALITY
 sigtab.DNEG3.ji$Treatment <- ifelse(sigtab.DNEG3.ji$log2FoldChange >=0, "INF_NoTRMT", "INF_InjOTC")
 
+deseq.DNEG3.ji <- 
+  ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day -3')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c(INF_InjOTC='#E69F00', INF_NoTRMT='#CC0066'))
+
+deseq.DNEG3.ji
+
 #Summarize sigtab.DNEG3.ji
 sum.sigtab.DNEG3.ji <- summary(sigtab.DNEG3.ji)
 sum.sigtab.DNEG3.ji
-
-
 
 # your scale_fill_manual is the problem
 # This is the same code block as yours except I commented out the scale fill manual
@@ -262,7 +261,7 @@ deseq.DNEG3.ji_JULES <-
         axis.title.x=element_text(size = 12),
         axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) #+
-  # scale_fill_manual(labels = c("INF_InjOTC", "INF_NoTRMT"), values = c('#E69F00', '#CC0066'))
+  scale_fill_manual(labels = c("INF_InjOTC", "INF_NoTRMT"), values = c('#E69F00', '#CC0066'))
 deseq.DNEG3.ji_JULES
 
 # you were expecting the labels to match the levels in your Treatment factor, 
@@ -278,10 +277,9 @@ deseq.DNEG3.ji_JULES2 <-
         axis.title.x=element_text(size = 12),
         axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-scale_fill_manual(values = c(INF_InjOTC='#E69F00', INF_NoTRMT='#CC0066'))
+  scale_fill_manual(values = c(INF_InjOTC='#E69F00', INF_NoTRMT='#CC0066'))
 
 deseq.DNEG3.ji_JULES2
-
 
 deseq.DNEG3.ji_JULES3 <- 
   ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
@@ -295,45 +293,39 @@ deseq.DNEG3.ji_JULES3 <-
 
 deseq.DNEG3.ji_JULES3
 
-
-
 # To re-order your group levels so that no trt is negative values
 # If you are interested in this I would actually change it in your metadata before
 # you create the phyloseq object
-#################
 
+################# Day -3 INF_NoTRMT vs INF_InjOTC - My stuff ################
 
 FS9.DNEG3 <- subset_samples(FS9.order, Day == '-3')
 FS9.DNEG3 <- prune_taxa(taxa_sums(FS9.DNEG3) > 1, FS9.DNEG3)
 unique(sample_data(FS9.DNEG3)$Set)
-
 # the first level in the factor will be used to compare all the other once against it
 # sometimes not all the comparisons are present in the results names and 
 # so you have to re-level your factor and re-run DESeq2
 sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
                                      levels =c('-3_INF_NoTRMT',"-3_NONINF_NoTRMT",
                                                "-3_INF_InjOTC", "-3_INF_OralOTC"))
-
-
 FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
 FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
 FS9.DNEG3.De$Set
 resultsNames(FS9.DNEG3.De)
-
 res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, coef = "Set_.3_INF_InjOTC_vs_.3_INF_NoTRMT", type = 'apeglm')
 # This line is the first from printing the results table:
 # log2 fold change (MAP): Set .3 INF NoTRMT vs .3 INF InjOTC 
 
-# positive log2foldchanges are associated with the first group from this line
+# positive log2foldchanges are associated with the first group from this line (.3_INF_InjOTC)
 
-# negative log2foldchanges are associated with the second group from this line
+# negative log2foldchanges are associated with the second group from this line (.3_INF_NoTRMT)
 
 sigtab.DNEG3.ji = res.DNEG3.ji[which(res.DNEG3.ji$padj < .05), ]
 sigtab.DNEG3.ji = cbind(as(sigtab.DNEG3.ji, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.ji), ], "matrix"))
 sigtab.DNEG3.ji$newp <- format(round(sigtab.DNEG3.ji$padj, digits = 3), scientific = TRUE)
 sigtab.DNEG3.ji$Treatment <- ifelse(sigtab.DNEG3.ji$log2FoldChange >=0, "INF_InjOTC", "INF_NoTRMT")
 
-deseq.DNEG3.ji_JULES2 <- 
+deseq.DNEG3.ji <- 
   ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
   geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
@@ -343,26 +335,10 @@ deseq.DNEG3.ji_JULES2 <-
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INF_InjOTC='#E69F00', INF_NoTRMT='#CC0066'))
 
-deseq.DNEG3.ji_JULES2
-
-
+deseq.DNEG3.ji
 
 # I have not made changes below here
 ######### END JULES #######
-
-
-
-#ggplot
-deseq.DNEG3.ji <- 
-  ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
-  theme(axis.text.x=element_text(color = 'black', size = 13),
-        axis.text.y=element_text(color = 'black', size=13), 
-        axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day -3')+ coord_flip() +
-  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INF_NoTRMT='#E69F00', INF_InjOTC='#CC0066'))
-deseq.DNEG3.ji
 
 #Add OTU and comparisons columns
 sigtab.DNEG3.ji
@@ -392,8 +368,17 @@ sum(meta$Set == "-3_INF_OralOTC")
 
 #Extract results from a DESeq analysis, organize table
 FS9.DNEG3.De$Set
-res.DNEG3.oi = results(FS9.DNEG3.De, contrast=c("Set", "-3_INF_OralOTC", "-3_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
-#results(FS9.DNEG3.De, contrast=c("Set","-3_INF_OralOTC", "-3_INF_NoTRMT")) 
+resultsNames(FS9.DNEG3.De)
+sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+                                     levels  =c('-3_INF_NoTRMT',"-3_NONINF_NoTRMT",
+                                                "-3_INF_InjOTC", "-3_INF_OralOTC"))
+FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
+FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
+FS9.DNEG3.De$Set
+resultsNames(FS9.DNEG3.De)
+#[1] "Intercept"                             "Set_.3_NONINF_NoTRMT_vs_.3_INF_NoTRMT" "Set_.3_INF_InjOTC_vs_.3_INF_NoTRMT"   
+#[4] "Set_.3_INF_OralOTC_vs_.3_INF_NoTRMT"
+res.DNEG3.oi = lfcShrink(FS9.DNEG3.De, coef = "Set_.3_INF_OralOTC_vs_.3_INF_NoTRMT", type = 'apeglm')
 sigtab.DNEG3.oi = res.DNEG3.oi[which(res.DNEG3.oi$padj < .05), ]
 sigtab.DNEG3.oi = cbind(as(sigtab.DNEG3.oi, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.oi), ], "matrix"))
 format(sigtab.DNEG3.oi$padj, scientific = TRUE)
@@ -444,7 +429,19 @@ sum(meta$Set == "-3_INF_NoTRMT")
 
 #Extract results from a DESeq analysis, organize table
 FS9.DNEG3.De$Set
-res.DNEG3.in = results(FS9.DNEG3.De, contrast=c("Set", "-3_INF_NoTRMT", "-3_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+resultsNames(FS9.DNEG3.De)
+sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+                                     levels =c("-3_NONINF_NoTRMT",'-3_INF_NoTRMT',
+                                               "-3_INF_InjOTC", "-3_INF_OralOTC"))
+#resultsNames
+#[1] "Intercept"                              "Set_.3_INF_NoTRMT_vs_.3_NONINF_NoTRMT"  "Set_.3_INF_InjOTC_vs_.3_NONINF_NoTRMT" 
+#[4] "Set_.3_INF_OralOTC_vs_.3_NONINF_NoTRMT"
+FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
+FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
+FS9.DNEG3.De$Set
+resultsNames(FS9.DNEG3.De)
+res.DNEG3.in = lfcShrink(FS9.DNEG3.De, coef = "Set_.3_INF_NoTRMT_vs_.3_NONINF_NoTRMT", type = 'apeglm')
+#res.DNEG3.in = results(FS9.DNEG3.De, contrast=c("Set", "-3_INF_NoTRMT", "-3_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.DNEG3.De, contrast=c("Set","-3_INF_NoTRMT", "-3_NONINF_NoTRMT")) 
 sigtab.DNEG3.in = res.DNEG3.in[which(res.DNEG3.in$padj < .05), ]
 sigtab.DNEG3.in = cbind(as(sigtab.DNEG3.in, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.in), ], "matrix"))
@@ -496,7 +493,19 @@ sum(meta$Set == "-3_INF_OralOTC")
 
 #Extract results from a DESeq analysis, organize table
 FS9.DNEG3.De$Set
-res.DNEG3.on = results(FS9.DNEG3.De, contrast=c("Set", "-3_INF_OralOTC", "-3_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+resultsNames(FS9.DNEG3.De)
+sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+                                     levels =c("-3_NONINF_NoTRMT",'-3_INF_NoTRMT',
+                                               "-3_INF_InjOTC", "-3_INF_OralOTC"))
+#resultsNames
+#[1] "Intercept"                              "Set_.3_INF_NoTRMT_vs_.3_NONINF_NoTRMT"  "Set_.3_INF_InjOTC_vs_.3_NONINF_NoTRMT" 
+#[4] "Set_.3_INF_OralOTC_vs_.3_NONINF_NoTRMT"
+FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
+FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
+FS9.DNEG3.De$Set
+resultsNames(FS9.DNEG3.De)
+res.DNEG3.on = lfcShrink(FS9.DNEG3.De, coef = "Set_.3_INF_OralOTC_vs_.3_NONINF_NoTRMT", type = 'apeglm')
+#res.DNEG3.on = results(FS9.DNEG3.De, contrast=c("Set", "-3_INF_OralOTC", "-3_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.DNEG3.De, contrast=c("Set","-3_INF_OralOTC", "-3_NONINF_NoTRMT")) 
 sigtab.DNEG3.on = res.DNEG3.on[which(res.DNEG3.on$padj < .05), ]
 sigtab.DNEG3.on = cbind(as(sigtab.DNEG3.on, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.on), ], "matrix"))
@@ -530,27 +539,26 @@ sigtab.DNEG3.on$comp <- 'DNEG3_INF_OralOTCvsNONINF_NoTRMT'
 final.sigtab <- rbind(final.sigtab, sigtab.DNEG3.on)
 
 
-##################################################### Day 7 ######################################################################
+##################################################### Day 4 ######################################################################
 
 sample_data(FS9.order)
 
-FS9.D7 <- subset_samples(FS9.order, Day == '7')
-sample_sums(FS9.D7)
-colnames(otu_table(FS9.D7)) #check on all the sample names
-FS9.D7 <- prune_taxa(taxa_sums(FS9.D7) > 1, FS9.D7)
-#if taxa_sums is >1, then it will print that out in FS9.D7 object and not include anything with <1.
-rowSums(FS9.D7@otu_table)
+FS9.D4 <- subset_samples(FS9.order, Day == '4')
+sample_sums(FS9.D4)
+colnames(otu_table(FS9.D4)) #check on all the sample names
+FS9.D4 <- prune_taxa(taxa_sums(FS9.D4) > 1, FS9.D4)
+#if taxa_sums is >1, then it will print that out in FS9.D4 object and not include anything with <1.
+rowSums(FS9.D4@otu_table)
 
 #Look at what Set is
-sample_data(FS9.D7)
-
-FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
+sample_data(FS9.D4)
+FS9.D4.De <- phyloseq_to_deseq2(FS9.D4, ~ Set)
 # ~Set: whatever you want to group data by, whatever column you used to designate ellipses with
 # Set combined day and treatment
 
 #DESeq calculation: Differential expression analysis 
 #based on the Negative Binomial (a.k.a. Gamma-Poisson) distribution
-FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
+FS9.D4.De <- DESeq(FS9.D4.De, test = "Wald", fitType = "parametric")
 #estimating size factors
 #estimating dispersions
 #gene-wise dispersion estimates
@@ -562,6 +570,25 @@ FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
 #-- original counts are preserved in counts(dds)
 #estimating dispersions
 #fitting model and testing
+
+
+
+
+
+
+
+##################################################### Day 7 ######################################################################
+
+sample_data(FS9.order)
+FS9.D7 <- subset_samples(FS9.order, Day == '7')
+sample_sums(FS9.D7)
+colnames(otu_table(FS9.D7)) #check on all the sample names
+FS9.D7 <- prune_taxa(taxa_sums(FS9.D7) > 1, FS9.D7)
+#if taxa_sums is >1, then it will print that out in FS9.D7 object and not include anything with <1.
+rowSums(FS9.D7@otu_table)
+
+#Look at what Set is
+sample_data(FS9.D7)
 
 ######### Day 7 INF_InjOTC vs INF_NoTRMT  ###################
 
@@ -579,8 +606,17 @@ sum(meta$Set == "7_INF_NoTRMT")
 #20
 
 #Extract results from a DESeq analysis, organize table
-FS9.D7.De$Set
-res.D7.ji = results(FS9.D7.De, contrast=c("Set", "7_INF_InjOTC", "7_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.D7)$Set
+sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
+                                     levels =c('7_INF_NoTRMT',"7_NONINF_NoTRMT",
+                                               "7_INF_InjOTC", "7_INF_OralOTC"))
+FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
+FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D7.De)
+#[1] "Intercept"                           "Set_7_NONINF_NoTRMT_vs_7_INF_NoTRMT" "Set_7_INF_InjOTC_vs_7_INF_NoTRMT"   
+#[4] "Set_7_INF_OralOTC_vs_7_INF_NoTRMT"  
+res.D7.ji = lfcShrink(FS9.D7.De, coef = "Set_7_INF_InjOTC_vs_7_INF_NoTRMT", type = 'apeglm')
+#res.D7.ji = results(FS9.D7.De, contrast=c("Set", "7_INF_InjOTC", "7_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.D7.De, contrast=c("Set","7_INF_InjOTC", "7_INF_NoTRMT")) 
 sigtab.D7.ji = res.D7.ji[which(res.D7.ji$padj < .05), ]
 sigtab.D7.ji = cbind(as(sigtab.D7.ji, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.ji), ], "matrix"))
@@ -594,7 +630,7 @@ sum.sigtab.D7.ji
 
 #ggplot
 deseq.D7.ji <- ggplot(sigtab.D7.ji, aes(x=reorder(rownames(sigtab.D7.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.ji), y=-0, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -631,8 +667,17 @@ sum(meta$Set == "7_INF_OralOTC")
 #17
 
 #Extract results from a DESeq analysis, organize table
-FS9.D7.De$Set
-res.D7.oi = results(FS9.D7.De, contrast=c("Set", "7_INF_OralOTC", "7_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.D7)$Set
+sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
+                                  levels =c('7_INF_NoTRMT',"7_NONINF_NoTRMT",
+                                            "7_INF_InjOTC", "7_INF_OralOTC"))
+FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
+FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D7.De)
+#[1] "Intercept"                           "Set_7_NONINF_NoTRMT_vs_7_INF_NoTRMT" "Set_7_INF_InjOTC_vs_7_INF_NoTRMT"   
+#[4] "Set_7_INF_OralOTC_vs_7_INF_NoTRMT"  
+res.D7.oi = lfcShrink(FS9.D7.De, coef = "Set_7_INF_OralOTC_vs_7_INF_NoTRMT", type = 'apeglm')
+#res.D7.oi = results(FS9.D7.De, contrast=c("Set", "7_INF_OralOTC", "7_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.D7.De, contrast=c("Set","7_INF_OralOTC", "7_INF_NoTRMT")) 
 sigtab.D7.oi = res.D7.oi[which(res.D7.oi$padj < .05), ]
 sigtab.D7.oi = cbind(as(sigtab.D7.oi, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.oi), ], "matrix"))
@@ -646,7 +691,7 @@ sum.sigtab.D7.oi
 
 #ggplot
 deseq.D7.oi <- ggplot(sigtab.D7.oi, aes(x=reorder(rownames(sigtab.D7.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oi), y=-3, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oi), y=0, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -684,8 +729,17 @@ sum(meta$Set == "7_INF_OralOTC")
 #17
 
 #Extract results from a DESeq analysis, organize table
-FS9.D7.De$Set
-res.D7.oj = results(FS9.D7.De, contrast=c("Set", "7_INF_OralOTC", "7_INF_InjOTC"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.D7)$Set
+sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
+                                  levels =c("7_INF_InjOTC", "7_INF_OralOTC",
+                                            '7_INF_NoTRMT',"7_NONINF_NoTRMT"))
+FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
+FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D7.De)
+#[1] "Intercept"                           "Set_7_INF_OralOTC_vs_7_INF_InjOTC"   "Set_7_INF_NoTRMT_vs_7_INF_InjOTC"   
+#[4] "Set_7_NONINF_NoTRMT_vs_7_INF_InjOTC"
+res.D7.oj = lfcShrink(FS9.D7.De, coef = "Set_7_INF_OralOTC_vs_7_INF_InjOTC", type = 'apeglm')
+#res.D7.oj = results(FS9.D7.De, contrast=c("Set", "7_INF_OralOTC", "7_INF_InjOTC"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.D7.De, contrast=c("Set","7_INF_OralOTC", "7_INF_InjOTC")) 
 sigtab.D7.oj = res.D7.oj[which(res.D7.oj$padj < .05), ]
 sigtab.D7.oj = cbind(as(sigtab.D7.oj, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.oj), ], "matrix"))
@@ -699,7 +753,7 @@ sum.sigtab.D7.oj
 
 #ggplot
 deseq.D7.oj <- ggplot(sigtab.D7.oj, aes(x=reorder(rownames(sigtab.D7.oj), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oj), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oj), y=0, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -707,7 +761,8 @@ deseq.D7.oj <- ggplot(sigtab.D7.oj, aes(x=reorder(rownames(sigtab.D7.oj), log2Fo
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   #scale_fill_manual(labels = c("INF_OralOTC", "INF_InjOTC"), values = c('#999999', '#E69F00'))
   scale_fill_manual(values = c(INF_OralOTC='#999999', INF_InjOTC='#E69F00'))
-deseq.D7.oj
+deseq.D7.oj #What happened to OTU0304 bar? You'll need to re-format the image size so that it'll show all the log2fold changes 
+#see sigtab.D7.oj for log2fold change values
 
 #Add OTU and comparisons columns
 sigtab.D7.oj
@@ -736,8 +791,16 @@ sum(meta$Set == "7_NONINF_NoTRMT")
 #17
 
 #Extract results from a DESeq analysis, organize table
-FS9.D7.De$Set
-res.D7.jn = results(FS9.D7.De, contrast=c("Set", "7_INF_InjOTC", "7_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
+                                  levels =c("7_NONINF_NoTRMT",'7_INF_NoTRMT',
+                                            "7_INF_InjOTC", "7_INF_OralOTC"))
+FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
+FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D7.De)
+#[1] "Intercept"                            "Set_7_INF_NoTRMT_vs_7_NONINF_NoTRMT"  "Set_7_INF_InjOTC_vs_7_NONINF_NoTRMT" 
+#[4] "Set_7_INF_OralOTC_vs_7_NONINF_NoTRMT"
+res.D7.jn = lfcShrink(FS9.D7.De, coef = "Set_7_INF_InjOTC_vs_7_NONINF_NoTRMT", type = 'apeglm')
+#res.D7.jn = results(FS9.D7.De, contrast=c("Set", "7_INF_InjOTC", "7_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.D7.De, contrast=c("Set","7_INF_InjOTC", "7_NONINF_NoTRMT")) 
 sigtab.D7.jn = res.D7.jn[which(res.D7.jn$padj < .05), ]
 sigtab.D7.jn = cbind(as(sigtab.D7.jn, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.jn), ], "matrix"))
@@ -751,7 +814,7 @@ sum.sigtab.D7.jn
 
 #ggplot
 deseq.D7.jn <- ggplot(sigtab.D7.jn, aes(x=reorder(rownames(sigtab.D7.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.jn), y=1, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.jn), y=0, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -802,24 +865,6 @@ rowSums(FS9.DNEG3.p@otu_table)
 #Look at what Set is
 sample_data(FS9.DNEG3.p)
 
-FS9.DNEG3.p.De <- phyloseq_to_deseq2(FS9.DNEG3.p, ~ Set)
-# ~Set: whatever you want to group data by, whatever column you used to designate ellipses with
-# Set combined day and treatment
-
-#DESeq calculation: Differential expression analysis 
-#based on the Negative Binomial (a.k.a. Gamma-Poisson) distribution
-FS9.DNEG3.p.De <- DESeq(FS9.DNEG3.p.De, test = "Wald", fitType = "parametric")
-#estimating size factors
-#estimating dispersions
-#gene-wise dispersion estimates
-#mean-dispersion relationship
-#final dispersion estimates
-#fitting model and testing
-#-- replacing outliers and refitting for 7 genes
-#-- DESeq argument 'minReplicatesForReplace' = 7 
-#-- original counts are preserved in counts(dds)
-#estimating dispersions
-#fitting model and testing
 
 ######### Day -3 INF_NoTRMT vs INF_InjOTC ###################
 
@@ -837,8 +882,14 @@ sum(meta$Set == "-3_INF_InjOTC")
 #20
 
 #Extract results from a DESeq analysis, organize table
-FS9.DNEG3.p.De$Set
-res.DNEG3.p.ji = results(FS9.DNEG3.p.De, contrast=c("Set", "-3_INF_InjOTC", "-3_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.DNEG3.p)$Set <- factor(sample_data(FS9.DNEG3.p)$Set,
+                                     levels =c('-3_INF_NoTRMT',"-3_NONINF_NoTRMT",
+                                               "-3_INF_InjOTC", "-3_INF_OralOTC"))
+FS9.DNEG3.p.De <- phyloseq_to_deseq2(FS9.DNEG3.p, ~ Set)
+FS9.DNEG3.p.De <- DESeq(FS9.DNEG3.p.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.DNEG3.p.De)
+res.DNEG3.p.ji = lfcShrink(FS9.DNEG3.p.De, coef = "Set_.3_INF_InjOTC_vs_.3_INF_NoTRMT", type = 'apeglm')
+#res.DNEG3.p.ji = results(FS9.DNEG3.p.De, contrast=c("Set", "-3_INF_InjOTC", "-3_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.DNEG3.p.De, contrast=c("Set","-3_INF_InjOTC", "-3_INF_NoTRMT")) 
 sigtab.DNEG3.p.ji = res.DNEG3.p.ji[which(res.DNEG3.p.ji$padj < .05), ]
 sigtab.DNEG3.p.ji = cbind(as(sigtab.DNEG3.p.ji, "data.frame"), as(tax_table(FS9.DNEG3.p)[rownames(sigtab.DNEG3.p.ji), ], "matrix"))
@@ -852,7 +903,7 @@ sum.sigtab.DNEG3.p.ji
 
 #ggplot
 deseq.DNEG3.p.ji <- ggplot(sigtab.DNEG3.p.ji, aes(x=reorder(rownames(sigtab.DNEG3.p.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.ji), y=-2, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.ji), y=0, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -889,8 +940,16 @@ sum(meta$Set == "-3_INF_OralOTC")
 #20
 
 #Extract results from a DESeq analysis, organize table
-FS9.DNEG3.p.De$Set
-res.DNEG3.p.oi = results(FS9.DNEG3.p.De, contrast=c("Set", "-3_INF_OralOTC", "-3_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.DNEG3.p)$Set <- factor(sample_data(FS9.DNEG3.p)$Set,
+                                       levels =c('-3_INF_NoTRMT',"-3_NONINF_NoTRMT",
+                                                 "-3_INF_InjOTC", "-3_INF_OralOTC"))
+FS9.DNEG3.p.De <- phyloseq_to_deseq2(FS9.DNEG3.p, ~ Set)
+FS9.DNEG3.p.De <- DESeq(FS9.DNEG3.p.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.DNEG3.p.De)
+#[1] "Intercept"                             "Set_.3_NONINF_NoTRMT_vs_.3_INF_NoTRMT" "Set_.3_INF_InjOTC_vs_.3_INF_NoTRMT"   
+#[4] "Set_.3_INF_OralOTC_vs_.3_INF_NoTRMT"  
+res.DNEG3.p.oi = lfcShrink(FS9.DNEG3.p.De, coef = "Set_.3_INF_OralOTC_vs_.3_INF_NoTRMT", type = 'apeglm')
+#res.DNEG3.p.oi = results(FS9.DNEG3.p.De, contrast=c("Set", "-3_INF_OralOTC", "-3_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.DNEG3.p.De, contrast=c("Set","-3_INF_OralOTC", "-3_INF_NoTRMT")) 
 sigtab.DNEG3.p.oi = res.DNEG3.p.oi[which(res.DNEG3.p.oi$padj < .05), ]
 sigtab.DNEG3.p.oi = cbind(as(sigtab.DNEG3.p.oi, "data.frame"), as(tax_table(FS9.DNEG3.p)[rownames(sigtab.DNEG3.p.oi), ], "matrix"))
@@ -900,8 +959,8 @@ sigtab.DNEG3.p.oi = cbind(as(sigtab.DNEG3.p.oi, "data.frame"), as(tax_table(FS9.
 sigtab.DNEG3.p.oi
 #log2 fold change (MLE): Set -3_INF_OralOTC vs -3_INF_NoTRMT 
 #Wald test p-value: Set -3_INF_OralOTC vs -3_INF_NoTRMT 
-#DataFrame with 0 rows and 6 columns
-#0 rows and 6 columns indicate there were no phyla that were found significantly differentially abundant between INF_OralOTC and INF_NoTRMT.
+#DataFrame with 0 rows and 5 columns
+#0 rows and 5 columns indicate there were no phyla that were found significantly differentially abundant between INF_OralOTC and INF_NoTRMT.
 #I will continue to the next data set.
 
 #SKIPPED THIS
@@ -956,8 +1015,16 @@ sum(meta$Set == "-3_INF_NoTRMT")
 #20
 
 #Extract results from a DESeq analysis, organize table
-FS9.DNEG3.p.De$Set
-res.DNEG3.p.in = results(FS9.DNEG3.p.De, contrast=c("Set", "-3_INF_NoTRMT", "-3_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.DNEG3.p)$Set <- factor(sample_data(FS9.DNEG3.p)$Set,
+                                       levels =c("-3_NONINF_NoTRMT",'-3_INF_NoTRMT',
+                                                 "-3_INF_InjOTC", "-3_INF_OralOTC"))
+FS9.DNEG3.p.De <- phyloseq_to_deseq2(FS9.DNEG3.p, ~ Set)
+FS9.DNEG3.p.De <- DESeq(FS9.DNEG3.p.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.DNEG3.p.De)
+#[1] "Intercept"                              "Set_.3_INF_NoTRMT_vs_.3_NONINF_NoTRMT"  "Set_.3_INF_InjOTC_vs_.3_NONINF_NoTRMT" 
+#[4] "Set_.3_INF_OralOTC_vs_.3_NONINF_NoTRMT"  
+res.DNEG3.p.in = lfcShrink(FS9.DNEG3.p.De, coef = "Set_.3_INF_NoTRMT_vs_.3_NONINF_NoTRMT", type = 'apeglm')
+#res.DNEG3.p.in = results(FS9.DNEG3.p.De, contrast=c("Set", "-3_INF_NoTRMT", "-3_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.DNEG3.p.De, contrast=c("Set","-3_INF_NoTRMT", "-3_NONINF_NoTRMT")) 
 sigtab.DNEG3.p.in = res.DNEG3.p.in[which(res.DNEG3.p.in$padj < .05), ]
 sigtab.DNEG3.p.in = cbind(as(sigtab.DNEG3.p.in, "data.frame"), as(tax_table(FS9.DNEG3.p)[rownames(sigtab.DNEG3.p.in), ], "matrix"))
@@ -971,7 +1038,7 @@ sum.sigtab.DNEG3.p.in
 
 #ggplot
 deseq.DNEG3.p.in <- ggplot(sigtab.DNEG3.p.in, aes(x=reorder(rownames(sigtab.DNEG3.p.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.in), y=1, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.in), y=0, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -1008,8 +1075,16 @@ sum(meta$Set == "-3_INF_OralOTC")
 #20
 
 #Extract results from a DESeq analysis, organize table
-FS9.DNEG3.p.De$Set
-res.DNEG3.p.on = results(FS9.DNEG3.p.De, contrast=c("Set", "-3_INF_OralOTC", "-3_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.DNEG3.p)$Set <- factor(sample_data(FS9.DNEG3.p)$Set,
+                                       levels =c("-3_NONINF_NoTRMT",'-3_INF_NoTRMT',
+                                                 "-3_INF_InjOTC", "-3_INF_OralOTC"))
+FS9.DNEG3.p.De <- phyloseq_to_deseq2(FS9.DNEG3.p, ~ Set)
+FS9.DNEG3.p.De <- DESeq(FS9.DNEG3.p.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.DNEG3.p.De)
+#[1] "Intercept"                              "Set_.3_INF_NoTRMT_vs_.3_NONINF_NoTRMT"  "Set_.3_INF_InjOTC_vs_.3_NONINF_NoTRMT" 
+#[4] "Set_.3_INF_OralOTC_vs_.3_NONINF_NoTRMT"  
+res.DNEG3.p.on = lfcShrink(FS9.DNEG3.p.De, coef = "Set_.3_INF_OralOTC_vs_.3_NONINF_NoTRMT", type = 'apeglm')
+#res.DNEG3.p.on = results(FS9.DNEG3.p.De, contrast=c("Set", "-3_INF_OralOTC", "-3_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.DNEG3.p.De, contrast=c("Set","-3_INF_OralOTC", "-3_NONINF_NoTRMT")) 
 sigtab.DNEG3.p.on = res.DNEG3.p.on[which(res.DNEG3.p.on$padj < .05), ]
 sigtab.DNEG3.p.on = cbind(as(sigtab.DNEG3.p.on, "data.frame"), as(tax_table(FS9.DNEG3.p)[rownames(sigtab.DNEG3.p.on), ], "matrix"))
@@ -1023,7 +1098,7 @@ sum.sigtab.DNEG3.p.on
 
 #ggplot
 deseq.DNEG3.p.on <- ggplot(sigtab.DNEG3.p.on, aes(x=reorder(rownames(sigtab.DNEG3.p.on), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.on), y=1, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.on), y=0, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -1043,6 +1118,27 @@ sigtab.DNEG3.p.on$comp <- 'DNEG3_INF_OralOTCvsNONINF_NoTRMT'
 final.sigtab.p <- rbind(final.sigtab.p, sigtab.DNEG3.p.on)
 
 
+##################################################### Day 4 ######################################################################
+
+sample_data(FS9.phylum)
+
+FS9.D4.p <- subset_samples(FS9.phylum, Day == '4')
+sample_sums(FS9.D4.p)
+colnames(otu_table(FS9.D4.p)) #check on all the sample names
+FS9.D4.p <- prune_taxa(taxa_sums(FS9.D4.p) > 1, FS9.D4.p)
+#if taxa_sums is >1, then it will print that out in FS9.D4.p object and not include anything with <1.
+rowSums(FS9.D4.p@otu_table)
+
+#Look at what Set is
+sample_data(FS9.D4.p)
+
+FS9.D4.p.De <- phyloseq_to_deseq2(FS9.D4.p, ~ Set)
+FS9.D4.p.De <- DESeq(FS9.D4.p.De, test = "Wald", fitType = "parametric")
+
+
+
+
+
 ##################################################### Day 7 ######################################################################
 
 sample_data(FS9.phylum)
@@ -1057,24 +1153,6 @@ rowSums(FS9.D7.p@otu_table)
 #Look at what Set is
 sample_data(FS9.D7.p)
 
-FS9.D7.p.De <- phyloseq_to_deseq2(FS9.D7.p, ~ Set)
-# ~Set: whatever you want to group data by, whatever column you used to designate ellipses with
-# Set combined day and treatment
-
-#DESeq calculation: Differential expression analysis 
-#based on the Negative Binomial (a.k.a. Gamma-Poisson) distribution
-FS9.D7.p.De <- DESeq(FS9.D7.p.De, test = "Wald", fitType = "parametric")
-#estimating size factors
-#estimating dispersions
-#gene-wise dispersion estimates
-#mean-dispersion relationship
-#final dispersion estimates
-#fitting model and testing
-#-- replacing outliers and refitting for 7 genes
-#-- DESeq argument 'minReplicatesForReplace' = 7 
-#-- original counts are preserved in counts(dds)
-#estimating dispersions
-#fitting model and testing
 
 ######### Day 7 INF_InjOTC vs INF_NoTRMT  ###################
 
@@ -1092,8 +1170,16 @@ sum(meta$Set == "7_INF_NoTRMT")
 #20
 
 #Extract results from a DESeq analysis, organize table
-FS9.D7.p.De$Set
-res.D7.p.ji = results(FS9.D7.p.De, contrast=c("Set", "7_INF_InjOTC", "7_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.D7.p)$Set <- factor(sample_data(FS9.D7.p)$Set,
+                                       levels =c('7_INF_NoTRMT', "7_NONINF_NoTRMT",
+                                                 "7_INF_InjOTC", "7_INF_OralOTC"))
+FS9.D7.p.De <- phyloseq_to_deseq2(FS9.D7.p, ~ Set)
+FS9.D7.p.De <- DESeq(FS9.D7.p.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D7.p.De)
+#[1] "Intercept"                           "Set_7_NONINF_NoTRMT_vs_7_INF_NoTRMT" "Set_7_INF_InjOTC_vs_7_INF_NoTRMT"   
+#[4] "Set_7_INF_OralOTC_vs_7_INF_NoTRMT" 
+res.D7.p.ji = lfcShrink(FS9.D7.p.De, coef = "Set_7_INF_InjOTC_vs_7_INF_NoTRMT", type = 'apeglm')
+#res.D7.p.ji = results(FS9.D7.p.De, contrast=c("Set", "7_INF_InjOTC", "7_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.D7.p.De, contrast=c("Set","7_INF_InjOTC", "7_INF_NoTRMT")) 
 sigtab.D7.p.ji = res.D7.p.ji[which(res.D7.p.ji$padj < .05), ]
 sigtab.D7.p.ji = cbind(as(sigtab.D7.p.ji, "data.frame"), as(tax_table(FS9.D7.p)[rownames(sigtab.D7.p.ji), ], "matrix"))
@@ -1107,7 +1193,7 @@ sum.sigtab.D7.p.ji
 
 #ggplot
 deseq.D7.p.ji <- ggplot(sigtab.D7.p.ji, aes(x=reorder(rownames(sigtab.D7.p.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.ji), y=-2, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.ji), y=0, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -1144,8 +1230,16 @@ sum(meta$Set == "7_INF_OralOTC")
 #17
 
 #Extract results from a DESeq analysis, organize table
-FS9.D7.p.De$Set
-res.D7.p.oi = results(FS9.D7.p.De, contrast=c("Set", "7_INF_OralOTC", "7_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.D7.p)$Set <- factor(sample_data(FS9.D7.p)$Set,
+                                    levels =c('7_INF_NoTRMT', "7_NONINF_NoTRMT",
+                                              "7_INF_InjOTC", "7_INF_OralOTC"))
+FS9.D7.p.De <- phyloseq_to_deseq2(FS9.D7.p, ~ Set)
+FS9.D7.p.De <- DESeq(FS9.D7.p.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D7.p.De)
+#[1] "Intercept"                           "Set_7_NONINF_NoTRMT_vs_7_INF_NoTRMT" "Set_7_INF_InjOTC_vs_7_INF_NoTRMT"   
+#[4] "Set_7_INF_OralOTC_vs_7_INF_NoTRMT"  
+res.D7.p.oi = lfcShrink(FS9.D7.p.De, coef = "Set_7_INF_OralOTC_vs_7_INF_NoTRMT", type = 'apeglm')
+#res.D7.p.oi = results(FS9.D7.p.De, contrast=c("Set", "7_INF_OralOTC", "7_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.D7.p.De, contrast=c("Set","7_INF_OralOTC", "7_INF_NoTRMT")) 
 sigtab.D7.p.oi = res.D7.p.oi[which(res.D7.p.oi$padj < .05), ]
 sigtab.D7.p.oi = cbind(as(sigtab.D7.p.oi, "data.frame"), as(tax_table(FS9.D7.p)[rownames(sigtab.D7.p.oi), ], "matrix"))
@@ -1159,7 +1253,7 @@ sum.sigtab.D7.p.oi
 
 #ggplot
 deseq.D7.p.oi <- ggplot(sigtab.D7.p.oi, aes(x=reorder(rownames(sigtab.D7.p.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.oi), y=-3, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.oi), y=0, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -1197,8 +1291,16 @@ sum(meta$Set == "7_INF_OralOTC")
 #17
 
 #Extract results from a DESeq analysis, organize table
-FS9.D7.p.De$Set
-res.D7.p.oj = results(FS9.D7.p.De, contrast=c("Set", "7_INF_OralOTC", "7_INF_InjOTC"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.D7.p)$Set <- factor(sample_data(FS9.D7.p)$Set,
+                                    levels =c("7_INF_InjOTC", "7_INF_OralOTC",
+                                              '7_INF_NoTRMT', "7_NONINF_NoTRMT"))
+FS9.D7.p.De <- phyloseq_to_deseq2(FS9.D7.p, ~ Set)
+FS9.D7.p.De <- DESeq(FS9.D7.p.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D7.p.De)
+#[1] "Intercept"                           "Set_7_INF_OralOTC_vs_7_INF_InjOTC"   "Set_7_INF_NoTRMT_vs_7_INF_InjOTC"   
+#[4] "Set_7_NONINF_NoTRMT_vs_7_INF_InjOTC"
+res.D7.p.oj = lfcShrink(FS9.D7.p.De, coef = "Set_7_INF_OralOTC_vs_7_INF_InjOTC", type = 'apeglm')
+#res.D7.p.oj = results(FS9.D7.p.De, contrast=c("Set", "7_INF_OralOTC", "7_INF_InjOTC"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.D7.p.De, contrast=c("Set","7_INF_OralOTC", "7_INF_InjOTC")) 
 sigtab.D7.p.oj = res.D7.p.oj[which(res.D7.p.oj$padj < .05), ]
 sigtab.D7.p.oj = cbind(as(sigtab.D7.p.oj, "data.frame"), as(tax_table(FS9.D7.p)[rownames(sigtab.D7.p.oj), ], "matrix"))
@@ -1249,8 +1351,16 @@ sum(meta$Set == "7_NONINF_NoTRMT")
 #17
 
 #Extract results from a DESeq analysis, organize table
-FS9.D7.p.De$Set
-res.D7.p.jn = results(FS9.D7.p.De, contrast=c("Set", "7_INF_InjOTC", "7_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
+sample_data(FS9.D7.p)$Set <- factor(sample_data(FS9.D7.p)$Set,
+                                    levels =c("7_NONINF_NoTRMT", '7_INF_NoTRMT', 
+                                              "7_INF_InjOTC", "7_INF_OralOTC"))
+FS9.D7.p.De <- phyloseq_to_deseq2(FS9.D7.p, ~ Set)
+FS9.D7.p.De <- DESeq(FS9.D7.p.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D7.p.De)
+#[1] "Intercept"                            "Set_7_INF_NoTRMT_vs_7_NONINF_NoTRMT"  "Set_7_INF_InjOTC_vs_7_NONINF_NoTRMT" 
+#[4] "Set_7_INF_OralOTC_vs_7_NONINF_NoTRMT"  
+res.D7.p.jn = lfcShrink(FS9.D7.p.De, coef = "Set_7_INF_InjOTC_vs_7_NONINF_NoTRMT", type = 'apeglm')
+#res.D7.p.jn = results(FS9.D7.p.De, contrast=c("Set", "7_INF_InjOTC", "7_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
 #results(FS9.D7.p.De, contrast=c("Set","7_INF_InjOTC", "7_NONINF_NoTRMT")) 
 sigtab.D7.p.jn = res.D7.p.jn[which(res.D7.p.jn$padj < .05), ]
 sigtab.D7.p.jn = cbind(as(sigtab.D7.p.jn, "data.frame"), as(tax_table(FS9.D7.p)[rownames(sigtab.D7.p.jn), ], "matrix"))
@@ -1264,7 +1374,7 @@ sum.sigtab.D7.p.jn
 
 #ggplot
 deseq.D7.p.jn <- ggplot(sigtab.D7.p.jn, aes(x=reorder(rownames(sigtab.D7.p.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.jn), y=-2, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.jn), y=0, label = paste(Phylum, sep = ' ')), size=5)+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -1291,152 +1401,3 @@ final.sigtab.p <- rbind(sigtab.D7.p.jn, final.sigtab.p)
 write.csv(final.sigtab.p, file= "FS9_FinalDiffAbund_SignificantDays_Phylum.csv")
 
 #######################################################################################################
-
-
-
-
-
-######### Plots of Differentially Abundant Nasal Genera Combined for Each Pairwise Comparison of IAV and Control Groups########
-library("ggsci")
-
-#IAV and Control Log2fold Plot Part A
-final_ic <- sigtab.DNEG3.ji
-final_ic <- rbind(final_ic, sigtab.DNEG12.ic, sigtab.DNEG6.ic, sigtab.D1.ic, sigtab.D3.ic, sigtab.D7.ic, sigtab.D10.ic, 
-                  sigtab.D14.ic, sigtab.D21.ic, sigtab.D28.ic, sigtab.D36.ic, sigtab.D42.ic)
-final_ic$Family_Genus <- paste(final_ic$Family, final_ic$Genus) #create new column with Family_Genus
-final_ic$comp
-class(final_ic)
-final_ic$comp <- factor(final_ic$comp, levels=c("DNEG12_nasal_IAVvsControl", "DNEG6_nasal_IAVvsControl", "D0_nasal_IAVvsControl",
-                                                "D1_nasal_IAVvsControl", "D3_nasal_IAVvsControl", "D7_nasal_IAVvsControl",
-                                                "D10_nasal_IAVvsControl", "D14_nasal_IAVvsControl", "D21_nasal_IAVvsControl",
-                                                "D28_nasal_IAVvsControl", "D36_nasal_IAVvsControl", "D42_nasal_IAVvsControl"))
-levels(final_ic$comp)
-ic_plot <- ggplot(final_ic, aes(x=Family_Genus, log2FoldChange, fill = comp)) +
-  geom_bar(stat='identity') +
-  labs(x="Family Genus", y = "Total log2 Fold Change") +
-  theme(axis.text.x=element_text(color = 'black', size = 18),
-        axis.text.y=element_text(color = 'black', size=15), 
-        axis.title.x=element_text(size = 20),
-        axis.title.y=element_text(size = 20))+ 
-  coord_flip() +
-  scale_fill_igv(name = "comp") +
-  ggtitle('Differentially Abundant Nasal Families and Genera between Influenza A Virus and Control Groups') + 
-  theme(plot.title = element_text(size = 20), legend.text = element_text(size=20), legend.title = element_text(size=20))
-ic_plot <- ic_plot + guides(fill=guide_legend(title="Day and treatment group"))
-ic_plot
-
-write.csv(final_ic, file= "SRD129_FinalDiffAbundNasalGenus_IAVcontrol.csv")
-
-#Modified SRD129_FinalDiffAbundNasalGenus_IAVcontrol.csv in a spreadsheet editor by removing all genera except for Actinobacillus, Moraxella, Neisseriaceae_unclassified, Prevotellaceae_NK3B31_group,
-#Prevotellaceae_unclassified, Staphylococcus, Streptococcus.
-#Saved modified file as SRD129_FinalDiffAbundNasalGenus_IAVcontrolSelectList.csv
-
-#IAV and control Log2fold Plot Part B
-ic <- read.csv('SRD129_FinalDiffAbundNasalGenus_IAVcontrolSelectList.csv', header = TRUE, sep = ",")
-head(ic[,1:10])
-colnames(ic)
-ic$DayComp <- sub('_[A-Za-z]+', '\\2', ic$comp)
-unique(ic$DayComp)
-ic$Day <- sub('_[A-Za-z]+', '\\2', ic$DayComp)
-unique(ic$Day) #"D3"  "D7"  "D10" "D14" "D21" "D28"
-ic$Day = factor(ic$Day, levels=c("D3","D7", "D10","D14", "D21", "D28"))
-levels(ic$Day) #"D3"  "D7"  "D10" "D14" "D21" "D28"
-(ic_logfoldplot <- ggplot(data=ic, aes(x=Day, y=log2FoldChange, fill=Treatment)) +
-    geom_bar(stat = 'identity', position="dodge") +
-    facet_wrap(~Genus, ncol = 3, scales = "free") + ylab('log2-fold change') +
-    theme_gray()+
-    theme(plot.title = element_text(hjust = 3)) +
-    theme(axis.line = element_line()) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=13),
-          axis.text.y = element_text(size=13), 
-          axis.title.x = element_text(size=15), 
-          axis.title.y = element_text(size=15),
-          legend.text=element_text(size=15), 
-          legend.title=element_text(size=15)) +
-    scale_fill_manual(labels = c("Control", "IAV"), values = c('#F8766D', '#00BFC4')))
-ic_logfoldplot <- ic_logfoldplot + theme(strip.text = element_text(size= 13, face='italic'))
-ic_logfoldplot
-
-#Save 'ic_logfoldplot' as a .tiff for publication, 500dpi
-ggsave("Figure_5.tiff", plot=ic_logfoldplot, width = 15, height = 7, dpi = 500, units =c("in"))
-
-#Figure for Sam (All days except negative days, IAV Control complete list of diff. abund genera)
-id <- read.csv('SRD129_FinalDiffAbundNasalGenus_IAVcontrol_NoDNEG.csv', header = TRUE, sep = ",")
-head(id[,1:10])
-colnames(id)
-id$DayComp <- sub('_[A-Za-z]+', '\\2', id$comp)
-unique(id$DayComp)
-id$Day <- sub('_[A-Za-z]+', '\\2', id$DayComp)
-unique(id$Day) #"D0"  "D1"  "D3"  "D7"  "D10" "D14" "D21" "D28" "D36" "D42"
-id$Day = factor(id$Day, levels=c("D0", "D1", "D3", "D7", "D10","D14", "D21", "D28", "D36", "D42"))
-levels(id$Day) #"D0"  "D1"  "D3"  "D7"  "D10" "D14" "D21" "D28" "D36" "D42"
-(id_logfoldplot <- ggplot(data=id, aes(x=Day, y=log2FoldChange, fill=Treatment)) +
-    geom_bar(stat = 'identity', position="dodge") +
-    facet_wrap(~Genus, ncol = 10, scales = "free") + ylab('log2-fold change') +
-    theme_gray()+
-    theme(plot.title = element_text(hjust = 3)) +
-    theme(axis.line = element_line()) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=13),
-          axis.text.y = element_text(size=13), 
-          axis.title.x = element_text(size=15), 
-          axis.title.y = element_text(size=15),
-          legend.text=element_text(size=15), 
-          legend.title=element_text(size=15)) +
-    scale_fill_manual(labels = c("Control", "IAV"), values = c('#F8766D', '#00BFC4')))
-id_logfoldplot <- id_logfoldplot + theme(strip.text = element_text(size= 13, face='italic'))
-id_logfoldplot
-unique(id$Genus)
-
-#Figure for Sam, narrow down complete list to 46 genera (All days except negative days)
-ie <- read.csv('SRD129_FinalDiffAbundNasalGenus_IAVcontrol_NoDNEG_46Genera.csv', header = TRUE, sep = ",")
-head(ie[,1:10])
-colnames(ie)
-ie$DayComp <- sub('_[A-Za-z]+', '\\2', ie$comp)
-unique(ie$DayComp)
-ie$Day <- sub('_[A-Za-z]+', '\\2', ie$DayComp)
-unique(ie$Day) # "D7"  "D14" "D3"  "D10" "D21" "D36" "D42" "D0"  "D28" "D1" 
-ie$Day = factor(ie$Day, levels=c("D0", "D1", "D3", "D7", "D10","D14", "D21", "D28", "D36", "D42"))
-levels(ie$Day) #"D0"  "D1"  "D3"  "D7"  "D10" "D14" "D21" "D28" "D36" "D42"
-(ie_logfoldplot <- ggplot(data=ie, aes(x=Day, y=log2FoldChange, fill=Treatment)) +
-    geom_bar(stat = 'identity', position="dodge") +
-    facet_wrap(~Genus, ncol = 8, scales = "free") + ylab('log2-fold change') +
-    theme_gray()+
-    theme(plot.title = element_text(hjust = 3)) +
-    theme(axis.line = element_line()) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=13),
-          axis.text.y = element_text(size=13), 
-          axis.title.x = element_text(size=15), 
-          axis.title.y = element_text(size=15),
-          legend.text=element_text(size=15), 
-          legend.title=element_text(size=15)) +
-    scale_fill_manual(labels = c("Control", "IAV"), values = c('#F8766D', '#00BFC4')))
-ie_logfoldplot <- ie_logfoldplot + theme(strip.text = element_text(size= 13, face='italic'))
-ie_logfoldplot
-unique(ie$Genus)
-
-#Figure for Sam, narrow down the 46 genera to only those that aren't diff abund on day 0 (All days except negative days)
-iF <- read.csv('SRD129_FinalDiffAbundNasalGenus_IAVcontrol_NoDNEG_46Genera-Day0Genera.csv', header = TRUE, sep = ",")
-head(iF[,1:10])
-colnames(iF)
-iF$DayComp <- sub('_[A-Za-z]+', '\\2', iF$comp)
-unique(iF$DayComp)
-iF$Day <- sub('_[A-Za-z]+', '\\2', iF$DayComp)
-unique(iF$Day) # "D7"  "D14" "D3"  "D10" "D21" "D36" "D42" "D0"  "D28" "D1" 
-iF$Day = factor(iF$Day, levels=c("D0", "D1", "D3", "D7", "D10","D14", "D21", "D28", "D36", "D42"))
-levels(iF$Day) #"D0"  "D1"  "D3"  "D7"  "D10" "D14" "D21" "D28" "D36" "D42"
-(iF_logfoldplot <- ggplot(data=iF, aes(x=Day, y=log2FoldChange, fill=Treatment)) +
-    geom_bar(stat = 'identity', position="dodge") +
-    facet_wrap(~Genus, ncol = 8, scales = "free") + ylab('log2-fold change') +
-    theme_gray()+
-    theme(plot.title = element_text(hjust = 3)) +
-    theme(axis.line = element_line()) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1, size=13),
-          axis.text.y = element_text(size=13), 
-          axis.title.x = element_text(size=15), 
-          axis.title.y = element_text(size=15),
-          legend.text=element_text(size=15), 
-          legend.title=element_text(size=15)) +
-    scale_fill_manual(labels = c("Control", "IAV"), values = c('#F8766D', '#00BFC4')))
-iF_logfoldplot <- iF_logfoldplot + theme(strip.text = element_text(size= 13, face='italic'))
-iF_logfoldplot
-unique(iF$Genus)
