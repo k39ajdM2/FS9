@@ -8,26 +8,16 @@
 #Clear workspace and load necessary packages
 rm(list=ls())
 
-#Set working directory (either on desktop or network drive)
-setwd("C:/Users/Kathy.Mou/Desktop/FSEP_Projects/FS9/FS9_RWorkspace")
-
 #Load library packages
 library(vegan)
 library(tidyverse)
 library(phyloseq)
 
-#Load image file
-load("FS9_phyloseq.RData")
-
-
-#Save image file
-save.image(file="FS9_phyloseq.RData")
-
 #########################################
 
 #Read files for metadata and OTU table
-meta <- read.csv("FS9_metadata.csv", row.names = 1)
-otu <- read.csv("FS9.OTUtable.csv", row.names=1)
+meta <- read.csv("./data/FS9_metadata.csv", row.names = 1)
+otu <- read.csv("./data/FS9.OTUtable.csv", row.names=1)
 dim(otu) #1583 169
 head(otu[,165:169])
 
