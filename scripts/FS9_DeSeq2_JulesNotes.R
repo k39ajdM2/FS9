@@ -5,6 +5,25 @@
 #Purpose: This code uses DESeq2 package to identify nasal microbial genera that were differentially 
 #abundant between the four groups on the four days sampled
 
+#Files needed: see below
+
+#Clear workspace and load necessary packages
+# rm(list=ls())
+
+#Set working directory (either on local or network drive, Mac or PC)
+#Mac
+#Jules note: With R projects we shouldnt need to do this setwd anymore.
+# setwd("~/Desktop/FS9/FS9_RWorkspace")
+
+#Load library packages
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# BiocManager::install("XML")
+# BiocManager::install("annotate")
+# BiocManager::install("genefilter")
+# BiocManager::install("geneplotter")
+# BiocManager::install("DESeq2")
+
 #Load library packages
 library(DESeq2)
 library(phyloseq)
@@ -16,11 +35,45 @@ library("ggsci")
 library("apeglm")
 
 sessionInfo()
-#R version 3.6.0 (2019-04-26)
+
+# Jules note:  I recommend against doing things like this
+# best to load the data from csv files etc
+# for example, I have no idea what commands generated the .RData files you
+# are loading here so when you're having issues I need to start from the 
+# raw data files
+
+#Load image file 
+# load("FS9_DESeq2.RData")
+
+#Save image file
+# save.image(file="FS9_DESeq2.RData")
+
+#Additional notes
+#Jules says plots describes the log-fold changes seen in differential abundance plots as
+#enriched for "x" taxa in "x group"
+#You can add genus to your plots, and use those as supplemental figures
+
+#Set plots to have gray background with white gridlines
+theme_set(theme_gray())
 
 ########################################################################################################
 
-#Import files
+####### PREPARING OBJECTS FOR DESEQ2 ANALYSIS ########
+# Jules note: These lines of code don't work, it's best to make it
+# so your scripts will run line by line from beginning to end without 
+# needing to jump around.
+
+# I added the paths needed but even this is not very optimal.
+# I like to use Rprojects, that way your paths are all relative to 
+# the project and as long as you move the whole project directory it 
+# will work in and location 
+
+#Load files
+# Jules change.  I altered the structure of the project/repo,
+# now there is a data folder for the input, a scripts folder for the code and 
+# i reccommend making an output folder for figs and tables.
+# these lines will now work on any computer from any location so long as they have cloned the git repo
+# these paths are now all relative to the Rproj base directory
 otu <- import_mothur(mothur_shared_file = './data/stability.outsingletons.abund.opti_mcc.shared') #use unrarified data
 taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outsingletons.abund.opti_mcc.0.03.cons.taxonomy')
 meta <- read.table(file = './data/FS9_metadata.csv', sep = ',', header = TRUE)
@@ -28,7 +81,8 @@ meta <- read.table(file = './data/FS9_metadata.csv', sep = ',', header = TRUE)
 #Organize meta file
 rownames(meta) <- meta$Sample
 meta <- meta[,-1] #remove Sample column
-meta$Set <- paste(meta$Day, meta$Treatment, sep = '_') #Make a set column
+meta <- meta[,-5] #remove All column and replace with new Set column (below)
+meta$Set <- paste(meta$Day, meta$Treatment, sep = '_')
 
 #Make phyloseq object SRD129 (combine taxonomy, OTU, and metadata)
 phy_meta <- sample_data(meta) 
@@ -38,10 +92,6 @@ colnames(tax_table(FS9))
 colnames(tax_table(FS9)) <- c('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus')
 
 FS9
-#phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 2838 taxa and 172 samples ]
-#sample_data() Sample Data:       [ 172 samples by 5 sample variables ]
-#tax_table()   Taxonomy Table:    [ 2838 taxa by 6 taxonomic ranks ]
 
 #Prune
 FS9 <- prune_samples(sample_sums(FS9) > 1300, FS9)  # This removes samples that have fewer than 1300 sequences associated with them.
@@ -53,6 +103,7 @@ tax_table(FS9) [1:5, 1:6] #see what's in tax_table first 5 rows, first 6 columns
 # If you want to group OTUs uncomment the tax_glom() line and select your desired taxrank
 # right now all these analysis are done at the OTU level.
 
+
 #Grouping OTUs by desired taxonomic level using the tax_glom function 
 FS9.order <- tax_glom(FS9, taxrank = "Order")
 FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
@@ -63,44 +114,46 @@ FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
 
 # NMDS plot showed that disperion is different between days, so I subsetted by day
 
-# Comparisons to make:
+# Important comparisons to make (significant changes in beta diversity between treatments): 
 # Day -3 
-# INFinject vs INFnm 
-# INFfeed vs INFnm 
-# INFfeed vs INFinject
-# INFnm vs NONINFnm 
-# INFinject vs NONINFnm
-# INFfeed vs NONINFnm
-
-# Day 0 
-# INFinject vs INFnm 
-# INFfeed vs INFnm 
-# INFfeed vs INFinject
-# INFnm vs NONINFnm 
-# INFinject vs NONINFnm
-# INFfeed vs NONINFnm
-
-# Day 4 
-# INFinject vs INFnm 
-# INFfeed vs INFnm 
-# INFfeed vs INFinject
-# INFnm vs NONINFnm 
-# INFinject vs NONINFnm
-# INFfeed vs NONINFnm
+# INF_NoTRMT vs INF_InjOTC 
+# INF_NoTRMT vs INF_OralOTC
+# NONINF_NoTRMT vs INF_NoTRMT 
+# NONINF_NoTRMT vs INF_OralOTC
 
 # Day 7
-# INFinject vs INFnm 
-# INFfeed vs INFnm 
-# INFfeed vs INFinject
-# INFnm vs NONINFnm 
-# INFinject vs NONINFnm
-# INFfeed vs NONINFnm
+# INF_NoTRMT vs INF_InjOTC
+# INF_NoTRMT vs INF_OralOTC
+# INF_InjOTC vs INF_OralOTC
+# INF_InjOTC vs NONINF_NoTRMT
+
+
+# Other comparisons to try if interested (no significant changes in beta diversity between treatments): 
+# Day -3
+# INF_OralOTC vs INF_InjOTC
+# NONINF_NoTRMT vs INF_InjOTC
+
+# Day 0
+# INF_InjOTC vs INF_NoTRMT
+# INF_OralOTC vs INF_InjOTC
+# INF_OralOTC vs INF_NoTRMT
+# NONINF_NoTRMT vs INF_InjOTC
+# NONINF_NoTRMT vs INF_NoTRMT
+# NONINF_NoTRMT vs INF_OralOTC
+
+# Day 7
+# NONINF_NoTRMT vs INF_NoTRMT
+# NONINF_NoTRMT vs INF_OralOTC
+
+##################################################################################################################################
+
+##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (ORDER LEVEL) BETWEEN TREATMENTS ###################################
 
 ######################################################### Day -3 #########################################################
 
 unique(sample_data(FS9.order)$Set)
 
-FS9.DNEG3 <- subset_samples(FS9.order, Day == 'DNEG3')
+FS9.DNEG3 <- subset_samples(FS9.order, Day == '-3')
 sample_sums(FS9.DNEG3)
 colnames(otu_table(FS9.DNEG3)) #check on all the sample names
 FS9.DNEG3 <- prune_taxa(taxa_sums(FS9.DNEG3) > 1, FS9.DNEG3)
@@ -118,49 +171,61 @@ FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
 #based on the Negative Binomial (a.k.a. Gamma-Poisson) distribution
 FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
 
+######### Day -3 INF_NoTRMT vs INF_InjOTC - Jules edits ###################
 
-# INFfeed vs INFnm 
-# INFfeed vs INFinject
-# INFnm vs NONINFnm 
-# INFinject vs NONINFnm
-# INFfeed vs NONINFnm
+#NONINF_NoTRMT = N
+#INF_NoTRMT = I
+#INF_InjOTC= J
+#INF_OralOTC = O
 
-
-######### Day -3 INFinject vs INFnm ###################
-
-#NONINFnm = N
-#INFnm = I
-#INFinject= J
-#INFfeed = F
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "DNEG3_INFnm")
+sum(meta$Set == "-3_INF_NoTRMT")
 #20
-sum(meta$Set == "DNEG3_INFinject")
+sum(meta$Set == "-3_INF_InjOTC")
 #20
 
-resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                            "Set_DNEG3_INFinject_vs_DNEG3_INFfeed"
-#[3] "Set_DNEG3_INFnm_vs_DNEG3_INFfeed"     "Set_DNEG3_NONINFnm_vs_DNEG3_INFfeed" 
-
-#re-level your factor and re-run DESeq2
-sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
-                                     levels =c('DNEG3_INFnm',"DNEG3_NONINFnm",
-                                               "DNEG3_INFinject", "DNEG3_INFfeed"))
-FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
-FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
+#Extract results from a DESeq analysis, organize table
 FS9.DNEG3.De$Set
+
+# Jules Add
 resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                          "Set_DNEG3_NONINFnm_vs_DNEG3_INFnm" 
-#[3] "Set_DNEG3_INFinject_vs_DNEG3_INFnm" "Set_DNEG3_INFfeed_vs_DNEG3_INFnm"  
-res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFinject_vs_DNEG3_INFnm", type = 'apeglm')
-# positive log2foldchanges are associated with the first group from this line (.3_INF_InjOTC)
-# negative log2foldchanges are associated with the second group from this line (.3_INF_NoTRMT)
+
+#
+# commented out the following line:
+# res.DNEG3.ji = results(FS9.DNEG3.De, name="Set_.3_INF_NoTRMT_vs_.3_INF_InjOTC", cooksCutoff = FALSE, pAdjustMethod = 'BH')
+
+# Reading the lfcshrink help page revealed that it is not necessary to call results
+# as results() is called internally by lfcshrink()
+
+# these two are equivalent
+res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, coef = "Set_.3_INF_NoTRMT_vs_.3_INF_InjOTC", type = 'apeglm')
+res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, coef = 2 , type = 'apeglm')
+
+# This line is the first from printing the results table:
+# log2 fold change (MAP): Set .3 INF NoTRMT vs .3 INF InjOTC 
+
+# positive log2foldchanges are associated with the first group from this line
+# .3 INF NoTRMT
+
+# negative log2foldchanges are associated with the second group from this line
+# .3 INF InjOTC
+
+# you may want to consider changing your group names as they contain some characters
+# that DESeq2 and R complain about.
+# Also, if you do that, you can better control the order of your factor levels
+# and therefore the sign of the l2fc values (so that negatives are always control etc.)
+# you can also do this by specifying the 3 value vector contrast thing like we did before
+# yeah its super confusing and there are liek 100 ways of getting to the same spot.
+
+
 sigtab.DNEG3.ji = res.DNEG3.ji[which(res.DNEG3.ji$padj < .05), ]
 sigtab.DNEG3.ji = cbind(as(sigtab.DNEG3.ji, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.ji), ], "matrix"))
+format(sigtab.DNEG3.ji$padj, scientific = TRUE)
 sigtab.DNEG3.ji$newp <- format(round(sigtab.DNEG3.ji$padj, digits = 3), scientific = TRUE)
-sigtab.DNEG3.ji$Treatment <- ifelse(sigtab.DNEG3.ji$log2FoldChange >=0, "INFinject", "INFnm")
+# I CHANGED THIS FOLLOWING LINE TO MATCH THE NEW REALITY
+sigtab.DNEG3.ji$Treatment <- ifelse(sigtab.DNEG3.ji$log2FoldChange >=0, "INF_NoTRMT", "INF_InjOTC")
 
 deseq.DNEG3.ji <- 
   ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
@@ -168,23 +233,116 @@ deseq.DNEG3.ji <-
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to INFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066'))
+  scale_fill_manual(values = c(INF_InjOTC='#E69F00', INF_NoTRMT='#CC0066'))
+
 deseq.DNEG3.ji
+
+#Summarize sigtab.DNEG3.ji
+sum.sigtab.DNEG3.ji <- summary(sigtab.DNEG3.ji)
+sum.sigtab.DNEG3.ji
+
+# your scale_fill_manual is the problem
+# This is the same code block as yours except I commented out the scale fill manual
+
+deseq.DNEG3.ji_JULES <- 
+  ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day -3')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) #+
+  scale_fill_manual(labels = c("INF_InjOTC", "INF_NoTRMT"), values = c('#E69F00', '#CC0066'))
+deseq.DNEG3.ji_JULES
+
+# you were expecting the labels to match the levels in your Treatment factor, 
+# but when you pass in a 'labels' vector is overrides the original labels.
+# if you want to do the matching thing you were expecting you need to pass in
+# a named vector, like I do in the next two blocks
+
+deseq.DNEG3.ji_JULES2 <- 
+  ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day -3')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c(INF_InjOTC='#E69F00', INF_NoTRMT='#CC0066'))
+
+deseq.DNEG3.ji_JULES2
+
+deseq.DNEG3.ji_JULES3 <- 
+  ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day -3')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c(INF_NoTRMT='#E69F00', INF_InjOTC='#CC0066'))
+
+deseq.DNEG3.ji_JULES3
+
+# To re-order your group levels so that no trt is negative values
+# If you are interested in this I would actually change it in your metadata before
+# you create the phyloseq object
+
+################# Day -3 INF_NoTRMT vs INF_InjOTC - My stuff ################
+
+FS9.DNEG3 <- subset_samples(FS9.order, Day == '-3')
+FS9.DNEG3 <- prune_taxa(taxa_sums(FS9.DNEG3) > 1, FS9.DNEG3)
+unique(sample_data(FS9.DNEG3)$Set)
+# the first level in the factor will be used to compare all the other once against it
+# sometimes not all the comparisons are present in the results names and 
+# so you have to re-level your factor and re-run DESeq2
+sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+                                     levels =c('-3_INF_NoTRMT',"-3_NONINF_NoTRMT",
+                                               "-3_INF_InjOTC", "-3_INF_OralOTC"))
+FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
+FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
+FS9.DNEG3.De$Set
+resultsNames(FS9.DNEG3.De)
+res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, coef = "Set_.3_INF_InjOTC_vs_.3_INF_NoTRMT", type = 'apeglm')
+# This line is the first from printing the results table:
+# log2 fold change (MAP): Set .3 INF NoTRMT vs .3 INF InjOTC 
+
+# positive log2foldchanges are associated with the first group from this line (.3_INF_InjOTC)
+
+# negative log2foldchanges are associated with the second group from this line (.3_INF_NoTRMT)
+
+sigtab.DNEG3.ji = res.DNEG3.ji[which(res.DNEG3.ji$padj < .05), ]
+sigtab.DNEG3.ji = cbind(as(sigtab.DNEG3.ji, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.ji), ], "matrix"))
+sigtab.DNEG3.ji$newp <- format(round(sigtab.DNEG3.ji$padj, digits = 3), scientific = TRUE)
+sigtab.DNEG3.ji$Treatment <- ifelse(sigtab.DNEG3.ji$log2FoldChange >=0, "INF_InjOTC", "INF_NoTRMT")
+
+deseq.DNEG3.ji <- 
+  ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day -3')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c(INF_InjOTC='#E69F00', INF_NoTRMT='#CC0066'))
+
+deseq.DNEG3.ji
+
+# I have not made changes below here
+######### END JULES #######
 
 #Add OTU and comparisons columns
 sigtab.DNEG3.ji
 sigtab.DNEG3.ji$OTU <- rownames(sigtab.DNEG3.ji)
 sigtab.DNEG3.ji
-sigtab.DNEG3.ji$comp <- 'DNEG3_INFinject_vs_INFnm'
+sigtab.DNEG3.ji$comp <- 'DNEG3_INF_InjOTCvsINF_NoTRMT'
 
 #Create final significant comparisons table
 final.sigtab <- sigtab.DNEG3.ji
 
 
-
-###CONTINUE HERE
 
 ######### Day -3 INF_NoTRMT vs INF_OralOTC ###################
 
