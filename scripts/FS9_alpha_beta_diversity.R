@@ -9,23 +9,7 @@
 #Clear workspace and load necessary packages
 rm(list=ls())
 
-#Set working directory (either on desktop or network drive)
-setwd("~/Desktop/FS9/FS9_RWorkspace")
-
-
 #Load library packages
-install.packages("vegan")
-install.packages("tidyverse")
-install.packages("phyloseq")
-install.packages("scales")
-install.packages("RColorBrewer")
-install.packages("philentropy")
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-
-BiocManager::install("phyloseq")
-
 library(vegan)
 library(tidyverse)
 library(phyloseq)
@@ -126,28 +110,24 @@ pairwise.adonis <- function(x,factors, sim.method = 'bray', p.adjust.m = 'none',
   return(pairw.res)
   }
 
-#Load image file
-load("FS9_alpha_beta_diversity.RData")
-
-#Save image file
-save.image(file="FS9_alpha_beta_diversity.RData")
-
 ###########################################################################################################
-#Load 'FS9.phyloseq.RData' into environment by clicking on this file name in the correct directory of the Files/Plots/Packages/Help panel
+#Load 'phyloseq.FS9.RData' into environment
+load('phyloseq.FS9.RData')
 
 #Setting up 'phyloseq' into dataframes for NMDS calculation
-meta <- data.frame(phyloseq@sam_data) #Make 'phyloseq' sam_data into dataframe
-otu <- data.frame(t(phyloseq@otu_table)) #Make 'phyloseq' otu_table into dataframe
+meta <- data.frame(phyloseq.FS9@sam_data) #Make 'phyloseq.FS9' sam_data into dataframe
+otu <- data.frame((phyloseq.FS9@otu_table)) #Make 'phyloseq.FS9' otu_table into dataframe
 class(meta) #data.frame
 rownames(meta) == row.names(otu) #Make sure rownames between 'meta' and 'otu' match exactly. It is true
 meta$numOTUS <- rowSums(otu > 1) #For rows with sums greater than 1 in 'otu', move rows and their respective sum values into "numOTUs" column in 'meta'
 head(meta)
 
-#NMDS calculation
+#NMDS calculation (aka beta diversity)
 otu[1:10,1:10]
+dim(otu) #166 1582
 NMDS <- NMDS_ellipse(meta, otu, grouping_set = 'All')
 #Output:
-#Result: [1] "Ordination stress: 0.198470463533747"
+#[1] "Ordination stress: 0.195589341005357"
 
 #Separate meta data and ellipse data to two lists to make NMDS plot
 head(NMDS)
@@ -159,16 +139,16 @@ df_ell$group
 head(df_ell)
 
 #Create "Day" and "Treatment" columns within 'df_ell' for faceting purposes
-df_ell <- df_ell %>% separate(group, into=c("Day","Treatment"), sep=" ", remove=FALSE) #Daniel's good stuff
+df_ell <- df_ell %>% separate(group, into=c("Day","Treatment"), sep="_", remove=FALSE)
 View(df_ell)
 
 #Restructure level order for 'metanmds' and 'df_ell'
-unique(metanmds$Day) #-3 0 7
-unique(df_ell$Day) #"-3" "0"  "7" 
-metanmds$Day = factor(metanmds$Day, levels = c("-3", "0", "7"))
-df_ell$Day = factor(df_ell$Day, levels = c("-3", "0", "7"))
-levels(df_ell$Day) #"-3" "0"  "7" 
-levels(metanmds$Day) #"-3" "0"  "7" 
+unique(metanmds$Day) #D4    DNEG3 D0    D7 
+unique(df_ell$Day) #"D0"    "D4"    "D7"    "DNEG3" 
+metanmds$Day = factor(metanmds$Day, levels = c("DNEG3", "D0", "D4", "D7"))
+df_ell$Day = factor(df_ell$Day, levels = c("DNEG3", "D0", "D4", "D7"))
+levels(df_ell$Day) #"DNEG3" "D0"    "D4"    "D7" 
+levels(metanmds$Day) #"DNEG3" "D0"    "D4"    "D7" 
 
 #Skip renaming treatment groups until have more info
 #Renaming treatment groups xxx to xxx, respectively, in 'metanmds' and 'df_ell' dataframes
@@ -184,57 +164,50 @@ metanmds$Treatment2
 df_ell$Treatment2
 
 #Creating NMDS day+treatment plot from NMDS calculations
-nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment2)) + geom_point() + 
+nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
   geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = 0.5) + 
-  geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment2, group=group)) + 
+  geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment, group=group)) + 
   facet_wrap(~Day, scales = 'free') +
   #scale_color_brewer(palette="Dark2") +
   theme_gray(base_size = 10) +
   theme(strip.text.x = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size=13), axis.title.x = element_text(size=14), axis.title.y = element_text(size=14), legend.text=element_text(size=14), legend.title=element_text(size=14)) +
   labs(color="Treatment group")+
-  labs(caption = 'Ordination stress = 0.198')
+  labs(caption = 'Ordination stress = 0.196')
 #nmdsplot2 <- nmdsplot + scale_colour_manual(values=c("#E69F00", "#56B4E9")) + theme(legend.position = "right")
 nmdsplot
 #Save 'nmdsplot' as a .tiff for publication, 500dpi
 ggsave("NMDS_DayAndTreatment.tiff", plot=nmdsplot, width = 11, height = 5, dpi = 500, units =c("in"))
 
-
 #Creating NMDS day plot from NMDS calculations
 nmdsplot_day <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Day)) + geom_point() + 
     geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
     geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Day, group=group)) + 
-    labs(caption = 'Ordination stress = 0.198') 
+    labs(caption = 'Ordination stress = 0.196') 
 nmdsplot_day
 #Save 'nmdsplot_day' as a .tiff for publication, 500dpi
 ggsave("NMDS_Day.tiff", plot=nmdsplot_day, width = 10, height = 6, dpi = 500, units =c("in"))
 
-
 #Creating NMDS treatment plot from NMDS calculations
-nmdsplot_treatment<- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment2)) + geom_point() + 
+nmdsplot_treatment<- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
   geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
-  geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment2, group=group)) + 
-  labs(caption = 'Ordination stress = 0.198')  
+  geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment, group=group)) + 
+  labs(caption = 'Ordination stress = 0.196')  
 nmdsplot_treatment
 #Save 'nmdsplot_treatment' as a .tiff for publication, 500dpi
 ggsave("NMDS_Treatment.tiff", plot=nmdsplot_treatment, width = 10, height = 6, dpi = 500, units =c("in"))
 
-
-#All points, all days, all treatments, gray points that aren't relevant
-
+#All points, all days, all treatments, samples that aren't relevant are grayed out on plot
 #Plotting with gridlines and axes, gray points for All days
 metanmds.2 <- metanmds
 metanmds.2$Treatment2 = metanmds.2$Treatment
 metanmds.2$Treatment2 <- as.character(metanmds.2$Treatment2)
-metanmds.2$Treatment2[metanmds.2$Treatment2 == 'INF_OralOCT'] <- "INF_OralOTC"
-metanmds.2$Treatment2[metanmds.2$Treatment2 == 'INF_InjOCT'] <- "INF_InjOTC"
 metanmds.2$Treatment2
-
 
 #All days and treatments faceted by day (gridlines)
 nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanmds.2$MDS1, y=metanmds.2$MDS2, color='grey57', geom = 'point')+
-  geom_path(data = df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment2), size=1.25) + 
-  geom_point(aes(color = Treatment2), size = 2) + 
-  geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY, color=Treatment2), alpha=.5) + 
+  geom_path(data = df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment), size=1.25) + 
+  geom_point(aes(color = Treatment), size = 2) + 
+  geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY, color=Treatment), alpha=.5) + 
   theme(panel.background = element_blank(),
         axis.text = element_blank(),
         axis.title = element_blank(),
@@ -242,19 +215,19 @@ nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanm
         panel.border = element_rect(fill = NA, color = 'grey57'),
         axis.line = element_blank()) + facet_wrap(~Day, nrow = 1) +
   theme_bw() +
-  labs(caption = 'Ordination stress = 0.198', color="Treatment group")
+  labs(caption = 'Ordination stress = 0.196', color="Treatment group")
 nmdsplot_treatment2
 #Save 'nmdsplot_treatment2' as a .tiff for publication, 500dpi
 ggsave("NMDS_DayAndTreatment_AllSamples.tiff", plot=nmdsplot_treatment2, width = 10, height = 6, dpi = 500, units =c("in"))
 
-
-#Using pairwise.adonis function
+#Using pairwise.adonis function (beta diversity)
 adon <- pairwise.adonis(otu, meta$All) #Run pairwise.adonis on 'otu' OTU table and "All" column of 'meta' dataframe
 #adon contains all the pairwise comparisons
 adon$pairs #List all comparisons in the "pairs" column of 'nw.adon'
-goodcomps <- c(grep('-3 [A-Za-z]+ vs -3 [A-Za-z]+', adon$pairs),
-                  grep('0 [A-Za-z]+ vs 0 [A-Za-z]+', adon$pairs),
-                  grep('7 [A-Za-z]+ vs 7 [A-Za-z]+', adon$pairs))
+goodcomps <- c(grep('DNEG3_[A-Za-z]+ vs DNEG3_[A-Za-z]+', adon$pairs),
+              grep('D0_[A-Za-z]+ vs D0_[A-Za-z]+', adon$pairs),
+              grep('D4_[A-Za-z]+ vs D4_[A-Za-z]+', adon$pairs),
+              grep('D7_[A-Za-z]+ vs D7_[A-Za-z]+', adon$pairs))
 # "[A-Za-z]" matches all capital and lowercase letters
 # "+" matches a whole word and not just one letter (if you didn't have "+", then it would match by one letter)
 # "c" creates the vector, lumps all pairs of specific groups of interest together
@@ -264,13 +237,9 @@ adon.good
 adon.good$p.adjusted <- p.adjust(adon.good$p.value, method = 'fdr') #"p.adjust" function returns a set of p-values adjusted with "fdr" method
 adon.good$p.adjusted2 <- round(adon.good$p.adjusted, 3) #Round p-values to 3 decimal points and list in new "p.adjusted2" column
 adon.good$p.adjusted2[adon.good$p.adjusted2 > 0.05] <- NA #For all p-values greater than 0.05, replace with "NA"
-write.csv(adon.good, file='FS8b.adon.good.txt', row.names=TRUE)
-#4 pairs of significant differences in microbial composition
+write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.txt', row.names=TRUE)
 
-adon$p.adjusted <- p.adjust(adon$p.value, method = 'fdr') #"p.adjust" function returns a set of p-values adjusted with "fdr" method
-adon$p.adjusted2 <- round(adon$p.adjusted, 3) #Round p-values to 3 decimal points and list in new "p.adjusted2" column
-adon$p.adjusted2[adon$p.adjusted2 > 0.05] <- NA #For all p-values greater than 0.05, replace with "NA"
-write.csv(adon, file='FS9.adon.txt', row.names=TRUE)
+
 
 
 #Alpha diversity
@@ -283,109 +252,38 @@ levels(sample_data(meta)$Day) # Set the level order of values in "Day" column
 shannon.invsimpson.numOTUs <- aggregate(meta[, 6:8], list(meta$All), mean)
 print(shannon.invsimpson.numOTUs)
 #Output:
-#     Group.1           numOTUS   shannon     invsimpson
-#1    -3 INF_InjOTC     95.37500  3.858225    23.77920
-#2    -3 INF_NoTRMT     110.62500 4.097624    33.84238
-#3    -3 INF_OralOTC    92.75000  3.805127    23.79197
-#4    -3 NONINF_NoTRMT  101.38889 3.930916    26.24336
-#5    0 INF_InjOTC      84.23077  3.412381    16.90210
-#6    0 INF_NoTRMT      84.85714  3.157894    15.53953
-#7    0 INF_OralOTC     89.40000  3.540890    15.39673
-#8    0 NONINF_NoTRMT   72.33333  3.060047    13.08113
-#9    7 INF_InjOTC      99.30000  3.874105    22.20230
-#10   7 INF_NoTRMT      95.20000  3.699163    18.93731
-#11   7 INF_OralOTC     89.40000  3.628494    17.16434
-#12   7 NONINF_NoTRMT   97.62500  3.785084    18.41787
-
+#     Group.1   numOTUS  shannon invsimpson
+#1       D0_INFfeed  89.40000 3.540890  15.396725
+#2     D0_INFinject  84.23077 3.412381  16.902103
+#3         D0_INFnm  84.85714 3.157894  15.539528
+#4      D0_NONINFnm  72.33333 3.060047  13.081130
+#5       D4_INFfeed  65.50000 3.181774  11.725826
+#6     D4_INFinject  70.71429 3.187840  12.184908
+#7         D4_INFnm  76.50000 3.184695  11.209149
+#8      D4_NONINFnm  79.40000 3.154882   9.179351
+#9       D7_INFfeed  89.40000 3.628494  17.164339
+#10    D7_INFinject  99.30000 3.874105  22.202299
+#11        D7_INFnm  95.20000 3.699163  18.937311
+#12     D7_NONINFnm  97.62500 3.785084  18.417874
+#13   DNEG3_INFfeed  92.75000 3.805127  23.791974
+#14 DNEG3_INFinject  96.23529 3.870772  24.026425
+#15     DNEG3_INFnm 110.76471 4.089676  32.931460
+#16  DNEG3_NONINFnm 101.38889 3.930916  26.243361
 write.csv(shannon.invsimpson.numOTUs, file="FS9.shannon.invsimpson.num.OTUs.txt", row.names=TRUE)
+
+#Shannon
 pairwise.wilcox.shannon.test <- pairwise.wilcox.test(meta$shannon, meta$All, p.adjust.method = 'none') #Calculate pairwise comparisons by "All" column of the shannon indices in "Shannon" column
 print(pairwise.wilcox.shannon.test) #Look at the results of 'pairwise.wilcox.shannon.test'
 
-#Pairwise comparisons using Wilcoxon rank sum test 
-
-#data:  meta$shannon and meta$All 
-
-#-3 INF_InjOTC -3 INF_NoTRMT -3 INF_OralOTC -3 NONINF_NoTRMT 0 INF_InjOTC 0 INF_NoTRMT
-#-3 INF_NoTRMT    0.0938        -             -              -                -            -           
-#-3 INF_OralOTC   0.8381        0.0575        -              -                -            -           
-#-3 NONINF_NoTRMT 0.6212        0.1643        0.3613         -                -            -           
-# 0 INF_InjOTC     0.0916        0.0035        0.1813         0.0221           -            -           
-# 0 INF_NoTRMT     0.0394        0.0329        0.0414         0.0292           0.3114       -           
-# 0 INF_OralOTC    0.1530        0.0318        0.2718         0.0796           0.9241       0.2677      
-# 0 NONINF_NoTRMT  0.0116        0.0011        0.0300         0.0043           0.3933       0.8371      
-# 7 INF_InjOTC     0.7760        0.0467        0.8121         0.3318           0.2080       0.0250      
-# 7 INF_NoTRMT     0.4518        0.0684        0.5884         0.4357           0.3434       0.1613      
-# 7 INF_OralOTC    0.2199        0.0087        0.3504         0.0452           0.8793       0.1088      
-# 7 NONINF_NoTRMT  0.5283        0.0448        0.7461         0.1961           0.4137       0.0541      
-# 0 INF_OralOTC 0 NONINF_NoTRMT 7 INF_InjOTC 7 INF_NoTRMT 7 INF_OralOTC
-# -3 INF_NoTRMT    -             -               -            -            -            
-# -3 INF_OralOTC   -             -               -            -            -            
-# -3 NONINF_NoTRMT -             -               -            -            -            
-# 0 INF_InjOTC     -             -               -            -            -            
-# 0 INF_NoTRMT     -             -               -            -            -            
-# 0 INF_OralOTC    -             -               -            -            -            
-# 0 NONINF_NoTRMT  0.6064        -               -            -            -            
-# 7 INF_InjOTC     0.1292        0.0653          -            -            -            
-# 7 INF_NoTRMT     0.5135        0.0789          0.9118       -            -            
-# 7 INF_OralOTC    0.7679        0.3154          0.1655       0.6842       -            
-# 7 NONINF_NoTRMT  0.3543        0.0745          0.9654       0.9654       0.3599       
-
-#P value adjustment method: none 
-
-
+#Inverse Simpson
 pairwise.wilcox.invsimpson.test <- pairwise.wilcox.test(meta$invsimpson, meta$All, p.adjust.method = 'none')
 print(pairwise.wilcox.invsimpson.test)
 
-#Pairwise comparisons using Wilcoxon rank sum test 
-
-#data:  meta$invsimpson and meta$All 
-
-# -3 INF_InjOTC -3 INF_NoTRMT -3 INF_OralOTC -3 NONINF_NoTRMT 0 INF_InjOTC 0 INF_NoTRMT
-# -3 INF_NoTRMT    0.0796        -             -              -                -            -           
-# -3 INF_OralOTC   0.7176        0.0620        -              -                -            -           
-# -3 NONINF_NoTRMT 0.6702        0.1866        0.5532         -                -            -           
-# 0 INF_InjOTC     0.1437        0.0065        0.1275         0.0620           -            -           
-# 0 INF_NoTRMT     0.0273        0.0225        0.0190         0.0245           0.3929       -           
-# 0 INF_OralOTC    0.1790        0.0318        0.0970         0.0943           1.0000       0.2677      
-# 0 NONINF_NoTRMT  0.0428        0.0014        0.0264         0.0231           0.5556       0.7577      
-# 7 INF_InjOTC     0.9382        0.0772        0.8121         0.5241           0.3128       0.0330      
-# 7 INF_NoTRMT     0.3360        0.0356        0.2670         0.1458           0.6049       0.1613      
-# 7 INF_OralOTC    0.2406        0.0122        0.1196         0.0642           0.9274       0.1331      
-# 7 NONINF_NoTRMT  0.3196        0.0274        0.3285         0.1772           0.6970       0.0939      
-# 0 INF_OralOTC 0 NONINF_NoTRMT 7 INF_InjOTC 7 INF_NoTRMT 7 INF_OralOTC
-# -3 INF_NoTRMT    -             -               -            -            -            
-# -3 INF_OralOTC   -             -               -            -            -            
-# -3 NONINF_NoTRMT -             -               -            -            -            
-# 0 INF_InjOTC     -             -               -            -            -            
-# 0 INF_NoTRMT     -             -               -            -            -            
-# 0 INF_OralOTC    -             -               -            -            -            
-# 0 NONINF_NoTRMT  0.6993        -               -            -            -            
-# 7 INF_InjOTC     0.1645        0.0947          -            -            -            
-# 7 INF_NoTRMT     0.5135        0.2428          0.5288       -            -            
-# 7 INF_OralOTC    0.6787        0.3154          0.2799       0.7959       -            
-# 7 NONINF_NoTRMT  0.6216        0.3704          0.4082       0.8968       0.6965       
-
-#P value adjustment method: none  
-
-#Rename treatment groups in All and Treatment columns
-meta$Treatment2 = meta$Treatment
-meta$Treatment2 <- as.character(meta$Treatment2)
-meta$Treatment2[meta$Treatment2 == 'INF_OralOTC'] <- "INF_OralOCT"
-meta$Treatment2[meta$Treatment2 == 'INF_InjOTC'] <- "INF_InjOCT"
-meta$All2 = meta$All
-meta$All2 <- as.character(meta$All2)
-meta$All2[meta$All2 == '-3 INF_OralOTC'] <- "-3 INF_OralOCT"
-meta$All2[meta$All2 == '0 INF_OralOTC'] <- "0 INF_OralOCT"
-meta$All2[meta$All2 == '7 INF_OralOTC'] <- "7 INF_OralOCT"
-meta$All2[meta$All2 == '-3 INF_InjOTC'] <- "-3 INF_InjOCT"
-meta$All2[meta$All2 == '0 INF_InjOTC'] <- "0 INF_InjOCT"
-meta$All2[meta$All2 == '7 INF_InjOTC'] <- "7 INF_InjOCT"
-
-
-#Generate a box and whisker plot of shannon (both shannon and inverse simpson diversity indices showed same trends; I chose to make a plot using shannon indices)
-(shan <- ggplot(data = meta, aes(x=All2, y=shannon, group=All2, fill=Treatment2)) +
+#Generate a box and whisker plot of shannon (both shannon and inverse simpson diversity indices showed same trends: 
+#no significant differences between treatment groups within a day)
+(shan <- ggplot(data = meta, aes(x=All, y=shannon, group=All, fill=Treatment)) +
     geom_boxplot(position = position_dodge2(preserve = 'total')) +
-    facet_wrap(~Treatment2, scales = 'free') +
+    facet_wrap(~Treatment, scales = 'free') +
     scale_y_continuous(name = "Shannon diversity") +
     theme(axis.title.x = element_blank(),
           axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
@@ -399,9 +297,9 @@ meta$All2[meta$All2 == '7 INF_InjOTC'] <- "7 INF_InjOCT"
 ggsave("FS9_Shannon.tiff", plot=shan, width = 7, height = 7, dpi = 500, units =c("in"))
 
 #Generate a box and whisker plot of inverse simpson 
-(invsimp <- ggplot(data = meta, aes(x=All2, y=invsimpson, group=All2, fill=Treatment2)) +
+(invsimp <- ggplot(data = meta, aes(x=All, y=invsimpson, group=All, fill=Treatment)) +
     geom_boxplot(position = position_dodge2(preserve = 'total')) +
-    facet_wrap(~Treatment2, scales = 'free') +
+    facet_wrap(~Treatment, scales = 'free') +
     scale_y_continuous(name = "Inverse Simpson diversity") +
     theme(axis.title.x = element_blank(),
           axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
