@@ -9,10 +9,6 @@
 #Clear workspace and load necessary packages
 rm(list=ls())
 
-#Set working directory (either on desktop or network drive)
-setwd("~/Desktop/FS9/FS9_RWorkspace")
-
-
 #Load library packages
 install.packages("vegan")
 install.packages("tidyverse")
@@ -126,18 +122,12 @@ pairwise.adonis <- function(x,factors, sim.method = 'bray', p.adjust.m = 'none',
   return(pairw.res)
   }
 
-#Load image file
-load("FS9_alpha_beta_diversity.RData")
-
-#Save image file
-save.image(file="FS9_alpha_beta_diversity.RData")
-
 ###########################################################################################################
 #Load 'FS9.phyloseq.RData' into environment by clicking on this file name in the correct directory of the Files/Plots/Packages/Help panel
 
 #Setting up 'phyloseq' into dataframes for NMDS calculation
-meta <- data.frame(phyloseq@sam_data) #Make 'phyloseq' sam_data into dataframe
-otu <- data.frame(t(phyloseq@otu_table)) #Make 'phyloseq' otu_table into dataframe
+meta <- data.frame(phyloseq.FS9@sam_data) #Make 'phyloseq.FS9' sam_data into dataframe
+otu <- data.frame(t(phyloseq.FS9@otu_table)) #Make 'phyloseq.FS9' otu_table into dataframe
 class(meta) #data.frame
 rownames(meta) == row.names(otu) #Make sure rownames between 'meta' and 'otu' match exactly. It is true
 meta$numOTUS <- rowSums(otu > 1) #For rows with sums greater than 1 in 'otu', move rows and their respective sum values into "numOTUs" column in 'meta'

@@ -149,7 +149,7 @@ phyloseq.FS9
 #sample_data() Sample Data:       [ 166 samples by 5 sample variables ]
 #tax_table()   Taxonomy Table:    [ 1582 taxa by 6 taxonomic ranks ]
 
-save(phyloseq.FS9, file="FS9.prune_zero_OTUs.phyloseq.RData")
+save(phyloseq.FS9, file="phyloseq.FS9.RData") #Use for FS9_alpha_beta_diversity.R when loading phyloseq.FS9 object
 
 ###############################################################################
 
