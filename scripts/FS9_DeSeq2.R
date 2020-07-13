@@ -1,12 +1,11 @@
 #####################################################################################################
-#FS9 Nasal DESeq2
+#FS9 DESeq2
 #Kathy Mou
 
 #Purpose: This code uses DESeq2 package to identify nasal microbial genera that were differentially 
 #abundant between the four groups on the four days sampled
 
-#Files needed:
-
+#Files needed: see below
 
 #Clear workspace and load necessary packages
 # rm(list=ls())
@@ -24,7 +23,6 @@
 # BiocManager::install("genefilter")
 # BiocManager::install("geneplotter")
 # BiocManager::install("DESeq2")
-#Couldn't get DESeq2 library to install
 
 #Load library packages
 library(DESeq2)
@@ -44,12 +42,8 @@ sessionInfo()
 # are loading here so when you're having issues I need to start from the 
 # raw data files
 
-
 #Load image file 
 # load("FS9_DESeq2.RData")
-
-
-
 
 #Save image file
 # save.image(file="FS9_DESeq2.RData")
@@ -58,7 +52,6 @@ sessionInfo()
 #Jules says plots describes the log-fold changes seen in differential abundance plots as
 #enriched for "x" taxa in "x group"
 #You can add genus to your plots, and use those as supplemental figures
-
 
 #Set plots to have gray background with white gridlines
 theme_set(theme_gray())
@@ -135,7 +128,7 @@ FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
 # INF_InjOTC vs NONINF_NoTRMT
 
 
-# Other comparisons to make (no significant changes in beta diversity between treatments): 
+# Other comparisons to try if interested (no significant changes in beta diversity between treatments): 
 # Day -3
 # INF_OralOTC vs INF_InjOTC
 # NONINF_NoTRMT vs INF_InjOTC
