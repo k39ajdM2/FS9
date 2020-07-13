@@ -13,6 +13,9 @@ library(vegan)
 library(tidyverse)
 library(phyloseq)
 
+sessionInfo()
+#R version 3.6.3 (2020-02-29)
+
 #########################################
 
 #Read files for metadata and OTU table
