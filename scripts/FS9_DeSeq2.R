@@ -512,48 +512,27 @@ head(sigtab.D0.ji) #DataFrame with 0 rows and 7 columns, meaning there were no o
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
 sum(meta$Set == "D0_INFnm")
-#20
+#8
 sum(meta$Set == "D0_INFfeed")
-#20
+#5
 
 #Extract results from a DESeq analysis, organize table
-FS9.D0.De$Set
+FS9.D0.De <- phyloseq_to_deseq2(FS9.D0, ~ Set)
+FS9.D0.De <- DESeq(FS9.D0.De, test = "Wald", fitType = "parametric")
 resultsNames(FS9.D0.De)
-#[1] "Intercept"                          "Set_D0_NONINFnm_vs_D0_INFnm" 
-#[3] "Set_D0_INFinject_vs_D0_INFnm" "Set_D0_INFfeed_vs_D0_INFnm" 
+#1] "Intercept"                    "Set_D0_NONINFnm_vs_D0_INFnm"  "Set_D0_INFinject_vs_D0_INFnm"
+#[4] "Set_D0_INFfeed_vs_D0_INFnm"   
 res.D0.oi = lfcShrink(FS9.D0.De, coef = "Set_D0_INFfeed_vs_D0_INFnm", type = 'apeglm')
 sigtab.D0.oi = res.D0.oi[which(res.D0.oi$padj < .05), ]
 sigtab.D0.oi = cbind(as(sigtab.D0.oi, "data.frame"), as(tax_table(FS9.D0)[rownames(sigtab.D0.oi), ], "matrix"))
 format(sigtab.D0.oi$padj, scientific = TRUE)
 sigtab.D0.oi$newp <- format(round(sigtab.D0.oi$padj, digits = 3), scientific = TRUE)
 sigtab.D0.oi$Treatment <- ifelse(sigtab.D0.oi$log2FoldChange >=0, "INFfeed", "INFnm")
-
-#Summarize sigtab.D0.oi
-sum.sigtab.D0.oi <- summary(sigtab.D0.oi)
-sum.sigtab.D0.oi
-
-#ggplot
-deseq.D0.oi <- ggplot(sigtab.D0.oi, aes(x=reorder(rownames(sigtab.D0.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.oi), y=-1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
-  theme(axis.text.x=element_text(color = 'black', size = 13),
-        axis.text.y=element_text(color = 'black', size=13), 
-        axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to INFnm in Fecal Microbiota on Day -3')+ coord_flip() +
-  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INFfeed='#999999', INFnm='#CC0066'))
-deseq.D0.oi
-
-#Add OTU and comparisons columns
-sigtab.D0.oi
-sigtab.D0.oi$OTU <- rownames(sigtab.D0.oi)
-sigtab.D0.oi
-sigtab.D0.oi$comp <- 'D0_INFfeed_vs_INFnm'
-
-#Create final significant comparisons table
-final.sigtab <- rbind(sigtab.D0.oi, final.sigtab)
+head(sigtab.D0.oi) #DataFrame with 0 rows and 7 columns, meaning there were no orders that were significantly different
+#in abundance between the two groups, so I will skip to the next comparison
 
 
-######### 3, Day -3 INFfeed vs INFinject ###################
+######### 3. Day 0 INFfeed vs INFinject ###################
 
 #NONINFnm = N
 #INFnm = I
@@ -562,60 +541,35 @@ final.sigtab <- rbind(sigtab.D0.oi, final.sigtab)
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "DNEG3_INFinject")
-#20
-sum(meta$Set == "DNEG3_INFfeed")
-#20
+sum(meta$Set == "D0_INFinject")
+#13
+sum(meta$Set == "D0_INFfeed")
+#5
 
 #Extract results from a DESeq analysis, organize table
-FS9.DNEG3.De$Set
-resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
-#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm"
-sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
-                                     levels =c("DNEG3_INFinject", "DNEG3_INFfeed",
-                                               'DNEG3_INFnm',"DNEG3_NONINFnm"))
-FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
-FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                             "Set_DNEG3_INFfeed_vs_DNEG3_INFinject" 
-#[3] "Set_DNEG3_INFnm_vs_DNEG3_INFinject"    "Set_DNEG3_NONINFnm_vs_DNEG3_INFinject"
-res.DNEG3.oj = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFfeed_vs_DNEG3_INFinject", type = 'apeglm')
-sigtab.DNEG3.oj = res.DNEG3.oi[which(res.DNEG3.oi$padj < .05), ]
-sigtab.DNEG3.oj = cbind(as(sigtab.DNEG3.oj, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.oj), ], "matrix"))
-format(sigtab.DNEG3.oj$padj, scientific = TRUE)
-sigtab.DNEG3.oj$newp <- format(round(sigtab.DNEG3.oj$padj, digits = 3), scientific = TRUE)
-sigtab.DNEG3.oj$Treatment <- ifelse(sigtab.DNEG3.oj$log2FoldChange >=0, "INFfeed", "INFinject")
-
-#Summarize sigtab.DNEG3.oj
-sum.sigtab.DNEG3.oj <- summary(sigtab.DNEG3.oj)
-sum.sigtab.DNEG3.oj
-
-#ggplot
-deseq.DNEG3.oj <- ggplot(sigtab.DNEG3.oj, aes(x=reorder(rownames(sigtab.DNEG3.oj), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.oj), y=-1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
-  theme(axis.text.x=element_text(color = 'black', size = 13),
-        axis.text.y=element_text(color = 'black', size=13), 
-        axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to INFinject in Fecal Microbiota on Day -3')+ coord_flip() +
-  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INFfeed='#999999', INFinject='#E69F00'))
-deseq.DNEG3.oj
-
-#Add OTU and comparisons columns
-sigtab.DNEG3.oj
-sigtab.DNEG3.oj$OTU <- rownames(sigtab.DNEG3.oj)
-sigtab.DNEG3.oj
-sigtab.DNEG3.oj$comp <- 'DNEG3_INFfeed_vs_INFinject'
-
-#Create final significant comparisons table
-final.sigtab <- rbind(sigtab.DNEG3.oj, final.sigtab)
+FS9.D0.De$Set
+resultsNames(FS9.D0.De)
+#[1] "Intercept"                    "Set_D0_NONINFnm_vs_D0_INFnm"  "Set_D0_INFinject_vs_D0_INFnm"
+#[4] "Set_D0_INFfeed_vs_D0_INFnm"  
+sample_data(FS9.D0)$Set <- factor(sample_data(FS9.D0)$Set,
+                                     levels =c("D0_INFinject", "D0_INFfeed",
+                                               'D0_INFnm',"D0_NONINFnm"))
+FS9.D0.De <- phyloseq_to_deseq2(FS9.D0, ~ Set)
+FS9.D0.De <- DESeq(FS9.D0.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D0.De)
+#[1] "Intercept"                       "Set_D0_INFfeed_vs_D0_INFinject"  "Set_D0_INFnm_vs_D0_INFinject"   
+#[4] "Set_D0_NONINFnm_vs_D0_INFinject"
+res.D0.oj = lfcShrink(FS9.D0.De, coef = "Set_D0_INFfeed_vs_D0_INFinject", type = 'apeglm')
+sigtab.D0.oj = res.D0.oi[which(res.D0.oi$padj < .05), ]
+sigtab.D0.oj = cbind(as(sigtab.D0.oj, "data.frame"), as(tax_table(FS9.D0)[rownames(sigtab.D0.oj), ], "matrix"))
+format(sigtab.D0.oj$padj, scientific = TRUE)
+sigtab.D0.oj$newp <- format(round(sigtab.D0.oj$padj, digits = 3), scientific = TRUE)
+sigtab.D0.oj$Treatment <- ifelse(sigtab.D0.oj$log2FoldChange >=0, "INFfeed", "INFinject")
+head(sigtab.D0.oj) #DataFrame with 0 rows and 7 columns, meaning there were no orders that were significantly different
+#in abundance between the two groups, so I will skip to the next comparison
 
 
-
-
-
-######### 4. Day -3 INFnm vs NONINFnm  ###################
+######### 4. Day 0 INFnm vs NONINFnm  ###################
 
 #NONINFnm = N
 #INFnm = I
@@ -625,55 +579,56 @@ final.sigtab <- rbind(sigtab.DNEG3.oj, final.sigtab)
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "DNEG3_NONINFnm")
-#20
-sum(meta$Set == "DNEG3_INFnm")
-#20
+sum(meta$Set == "D0_NONINFnm")
+#9
+sum(meta$Set == "D0_INFnm")
+#8
 
 #Extract results from a DESeq analysis, organize table
-FS9.DNEG3.De$Set
-resultsNames(FS9.DNEG3.De)
-sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
-                                     levels =c('DNEG3_NONINFnm','DNEG3_INFnm', 
-                                               "DNEG3_INFinject", "DNEG3_INFfeed"))
-FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
-FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
-#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm" 
-res.DNEG3.in = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm", type = 'apeglm')
-sigtab.DNEG3.in = res.DNEG3.in[which(res.DNEG3.in$padj < .05), ]
-sigtab.DNEG3.in = cbind(as(sigtab.DNEG3.in, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.in), ], "matrix"))
-format(sigtab.DNEG3.in$padj, scientific = TRUE)
-sigtab.DNEG3.in$newp <- format(round(sigtab.DNEG3.in$padj, digits = 3), scientific = TRUE)
-sigtab.DNEG3.in$Treatment <- ifelse(sigtab.DNEG3.in$log2FoldChange >=0, "INFnm", "NONINFnm")
+resultsNames(FS9.D0.De)
+#[1] "Intercept"                       "Set_D0_INFfeed_vs_D0_INFinject"  "Set_D0_INFnm_vs_D0_INFinject"   
+#[4] "Set_D0_NONINFnm_vs_D0_INFinject"
+sample_data(FS9.D0)$Set <- factor(sample_data(FS9.D0)$Set,
+                                     levels =c('D0_NONINFnm','D0_INFnm', 
+                                               "D0_INFinject", "D0_INFfeed"))
+FS9.D0.De <- phyloseq_to_deseq2(FS9.D0, ~ Set)
+FS9.D0.De <- DESeq(FS9.D0.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D0.De)
+#[1] "Intercept"                             "Set_D0_INFnm_vs_D0_NONINFnm"    
+#[3] "Set_D0_INFinject_vs_D0_NONINFnm" "Set_D0_INFfeed_vs_D0_NONINFnm" 
+res.D0.in = lfcShrink(FS9.D0.De, coef = "Set_D0_INFnm_vs_D0_NONINFnm", type = 'apeglm')
+sigtab.D0.in = res.D0.in[which(res.D0.in$padj < .05), ]
+sigtab.D0.in = cbind(as(sigtab.D0.in, "data.frame"), as(tax_table(FS9.D0)[rownames(sigtab.D0.in), ], "matrix"))
+format(sigtab.D0.in$padj, scientific = TRUE)
+sigtab.D0.in$newp <- format(round(sigtab.D0.in$padj, digits = 3), scientific = TRUE)
+sigtab.D0.in$Treatment <- ifelse(sigtab.D0.in$log2FoldChange >=0, "INFnm", "NONINFnm")
 
-#Summarize sigtab.DNEG3.in
-sum.sigtab.DNEG3.in <- summary(sigtab.DNEG3.in)
-sum.sigtab.DNEG3.in
+#Summarize sigtab.D0.in
+sum.sigtab.D0.in <- summary(sigtab.D0.in)
+sum.sigtab.D0.in
 
 #ggplot
-deseq.DNEG3.in <- ggplot(sigtab.DNEG3.in, aes(x=reorder(rownames(sigtab.DNEG3.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.in), y=2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
+deseq.D0.in <- ggplot(sigtab.D0.in, aes(x=reorder(rownames(sigtab.D0.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.in), y=2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day 0')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
-deseq.DNEG3.in
+deseq.D0.in
 
 #Add OTU and comparisons columns
-sigtab.DNEG3.in
-sigtab.DNEG3.in$OTU <- rownames(sigtab.DNEG3.in)
-sigtab.DNEG3.in
-sigtab.DNEG3.in$comp <- 'DNEG3_INFnm_vs_NONINFnm'
+sigtab.D0.in
+sigtab.D0.in$OTU <- rownames(sigtab.D0.in)
+sigtab.D0.in
+sigtab.D0.in$comp <- 'D0_INFnm_vs_NONINFnm'
 
 #Create final significant comparisons table
-final.sigtab <- rbind(final.sigtab, sigtab.DNEG3.in)
+final.sigtab <- rbind(final.sigtab, sigtab.D0.in)
 
 
-######### 5. Day -3 INFinject vs NONINFnm ###################
+######### 5. Day 0 INFinject vs NONINFnm ###################
 
 #NONINFnm = N
 #INFnm = I
@@ -682,51 +637,43 @@ final.sigtab <- rbind(final.sigtab, sigtab.DNEG3.in)
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "DNEG3_NONINFnm")
-#20
-sum(meta$Set == "DNEG3_INFinject")
-#20
+sum(meta$Set == "D0_NONINFnm")
+#9
+sum(meta$Set == "D0_INFinject")
+#13
 
-resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                             "Set_DNEG3_INFfeed_vs_DNEG3_INFinject" 
-#[3] "Set_DNEG3_INFnm_vs_DNEG3_INFinject"    "Set_DNEG3_NONINFnm_vs_DNEG3_INFinject" 
-sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
-                                     levels =c("DNEG3_NONINFnm", 'DNEG3_INFnm',
-                                               "DNEG3_INFinject", "DNEG3_INFfeed"))
-FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
-FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
-FS9.DNEG3.De$Set
-resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
-#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm"  
-res.DNEG3.jn = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm", type = 'apeglm')
-sigtab.DNEG3.jn = res.DNEG3.jn[which(res.DNEG3.jn$padj < .05), ]
-sigtab.DNEG3.jn = cbind(as(sigtab.DNEG3.jn, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.jn), ], "matrix"))
-sigtab.DNEG3.jn$newp <- format(round(sigtab.DNEG3.jn$padj, digits = 3), scientific = TRUE)
-sigtab.DNEG3.jn$Treatment <- ifelse(sigtab.DNEG3.jn$log2FoldChange >=0, "INFinject", "NONINFnm")
+resultsNames(FS9.D0.De)
+#[1] "Intercept"                       "Set_D0_INFnm_vs_D0_NONINFnm"     "Set_D0_INFinject_vs_D0_NONINFnm"
+#[4] "Set_D0_INFfeed_vs_D0_NONINFnm"   
+res.D0.jn = lfcShrink(FS9.D0.De, coef = "Set_D0_INFinject_vs_D0_NONINFnm", type = 'apeglm')
+sigtab.D0.jn = res.D0.jn[which(res.D0.jn$padj < .05), ]
+sigtab.D0.jn = cbind(as(sigtab.D0.jn, "data.frame"), as(tax_table(FS9.D0)[rownames(sigtab.D0.jn), ], "matrix"))
+sigtab.D0.jn$newp <- format(round(sigtab.D0.jn$padj, digits = 3), scientific = TRUE)
+sigtab.D0.jn$Treatment <- ifelse(sigtab.D0.jn$log2FoldChange >=0, "INFinject", "NONINFnm")
+head(sigtab.D0.jn)
 
-deseq.DNEG3.jn <- 
-  ggplot(sigtab.DNEG3.jn, aes(x=reorder(rownames(sigtab.DNEG3.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.jn), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+deseq.D0.jn <- 
+  ggplot(sigtab.D0.jn, aes(x=reorder(rownames(sigtab.D0.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.jn), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to NONINFnm in Fecal Microbiota on Day 0')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', NONINFnm='#56B4E9'))
-deseq.DNEG3.jn
+deseq.D0.jn
 
 #Add OTU and comparisons columns
-sigtab.DNEG3.jn
-sigtab.DNEG3.jn$OTU <- rownames(sigtab.DNEG3.jn)
-sigtab.DNEG3.jn
-sigtab.DNEG3.jn$comp <- 'DNEG3_INFinject_vs_NONINFnm'
+sigtab.D0.jn
+sigtab.D0.jn$OTU <- rownames(sigtab.D0.jn)
+sigtab.D0.jn
+sigtab.D0.jn$comp <- 'D0_INFinject_vs_NONINFnm'
 
 #Create final significant comparisons table
-final.sigtab <- rbind(final.sigtab, sigtab.DNEG3.jn)
+final.sigtab <- rbind(final.sigtab, sigtab.D0.jn)
 
 
-######### 6. Day -3 INFfeed vs NONINFnm  ###################
+######### 6. Day 0 INFfeed vs NONINFnm  ###################
 
 #NONINFnm = N
 #INFnm = I
@@ -735,46 +682,23 @@ final.sigtab <- rbind(final.sigtab, sigtab.DNEG3.jn)
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "DNEG3_NONINFnm")
-#20
-sum(meta$Set == "DNEG3_INFfeed")
-#20
+sum(meta$Set == "D0_NONINFnm")
+#9
+sum(meta$Set == "D0_INFfeed")
+#5
 
 #Extract results from a DESeq analysis, organize table
-resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
-#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm" 
-res.DNEG3.on = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm", type = 'apeglm')
-sigtab.DNEG3.on = res.DNEG3.on[which(res.DNEG3.on$padj < .05), ]
-sigtab.DNEG3.on = cbind(as(sigtab.DNEG3.on, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.on), ], "matrix"))
-format(sigtab.DNEG3.on$padj, scientific = TRUE)
-sigtab.DNEG3.on$newp <- format(round(sigtab.DNEG3.on$padj, digits = 3), scientific = TRUE)
-sigtab.DNEG3.on$Treatment <- ifelse(sigtab.DNEG3.on$log2FoldChange >=0, "INFfeed", "NONINFnm")
-
-#Summarize sigtab.DNEG3.on
-sum.sigtab.DNEG3.on <- summary(sigtab.DNEG3.on)
-sum.sigtab.DNEG3.on
-
-#ggplot
-deseq.DNEG3.on <- ggplot(sigtab.DNEG3.on, aes(x=reorder(rownames(sigtab.DNEG3.on), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.on), y=-1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
-  theme(axis.text.x=element_text(color = 'black', size = 13),
-        axis.text.y=element_text(color = 'black', size=13), 
-        axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
-  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INFfeed='#999999', NONINFnm='#56B4E9'))
-deseq.DNEG3.on
-
-#Add OTU and comparisons columns
-sigtab.DNEG3.on
-sigtab.DNEG3.on$OTU <- rownames(sigtab.DNEG3.on)
-sigtab.DNEG3.on
-sigtab.DNEG3.on$comp <- 'DNEG3_INFfeed_vs_NONINFnm'
-
-#Create final significant comparisons table
-final.sigtab <- rbind(final.sigtab, sigtab.DNEG3.on)
-
+resultsNames(FS9.D0.De)
+#[1] "Intercept"                             "Set_D0_INFnm_vs_D0_NONINFnm"    
+#[3] "Set_D0_INFinject_vs_D0_NONINFnm" "Set_D0_INFfeed_vs_D0_NONINFnm" 
+res.D0.on = lfcShrink(FS9.D0.De, coef = "Set_D0_INFfeed_vs_D0_NONINFnm", type = 'apeglm')
+sigtab.D0.on = res.D0.on[which(res.D0.on$padj < .05), ]
+sigtab.D0.on = cbind(as(sigtab.D0.on, "data.frame"), as(tax_table(FS9.D0)[rownames(sigtab.D0.on), ], "matrix"))
+format(sigtab.D0.on$padj, scientific = TRUE)
+sigtab.D0.on$newp <- format(round(sigtab.D0.on$padj, digits = 3), scientific = TRUE)
+sigtab.D0.on$Treatment <- ifelse(sigtab.D0.on$log2FoldChange >=0, "INFfeed", "NONINFnm")
+head(sigtab.D0.on) #DataFrame with 0 rows and 7 columns, meaning there were no orders that were significantly different
+#in abundance between the two groups, so I will skip to the next comparison
 
 
 ##################################################### Day 4 ######################################################################
@@ -1035,7 +959,7 @@ head(sigtab.D4.on) #DataFrame with 0 rows and 7 columns, meaning there were no o
 ##################################################### Day 7 ######################################################################
 
 sample_data(FS9.order)
-FS9.D7 <- subset_samples(FS9.order, Day == '7')
+FS9.D7 <- subset_samples(FS9.order, Day == 'D7')
 sample_sums(FS9.D7)
 colnames(otu_table(FS9.D7)) #check on all the sample names
 FS9.D7 <- prune_taxa(taxa_sums(FS9.D7) > 1, FS9.D7)
@@ -1045,248 +969,336 @@ rowSums(FS9.D7@otu_table)
 #Look at what Set is
 sample_data(FS9.D7)
 
-######### Day 7 INF_InjOTC vs INF_NoTRMT  ###################
+######### 1. Day 7 INFinject vs INFnm ###################
 
-#NONINF_NoTRMT = N
-#INF_NoTRMT = I
-#INF_InjOTC= J
-#INF_OralOTC = O
-
+#NONINFnm = N
+#INFnm = I
+#INFinject= J
+#INFfeed = O
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "7_INF_InjOTC")
-#26
-sum(meta$Set == "7_INF_NoTRMT")
+sum(meta$Set == "DNEG3_INFnm")
+#20
+sum(meta$Set == "DNEG3_INFinject")
+#20
+
+resultsNames(FS9.DNEG3.De)
+#[1] "Intercept"                            "Set_DNEG3_INFinject_vs_DNEG3_INFfeed"
+#[3] "Set_DNEG3_INFnm_vs_DNEG3_INFfeed"     "Set_DNEG3_NONINFnm_vs_DNEG3_INFfeed" 
+
+#re-level your factor and re-run DESeq2
+sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+                                     levels =c('DNEG3_INFnm',"DNEG3_NONINFnm",
+                                               "DNEG3_INFinject", "DNEG3_INFfeed"))
+FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
+FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
+FS9.DNEG3.De$Set
+resultsNames(FS9.DNEG3.De)
+#[1] "Intercept"                          "Set_DNEG3_NONINFnm_vs_DNEG3_INFnm" 
+#[3] "Set_DNEG3_INFinject_vs_DNEG3_INFnm" "Set_DNEG3_INFfeed_vs_DNEG3_INFnm"  
+res.DNEG3.ji = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFinject_vs_DNEG3_INFnm", type = 'apeglm')
+# positive log2foldchanges are associated with the first group from this line (.3_INF_InjOTC)
+# negative log2foldchanges are associated with the second group from this line (.3_INF_NoTRMT)
+sigtab.DNEG3.ji = res.DNEG3.ji[which(res.DNEG3.ji$padj < .05), ]
+sigtab.DNEG3.ji = cbind(as(sigtab.DNEG3.ji, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.ji), ], "matrix"))
+sigtab.DNEG3.ji$newp <- format(round(sigtab.DNEG3.ji$padj, digits = 3), scientific = TRUE)
+sigtab.DNEG3.ji$Treatment <- ifelse(sigtab.DNEG3.ji$log2FoldChange >=0, "INFinject", "INFnm")
+
+deseq.DNEG3.ji <- 
+  ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to INFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066'))
+deseq.DNEG3.ji
+
+#Add OTU and comparisons columns
+sigtab.DNEG3.ji
+sigtab.DNEG3.ji$OTU <- rownames(sigtab.DNEG3.ji)
+sigtab.DNEG3.ji
+sigtab.DNEG3.ji$comp <- 'DNEG3_INFinject_vs_INFnm'
+
+#Create final significant comparisons table
+final.sigtab <- sigtab.DNEG3.ji
+
+
+
+######### 2. Day -3 INFfeed vs INFnm ###################
+
+#NONINFnm = N
+#INFnm = I
+#INFinject= J
+#INFfeed = O
+
+meta$Set
+#Number of pigs per group (using meta2 dataframe): 
+sum(meta$Set == "DNEG3_INFnm")
+#20
+sum(meta$Set == "DNEG3_INFfeed")
 #20
 
 #Extract results from a DESeq analysis, organize table
-sample_data(FS9.D7)$Set
-sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
-                                     levels =c('7_INF_NoTRMT',"7_NONINF_NoTRMT",
-                                               "7_INF_InjOTC", "7_INF_OralOTC"))
-FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
-FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.D7.De)
-#[1] "Intercept"                           "Set_7_NONINF_NoTRMT_vs_7_INF_NoTRMT" "Set_7_INF_InjOTC_vs_7_INF_NoTRMT"   
-#[4] "Set_7_INF_OralOTC_vs_7_INF_NoTRMT"  
-res.D7.ji = lfcShrink(FS9.D7.De, coef = "Set_7_INF_InjOTC_vs_7_INF_NoTRMT", type = 'apeglm')
-#res.D7.ji = results(FS9.D7.De, contrast=c("Set", "7_INF_InjOTC", "7_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
-#results(FS9.D7.De, contrast=c("Set","7_INF_InjOTC", "7_INF_NoTRMT")) 
-sigtab.D7.ji = res.D7.ji[which(res.D7.ji$padj < .05), ]
-sigtab.D7.ji = cbind(as(sigtab.D7.ji, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.ji), ], "matrix"))
-format(sigtab.D7.ji$padj, scientific = TRUE)
-sigtab.D7.ji$newp <- format(round(sigtab.D7.ji$padj, digits = 3), scientific = TRUE)
-sigtab.D7.ji$Treatment <- ifelse(sigtab.D7.ji$log2FoldChange >=0, "INF_InjOTC", "INF_NoTRMT")
+FS9.DNEG3.De$Set
+resultsNames(FS9.DNEG3.De)
+#[1] "Intercept"                          "Set_DNEG3_NONINFnm_vs_DNEG3_INFnm" 
+#[3] "Set_DNEG3_INFinject_vs_DNEG3_INFnm" "Set_DNEG3_INFfeed_vs_DNEG3_INFnm" 
+res.DNEG3.oi = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFfeed_vs_DNEG3_INFnm", type = 'apeglm')
+sigtab.DNEG3.oi = res.DNEG3.oi[which(res.DNEG3.oi$padj < .05), ]
+sigtab.DNEG3.oi = cbind(as(sigtab.DNEG3.oi, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.oi), ], "matrix"))
+format(sigtab.DNEG3.oi$padj, scientific = TRUE)
+sigtab.DNEG3.oi$newp <- format(round(sigtab.DNEG3.oi$padj, digits = 3), scientific = TRUE)
+sigtab.DNEG3.oi$Treatment <- ifelse(sigtab.DNEG3.oi$log2FoldChange >=0, "INFfeed", "INFnm")
 
-#Summarize sigtab.D7.ji
-sum.sigtab.D7.ji <- summary(sigtab.D7.ji)
-sum.sigtab.D7.ji
+#Summarize sigtab.DNEG3.oi
+sum.sigtab.DNEG3.oi <- summary(sigtab.DNEG3.oi)
+sum.sigtab.DNEG3.oi
 
 #ggplot
-deseq.D7.ji <- ggplot(sigtab.D7.ji, aes(x=reorder(rownames(sigtab.D7.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.ji), y=-0, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+deseq.DNEG3.oi <- ggplot(sigtab.DNEG3.oi, aes(x=reorder(rownames(sigtab.DNEG3.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.oi), y=-1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to INFnm in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  #scale_fill_manual(labels = c("INF_InjOTC", "INF_NoTRMT"), values = c('#E69F00', '#CC0066'))
-  scale_fill_manual(values = c(INF_InjOTC='#E69F00', INF_NoTRMT='#CC0066'))
-deseq.D7.ji
+  scale_fill_manual(values = c(INFfeed='#999999', INFnm='#CC0066'))
+deseq.DNEG3.oi
 
 #Add OTU and comparisons columns
-sigtab.D7.ji
-sigtab.D7.ji$OTU <- rownames(sigtab.D7.ji)
-sigtab.D7.ji
-sigtab.D7.ji$comp <- 'D7_INF_InjOTCvsINF_NoTRMT'
+sigtab.DNEG3.oi
+sigtab.DNEG3.oi$OTU <- rownames(sigtab.DNEG3.oi)
+sigtab.DNEG3.oi
+sigtab.DNEG3.oi$comp <- 'DNEG3_INFfeed_vs_INFnm'
 
 #Create final significant comparisons table
-final.sigtab <- rbind(sigtab.D7.ji, final.sigtab)
+final.sigtab <- rbind(sigtab.DNEG3.oi, final.sigtab)
 
 
+######### 3. Day -3 INFfeed vs INFinject ###################
 
-######### Day 7 INF_OralOTC vs INF_NoTRMT ###################
-
-#NONINF_NoTRMT = N
-#INF_NoTRMT = I
-#INF_InjOTC = J
-#INF_OralOTC = O
-
+#NONINFnm = N
+#INFnm = I
+#INFinject= J
+#INFfeed = O
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "7_INF_NoTRMT")
+sum(meta$Set == "DNEG3_INFinject")
 #20
-sum(meta$Set == "7_INF_OralOTC")
-#17
+sum(meta$Set == "DNEG3_INFfeed")
+#20
 
 #Extract results from a DESeq analysis, organize table
-sample_data(FS9.D7)$Set
-sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
-                                  levels =c('7_INF_NoTRMT',"7_NONINF_NoTRMT",
-                                            "7_INF_InjOTC", "7_INF_OralOTC"))
-FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
-FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.D7.De)
-#[1] "Intercept"                           "Set_7_NONINF_NoTRMT_vs_7_INF_NoTRMT" "Set_7_INF_InjOTC_vs_7_INF_NoTRMT"   
-#[4] "Set_7_INF_OralOTC_vs_7_INF_NoTRMT"  
-res.D7.oi = lfcShrink(FS9.D7.De, coef = "Set_7_INF_OralOTC_vs_7_INF_NoTRMT", type = 'apeglm')
-#res.D7.oi = results(FS9.D7.De, contrast=c("Set", "7_INF_OralOTC", "7_INF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
-#results(FS9.D7.De, contrast=c("Set","7_INF_OralOTC", "7_INF_NoTRMT")) 
-sigtab.D7.oi = res.D7.oi[which(res.D7.oi$padj < .05), ]
-sigtab.D7.oi = cbind(as(sigtab.D7.oi, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.oi), ], "matrix"))
-format(sigtab.D7.oi$padj, scientific = TRUE)
-sigtab.D7.oi$newp <- format(round(sigtab.D7.oi$padj, digits = 3), scientific = TRUE)
-sigtab.D7.oi$Treatment <- ifelse(sigtab.D7.oi$log2FoldChange >=0, "INF_OralOTC", "INF_NoTRMT")
+FS9.DNEG3.De$Set
+resultsNames(FS9.DNEG3.De)
+#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
+#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm"
+sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+                                     levels =c("DNEG3_INFinject", "DNEG3_INFfeed",
+                                               'DNEG3_INFnm',"DNEG3_NONINFnm"))
+FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
+FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.DNEG3.De)
+#[1] "Intercept"                             "Set_DNEG3_INFfeed_vs_DNEG3_INFinject" 
+#[3] "Set_DNEG3_INFnm_vs_DNEG3_INFinject"    "Set_DNEG3_NONINFnm_vs_DNEG3_INFinject"
+res.DNEG3.oj = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFfeed_vs_DNEG3_INFinject", type = 'apeglm')
+sigtab.DNEG3.oj = res.DNEG3.oi[which(res.DNEG3.oi$padj < .05), ]
+sigtab.DNEG3.oj = cbind(as(sigtab.DNEG3.oj, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.oj), ], "matrix"))
+format(sigtab.DNEG3.oj$padj, scientific = TRUE)
+sigtab.DNEG3.oj$newp <- format(round(sigtab.DNEG3.oj$padj, digits = 3), scientific = TRUE)
+sigtab.DNEG3.oj$Treatment <- ifelse(sigtab.DNEG3.oj$log2FoldChange >=0, "INFfeed", "INFinject")
 
-#Summarize sigtab.D7.oi
-sum.sigtab.D7.oi <- summary(sigtab.D7.oi)
-sum.sigtab.D7.oi
+#Summarize sigtab.DNEG3.oj
+sum.sigtab.DNEG3.oj <- summary(sigtab.DNEG3.oj)
+sum.sigtab.DNEG3.oj
 
 #ggplot
-deseq.D7.oi <- ggplot(sigtab.D7.oi, aes(x=reorder(rownames(sigtab.D7.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oi), y=0, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+deseq.DNEG3.oj <- ggplot(sigtab.DNEG3.oj, aes(x=reorder(rownames(sigtab.DNEG3.oj), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.oj), y=-1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_OralOTC Group Relative to INF_NoTRMT in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to INFinject in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  #scale_fill_manual(labels = c("INF_OralOTC", "INF_NoTRMT"), values = c('#999999', '#CC0066'))
-  scale_fill_manual(values = c(INF_OralOTC='#999999', INF_NoTRMT='#CC0066'))
-deseq.D7.oi
+  scale_fill_manual(values = c(INFfeed='#999999', INFinject='#E69F00'))
+deseq.DNEG3.oj
 
 #Add OTU and comparisons columns
-sigtab.D7.oi
-sigtab.D7.oi$OTU <- rownames(sigtab.D7.oi)
-sigtab.D7.oi
-sigtab.D7.oi$comp <- 'D7_INF_OralOTCvsINF_NoTRMT'
+sigtab.DNEG3.oj
+sigtab.DNEG3.oj$OTU <- rownames(sigtab.DNEG3.oj)
+sigtab.DNEG3.oj
+sigtab.DNEG3.oj$comp <- 'DNEG3_INFfeed_vs_INFinject'
 
 #Create final significant comparisons table
-final.sigtab <- rbind(final.sigtab, sigtab.D7.oi)
+final.sigtab <- rbind(sigtab.DNEG3.oj, final.sigtab)
 
 
 
 
-######### Day 7 INF_OralOTC vs INF_InjOTC ###################
 
-#NONINF_NoTRMT = N
-#INF_NoTRMT = I
-#INF_InjOTC = J
-#INF_OralOTC = O
+######### 4. Day -3 INFnm vs NONINFnm  ###################
+
+#NONINFnm = N
+#INFnm = I
+#INFinject= J
+#INFfeed = O
 
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "7_INF_InjOTC")
-#26
-sum(meta$Set == "7_INF_OralOTC")
-#17
+sum(meta$Set == "DNEG3_NONINFnm")
+#20
+sum(meta$Set == "DNEG3_INFnm")
+#20
 
 #Extract results from a DESeq analysis, organize table
-sample_data(FS9.D7)$Set
-sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
-                                  levels =c("7_INF_InjOTC", "7_INF_OralOTC",
-                                            '7_INF_NoTRMT',"7_NONINF_NoTRMT"))
-FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
-FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.D7.De)
-#[1] "Intercept"                           "Set_7_INF_OralOTC_vs_7_INF_InjOTC"   "Set_7_INF_NoTRMT_vs_7_INF_InjOTC"   
-#[4] "Set_7_NONINF_NoTRMT_vs_7_INF_InjOTC"
-res.D7.oj = lfcShrink(FS9.D7.De, coef = "Set_7_INF_OralOTC_vs_7_INF_InjOTC", type = 'apeglm')
-#res.D7.oj = results(FS9.D7.De, contrast=c("Set", "7_INF_OralOTC", "7_INF_InjOTC"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
-#results(FS9.D7.De, contrast=c("Set","7_INF_OralOTC", "7_INF_InjOTC")) 
-sigtab.D7.oj = res.D7.oj[which(res.D7.oj$padj < .05), ]
-sigtab.D7.oj = cbind(as(sigtab.D7.oj, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.oj), ], "matrix"))
-format(sigtab.D7.oj$padj, scientific = TRUE)
-sigtab.D7.oj$newp <- format(round(sigtab.D7.oj$padj, digits = 3), scientific = TRUE)
-sigtab.D7.oj$Treatment <- ifelse(sigtab.D7.oj$log2FoldChange >=0, "INF_OralOTC", "INF_InjOTC")
+FS9.DNEG3.De$Set
+resultsNames(FS9.DNEG3.De)
+sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+                                     levels =c('DNEG3_NONINFnm','DNEG3_INFnm', 
+                                               "DNEG3_INFinject", "DNEG3_INFfeed"))
+FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
+FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.DNEG3.De)
+#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
+#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm" 
+res.DNEG3.in = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm", type = 'apeglm')
+sigtab.DNEG3.in = res.DNEG3.in[which(res.DNEG3.in$padj < .05), ]
+sigtab.DNEG3.in = cbind(as(sigtab.DNEG3.in, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.in), ], "matrix"))
+format(sigtab.DNEG3.in$padj, scientific = TRUE)
+sigtab.DNEG3.in$newp <- format(round(sigtab.DNEG3.in$padj, digits = 3), scientific = TRUE)
+sigtab.DNEG3.in$Treatment <- ifelse(sigtab.DNEG3.in$log2FoldChange >=0, "INFnm", "NONINFnm")
 
-#Summarize sigtab.D7.oj
-sum.sigtab.D7.oj <- summary(sigtab.D7.oj)
-sum.sigtab.D7.oj
+#Summarize sigtab.DNEG3.in
+sum.sigtab.DNEG3.in <- summary(sigtab.DNEG3.in)
+sum.sigtab.DNEG3.in
 
 #ggplot
-deseq.D7.oj <- ggplot(sigtab.D7.oj, aes(x=reorder(rownames(sigtab.D7.oj), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oj), y=0, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+deseq.DNEG3.in <- ggplot(sigtab.DNEG3.in, aes(x=reorder(rownames(sigtab.DNEG3.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.in), y=2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_OralOTC Group Relative to INF_InjOTC in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  #scale_fill_manual(labels = c("INF_OralOTC", "INF_InjOTC"), values = c('#999999', '#E69F00'))
-  scale_fill_manual(values = c(INF_OralOTC='#999999', INF_InjOTC='#E69F00'))
-deseq.D7.oj #What happened to OTU0304 bar? You'll need to re-format the image size so that it'll show all the log2fold changes 
-#see sigtab.D7.oj for log2fold change values
+  scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
+deseq.DNEG3.in
 
 #Add OTU and comparisons columns
-sigtab.D7.oj
-sigtab.D7.oj$OTU <- rownames(sigtab.D7.oj)
-sigtab.D7.oj
-sigtab.D7.oj$comp <- 'D7_INF_OralOTCvsINF_InjOTC'
+sigtab.DNEG3.in
+sigtab.DNEG3.in$OTU <- rownames(sigtab.DNEG3.in)
+sigtab.DNEG3.in
+sigtab.DNEG3.in$comp <- 'DNEG3_INFnm_vs_NONINFnm'
 
 #Create final significant comparisons table
-final.sigtab <- rbind(final.sigtab, sigtab.D7.oj)
+final.sigtab <- rbind(final.sigtab, sigtab.DNEG3.in)
 
 
+######### 5. Day -3 INFinject vs NONINFnm ###################
 
-######### Day 7 INF_InjOTC vs NONINF_NoTRMT  ###################
-
-#NONINF_NoTRMT = N
-#INF_NoTRMT = I
-#INF_InjOTC= J
-#INF_OralOTC = O
-
+#NONINFnm = N
+#INFnm = I
+#INFinject= J
+#INFfeed = O
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "7_INF_InjOTC")
-#26
-sum(meta$Set == "7_NONINF_NoTRMT")
-#17
+sum(meta$Set == "DNEG3_NONINFnm")
+#20
+sum(meta$Set == "DNEG3_INFinject")
+#20
 
-#Extract results from a DESeq analysis, organize table
-sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
-                                  levels =c("7_NONINF_NoTRMT",'7_INF_NoTRMT',
-                                            "7_INF_InjOTC", "7_INF_OralOTC"))
-FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
-FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.D7.De)
-#[1] "Intercept"                            "Set_7_INF_NoTRMT_vs_7_NONINF_NoTRMT"  "Set_7_INF_InjOTC_vs_7_NONINF_NoTRMT" 
-#[4] "Set_7_INF_OralOTC_vs_7_NONINF_NoTRMT"
-res.D7.jn = lfcShrink(FS9.D7.De, coef = "Set_7_INF_InjOTC_vs_7_NONINF_NoTRMT", type = 'apeglm')
-#res.D7.jn = results(FS9.D7.De, contrast=c("Set", "7_INF_InjOTC", "7_NONINF_NoTRMT"),cooksCutoff = FALSE, pAdjustMethod = 'BH')
-#results(FS9.D7.De, contrast=c("Set","7_INF_InjOTC", "7_NONINF_NoTRMT")) 
-sigtab.D7.jn = res.D7.jn[which(res.D7.jn$padj < .05), ]
-sigtab.D7.jn = cbind(as(sigtab.D7.jn, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.jn), ], "matrix"))
-format(sigtab.D7.jn$padj, scientific = TRUE)
-sigtab.D7.jn$newp <- format(round(sigtab.D7.jn$padj, digits = 3), scientific = TRUE)
-sigtab.D7.jn$Treatment <- ifelse(sigtab.D7.jn$log2FoldChange >=0, "INF_InjOTC", "NONINF_NoTRMT")
+resultsNames(FS9.DNEG3.De)
+#[1] "Intercept"                             "Set_DNEG3_INFfeed_vs_DNEG3_INFinject" 
+#[3] "Set_DNEG3_INFnm_vs_DNEG3_INFinject"    "Set_DNEG3_NONINFnm_vs_DNEG3_INFinject" 
+sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+                                     levels =c("DNEG3_NONINFnm", 'DNEG3_INFnm',
+                                               "DNEG3_INFinject", "DNEG3_INFfeed"))
+FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
+FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
+FS9.DNEG3.De$Set
+resultsNames(FS9.DNEG3.De)
+#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
+#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm"  
+res.DNEG3.jn = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm", type = 'apeglm')
+sigtab.DNEG3.jn = res.DNEG3.jn[which(res.DNEG3.jn$padj < .05), ]
+sigtab.DNEG3.jn = cbind(as(sigtab.DNEG3.jn, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.jn), ], "matrix"))
+sigtab.DNEG3.jn$newp <- format(round(sigtab.DNEG3.jn$padj, digits = 3), scientific = TRUE)
+sigtab.DNEG3.jn$Treatment <- ifelse(sigtab.DNEG3.jn$log2FoldChange >=0, "INFinject", "NONINFnm")
 
-#Summarize sigtab.D7.jn
-sum.sigtab.D7.jn <- summary(sigtab.D7.jn)
-sum.sigtab.D7.jn
-
-#ggplot
-deseq.D7.jn <- ggplot(sigtab.D7.jn, aes(x=reorder(rownames(sigtab.D7.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.jn), y=0, label = paste(Phylum,Order, sep = ' ')), size=5)+ labs(x="Phylum Order")+
+deseq.DNEG3.jn <- 
+  ggplot(sigtab.DNEG3.jn, aes(x=reorder(rownames(sigtab.DNEG3.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.jn), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INF_InjOTC Group Relative to NONINF_NoTRMT in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  #scale_fill_manual(labels = c("INF_InjOTC", "NONINF_NoTRMT"), values = c('#E69F00', '#56B4E9'))
-  scale_fill_manual(values = c(INF_InjOTC='#E69F00', NONINF_NoTRMT='#56B4E9'))
-deseq.D7.jn
+  scale_fill_manual(values = c(INFinject='#E69F00', NONINFnm='#56B4E9'))
+deseq.DNEG3.jn
 
 #Add OTU and comparisons columns
-sigtab.D7.jn
-sigtab.D7.jn$OTU <- rownames(sigtab.D7.jn)
-sigtab.D7.jn
-sigtab.D7.jn$comp <- 'D7_INF_InjOTCvsNONINF_NoTRMT'
+sigtab.DNEG3.jn
+sigtab.DNEG3.jn$OTU <- rownames(sigtab.DNEG3.jn)
+sigtab.DNEG3.jn
+sigtab.DNEG3.jn$comp <- 'DNEG3_INFinject_vs_NONINFnm'
 
 #Create final significant comparisons table
-final.sigtab <- rbind(sigtab.D7.jn, final.sigtab)
+final.sigtab <- rbind(final.sigtab, sigtab.DNEG3.jn)
+
+
+######### 6. Day -3 INFfeed vs NONINFnm  ###################
+
+#NONINFnm = N
+#INFnm = I
+#INFinject= J
+#INFfeed = O
+
+meta$Set
+#Number of pigs per group (using meta2 dataframe): 
+sum(meta$Set == "DNEG3_NONINFnm")
+#20
+sum(meta$Set == "DNEG3_INFfeed")
+#20
+
+#Extract results from a DESeq analysis, organize table
+resultsNames(FS9.DNEG3.De)
+#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
+#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm" 
+res.DNEG3.on = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm", type = 'apeglm')
+sigtab.DNEG3.on = res.DNEG3.on[which(res.DNEG3.on$padj < .05), ]
+sigtab.DNEG3.on = cbind(as(sigtab.DNEG3.on, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.on), ], "matrix"))
+format(sigtab.DNEG3.on$padj, scientific = TRUE)
+sigtab.DNEG3.on$newp <- format(round(sigtab.DNEG3.on$padj, digits = 3), scientific = TRUE)
+sigtab.DNEG3.on$Treatment <- ifelse(sigtab.DNEG3.on$log2FoldChange >=0, "INFfeed", "NONINFnm")
+
+#Summarize sigtab.DNEG3.on
+sum.sigtab.DNEG3.on <- summary(sigtab.DNEG3.on)
+sum.sigtab.DNEG3.on
+
+#ggplot
+deseq.DNEG3.on <- ggplot(sigtab.DNEG3.on, aes(x=reorder(rownames(sigtab.DNEG3.on), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.on), y=-1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c(INFfeed='#999999', NONINFnm='#56B4E9'))
+deseq.DNEG3.on
+
+#Add OTU and comparisons columns
+sigtab.DNEG3.on
+sigtab.DNEG3.on$OTU <- rownames(sigtab.DNEG3.on)
+sigtab.DNEG3.on
+sigtab.DNEG3.on$comp <- 'DNEG3_INFfeed_vs_NONINFnm'
+
+#Create final significant comparisons table
+final.sigtab <- rbind(final.sigtab, sigtab.DNEG3.on)
 
 
 
