@@ -1421,46 +1421,46 @@ sum(meta$Set == "DNEG3_INFnm")
 #20
 
 #Extract results from a DESeq analysis, organize table
-FS9.DNEG3.De$Set
-resultsNames(FS9.DNEG3.De)
+resultsNames(FS9.DNEG3.p.De)
 sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
                                      levels =c('DNEG3_NONINFnm','DNEG3_INFnm', 
                                                "DNEG3_INFinject", "DNEG3_INFfeed"))
-FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
-FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.DNEG3.De)
+FS9.DNEG3.p.De <- phyloseq_to_deseq2(FS9.DNEG3.p, ~ Set)
+FS9.DNEG3.p.De <- DESeq(FS9.DNEG3.p.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.DNEG3.p.De)
 #[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
 #[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm" 
-res.DNEG3.in = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm", type = 'apeglm')
-sigtab.DNEG3.in = res.DNEG3.in[which(res.DNEG3.in$padj < .05), ]
-sigtab.DNEG3.in = cbind(as(sigtab.DNEG3.in, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.in), ], "matrix"))
-format(sigtab.DNEG3.in$padj, scientific = TRUE)
-sigtab.DNEG3.in$newp <- format(round(sigtab.DNEG3.in$padj, digits = 3), scientific = TRUE)
-sigtab.DNEG3.in$Treatment <- ifelse(sigtab.DNEG3.in$log2FoldChange >=0, "INFnm", "NONINFnm")
+res.DNEG3.p.in = lfcShrink(FS9.DNEG3.p.De, coef = "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm", type = 'apeglm')
+sigtab.DNEG3.p.in = res.DNEG3.p.in[which(res.DNEG3.p.in$padj < .05), ]
+sigtab.DNEG3.p.in = cbind(as(sigtab.DNEG3.p.in, "data.frame"), as(tax_table(FS9.DNEG3.p)[rownames(sigtab.DNEG3.p.in), ], "matrix"))
+format(sigtab.DNEG3.p.in$padj, scientific = TRUE)
+sigtab.DNEG3.p.in$newp <- format(round(sigtab.DNEG3.p.in$padj, digits = 3), scientific = TRUE)
+sigtab.DNEG3.p.in$Treatment <- ifelse(sigtab.DNEG3.p.in$log2FoldChange >=0, "INFnm", "NONINFnm")
+head(sigtab.DNEG3.p.in)
 
-#Summarize sigtab.DNEG3.in
-sum.sigtab.DNEG3.in <- summary(sigtab.DNEG3.in)
-sum.sigtab.DNEG3.in
+#Summarize sigtab.DNEG3.p.in
+sum.sigtab.DNEG3.p.in <- summary(sigtab.DNEG3.p.in)
+sum.sigtab.DNEG3.p.in
 
 #ggplot
-deseq.DNEG3.in <- ggplot(sigtab.DNEG3.in, aes(x=reorder(rownames(sigtab.DNEG3.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.in), y=2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
+deseq.DNEG3.p.in <- ggplot(sigtab.DNEG3.p.in, aes(x=reorder(rownames(sigtab.DNEG3.p.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.in), y=1, label = paste(Phylum, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
-deseq.DNEG3.in
+deseq.DNEG3.p.in
 
 #Add OTU and comparisons columns
-sigtab.DNEG3.in
-sigtab.DNEG3.in$OTU <- rownames(sigtab.DNEG3.in)
-sigtab.DNEG3.in
-sigtab.DNEG3.in$comp <- 'DNEG3_INFnm_vs_NONINFnm'
+sigtab.DNEG3.p.in
+sigtab.DNEG3.p.in$OTU <- rownames(sigtab.DNEG3.p.in)
+sigtab.DNEG3.p.in
+sigtab.DNEG3.p.in$comp <- 'DNEG3_INFnm_vs_NONINFnm'
 
 #Create final significant comparisons table
-final.sigtab <- rbind(final.sigtab, sigtab.DNEG3.in)
+final.sigtab.phylum <- rbind(final.sigtab.phylum, sigtab.DNEG3.p.in)
 
 
 ######### 5. Day -3 INFinject vs NONINFnm ###################
