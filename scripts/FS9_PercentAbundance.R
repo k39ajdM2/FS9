@@ -4,9 +4,6 @@
 
 #For generating total genera found in each treatment group per day and plot as bar graphs
 
-#Set working directory
-setwd("~/Desktop/FS9/FS9_RWorkspace")
-
 #Clear workspace and load necessary packages
 rm(list=ls())
 
@@ -19,20 +16,12 @@ library(cowplot)
 library("ggsci")
 library(data.table)
 
-#Load saved image
-load("FS9.Genus.RData")
-
-
-
-#Save image
-save.image(file="FS9.Genus.RData")
-
 ############################################################
 
-otu <- import_mothur(mothur_shared_file = 'stability.outsingletons.abund.opti_mcc.0.03.subsample.shared')
-taxo <- import_mothur(mothur_constaxonomy_file = 'stability.outsingletons.abund.opti_mcc.0.03.cons.taxonomy')
-shared <- read.table('stability.outsingletons.abund.opti_mcc.0.03.subsample.shared', header = TRUE)
-meta <- read.table('FS9_metadata.csv', header = TRUE, sep = ",")
+otu <- import_mothur(mothur_shared_file = './data/stability.outsingletons.abund.opti_mcc.0.03.subsample.shared')
+taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outsingletons.abund.opti_mcc.0.03.cons.taxonomy')
+shared <- read.table('./data/stability.outsingletons.abund.opti_mcc.0.03.subsample.shared', header = TRUE)
+meta <- read.table('./data/FS9_metadata.csv', header = TRUE, sep = ",")
 head(meta)
 
 colnames(meta)[1] <- 'group' 
@@ -53,7 +42,7 @@ sample_sums(FS9) #Calculate the sum of all OTUs for each sample. All samples hav
 FS9 <- prune_taxa(taxa_sums(FS9) > 2, FS9)  #Removes OTUs that occur less than 2 times globally
 
 
-
+#CONTINUE HERE!
 #################################################### Phylum #####################################################
 FS9.phylum <- tax_glom(FS9, 'Phylum')
 phyla_tab <- as.data.frame(t(FS9.phylum@otu_table)) #Transpose 'FS9.phylum' by "otu_table"
@@ -80,7 +69,7 @@ head(fobar.gather)
 
 #Reorder days 0-14 in 'fobar.gather' plot
 levels(sample_data(fobar.gather)$Day)
-fobar.gather$Day <- factor(fobar.gather$Day, levels=c("-3", "0", "7"))
+fobar.gather$Day <- factor(fobar.gather$Day, levels=c("-3", "0", "4","7"))
 head(fobar.gather$Day)
 
 #Create "All" column with "Day", "Treatment" and "Tissue" in 'fobar.gather'
