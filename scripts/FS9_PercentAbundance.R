@@ -65,12 +65,25 @@ levels(sample_data(fobar.gather)$Day) #"DNEG3" "D0"    "D4"    "D7"
 
 #Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of phylum
 fobar.gather %>% summarise_each(funs(n_distinct)) #13 total unique phyla
-fobar.gather <- fobar.gather %>% group_by(All) %>% mutate(value2=(value/(length(All)/13))*100) #13 refers to number of Phyla
+fobar.gather <- fobar.gather %>% 
+    group_by(All) %>% 
+    mutate(value2=(value/(length(All)/13))*100) %>% #13 refers to number of Phyla
+    mutate(forplot=if_else(value2>0, "keep", "toss")) %>% 
+    group_by(All) %>% 
+    filter(forplot=='keep') %>% 
+    ungroup()
 
 #Phylum Figures
 
 #Day -3 Phylum
-PhylumFig_DNEG3 <- fobar.gather %>% filter(Day == 'DNEG3') %>%
+DNEG3Phylum <- fobar.gather %>% 
+    subset(Day == "DNEG3") %>% 
+    group_by(Phylum) %>% 
+    select(Phylum, Treatment) %>% 
+    count(Treatment)
+#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
+
+PhylumFig_DNEG3 <- fobar.gather %>% filter(Day == 'DNEG3' & forplot == "keep") %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -87,7 +100,14 @@ PhylumFig_DNEG3
 ggsave("FS9_Phylum_DNEG3.tiff", plot=PhylumFig_DNEG3, width = 15, height = 10, dpi = 500, units =c("in"))
 
 #Day 0 Phylum
-PhylumFig_D0 <- fobar.gather %>% filter(Day == 'D0') %>%
+D0Phylum <- fobar.gather %>% 
+    subset(Day == "D0") %>% 
+    group_by(Phylum) %>% 
+    select(Phylum, Treatment) %>% 
+    count(Treatment)
+#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
+
+PhylumFig_D0 <- fobar.gather %>% filter(Day == 'D0'  & forplot == "keep") %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -104,7 +124,14 @@ PhylumFig_D0
 ggsave("FS9_Phylum_D0.tiff", plot=PhylumFig_D0, width = 15, height = 10, dpi = 500, units =c("in"))
 
 #Day 4 Phylum
-PhylumFig_D4 <- fobar.gather %>% filter(Day == 'D4') %>%
+D4Phylum <- fobar.gather %>% 
+    subset(Day == "D4") %>% 
+    group_by(Phylum) %>% 
+    select(Phylum, Treatment) %>% 
+    count(Treatment)
+#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
+
+PhylumFig_D4 <- fobar.gather %>% filter(Day == 'D4' & forplot == "keep") %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -121,7 +148,14 @@ PhylumFig_D4
 ggsave("FS9_Phylum_D4.tiff", plot=PhylumFig_D4, width = 15, height = 10, dpi = 500, units =c("in"))
 
 #Day 7 Phylum
-PhylumFig_D7 <- fobar.gather %>% filter(Day == 'D7') %>%
+D7Phylum <- fobar.gather %>% 
+    subset(Day == "D7") %>% 
+    group_by(Phylum) %>% 
+    select(Phylum, Treatment) %>% 
+    count(Treatment)
+#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
+
+PhylumFig_D7 <- fobar.gather %>% filter(Day == 'D7' & forplot == "keep") %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -164,11 +198,17 @@ fobar.gather.order %>% summarise_each(funs(n_distinct)) #52 total unique order
 fobar.gather.order <- fobar.gather.order %>% group_by(All) %>% mutate(value2=(value/(length(All)/52))*100) %>% 
     arrange((desc(value2))) %>% 
     filter(value2 > 0) #52 refers to number of Order 
-#add if/else statement
 
 #Order Figures
 
 #Day -3 Order
+DNEG3Order <- fobar.gather.order %>% 
+    subset(Day == "DNEG3") %>% 
+    group_by(Order) %>% 
+    select(Order, Treatment) %>% 
+    count(Treatment)
+#Decide which order to remove from plot that isn't present in all 4 treatment groups
+
 OrderFig_DNEG3 <- fobar.gather.order %>% filter(Day == 'DNEG3' & value2 > 0) %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
@@ -186,6 +226,13 @@ OrderFig_DNEG3
 ggsave("FS9_Order_DNEG3.tiff", plot=OrderFig_DNEG3, width = 17, height = 10, dpi = 500, units =c("in"))
 
 #Day 0 Order
+D0Order <- fobar.gather.order %>% 
+    subset(Day == "D0") %>% 
+    group_by(Order) %>% 
+    select(Order, Treatment) %>% 
+    count(Treatment)
+#Decide which order to remove from plot that isn't present in all 4 treatment groups
+
 OrderFig_D0 <- fobar.gather.order %>% filter(Day == 'D0' & value2 > 0) %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
@@ -203,6 +250,13 @@ OrderFig_D0
 ggsave("FS9_Order_D0.tiff", plot=OrderFig_D0, width = 17, height = 10, dpi = 500, units =c("in"))
 
 #Day 4 Order
+D4Order <- fobar.gather.order %>% 
+    subset(Day == "D4") %>% 
+    group_by(Order) %>% 
+    select(Order, Treatment) %>% 
+    count(Treatment)
+#Decide which order to remove from plot that isn't present in all 4 treatment groups
+
 OrderFig_D4 <- fobar.gather.order %>% filter(Day == 'D4' & value2 > 0) %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
@@ -220,7 +274,15 @@ OrderFig_D4
 ggsave("FS9_Order_D4.tiff", plot=OrderFig_D4, width = 17, height = 10, dpi = 500, units =c("in"))
 
 #Day 7 Order
+D7Order <- fobar.gather.order %>% 
+    subset(Day == "D7") %>% 
+    group_by(Order) %>% 
+    select(Order, Treatment) %>% 
+    count(Treatment)
+#Decide which order to remove from plot that isn't present in all 4 treatment groups
+
 OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
+    #filter(Order != "WCHB1-41") etc.
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
