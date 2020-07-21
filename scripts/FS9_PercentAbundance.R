@@ -22,8 +22,7 @@ otu <- import_mothur(mothur_shared_file = './data/stability.outsingletons.abund.
 taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outsingletons.abund.opti_mcc.0.03.cons.taxonomy')
 shared <- read.table('./data/stability.outsingletons.abund.opti_mcc.0.03.subsample.shared', header = TRUE)
 meta <- read.table('./data/FS9_metadata.csv', header = TRUE, sep = ",")
-head(meta)
-
+meta$All <- with(meta, paste0(Day, sep="_", Treatment))
 colnames(meta)[1] <- 'group' 
 #Rename first column of "meta" as "group" temporarily. Will use "group" to set as rownames later and remove the "group" column
 meta$group <- as.character(meta$group)
@@ -42,7 +41,6 @@ sample_sums(FS9) #Calculate the sum of all OTUs for each sample. All samples hav
 FS9 <- prune_taxa(taxa_sums(FS9) > 2, FS9)  #Removes OTUs that occur less than 2 times globally
 
 
-#CONTINUE HERE!
 #################################################### Phylum #####################################################
 FS9.phylum <- tax_glom(FS9, 'Phylum')
 phyla_tab <- as.data.frame(t(FS9.phylum@otu_table)) #Transpose 'FS9.phylum' by "otu_table"
@@ -51,39 +49,28 @@ FS9.phylum@tax_table[,2] #Second column is Phylum column
 colnames(phyla_tab) <- FS9.phylum@tax_table[,2] #Replace column names in phyla_tab from Otuxxxx with Phylum names
 phyla_tab2 <- phyla_tab/rowSums(phyla_tab) #Calculate the proportion of specific phyla per phyla column in 'phyla_tab'
 head(phyla_tab2)
-phyla_tab2$group <- rownames(phyla_tab2) #Create new column called "group" in 'phyla_tab2' containing rownames
-head(phyla_tab2)
-
-#Check to see if there is an extra "group" column. If so, run the next set of commands (up to "head(fobar)") and 
-#remove appropriate column
-which(colnames(phyla_tab2)=="group") #Results say column 20 is "group" column
-phyla_tab3 <- phyla_tab2[,-20] #Drop the 20th column
-phyla_tab4 <- phyla_tab3[,colSums(phyla_tab3)>0.1] #Keep the columns that have greater than 0.1 value
-phyla_tab4$group <- rownames(phyla_tab4) #Rename rownames as "group"
-fobar <- merge(meta, phyla_tab4, by = 'group')
+phyla_tab3 <- phyla_tab2[,colSums(phyla_tab2)>0.1] #Keep the columns that have greater than 0.1 value
+phyla_tab3$group <- rownames(phyla_tab3) #Rename rownames as "group"
+head(phyla_tab3)
+fobar <- merge(meta, phyla_tab3, by = 'group')
 head(fobar)
-
-fobar.gather <- fobar %>% gather(Phylum, value, -(group:All))  #This converts 'fobar' to long-form dataframe. This is handy for using ggplot faceting functions, check out tidyverse tutorials
-#This also created new columns "Phylum", "value"; it added columns "group" through "All" before "Phylum" and "value"
+fobar.gather <- fobar %>% gather(Phylum, value, -(group:All))  #Combines all phyla into one column and their respective % abundance values in "value" column
+#It added columns "group" through "All" before "Phylum" and "value"
 head(fobar.gather)
 
-#Reorder days 0-14 in 'fobar.gather' plot
-levels(sample_data(fobar.gather)$Day)
-fobar.gather$Day <- factor(fobar.gather$Day, levels=c("-3", "0", "4","7"))
-head(fobar.gather$Day)
-
-#Create "All" column with "Day", "Treatment" and "Tissue" in 'fobar.gather'
-fobar.gather$All <- paste(fobar.gather$Day, fobar.gather$Treatment, sep = '_')
-head(fobar.gather$All)
+#Reorder days in 'fobar.gather' plot
+levels(sample_data(fobar.gather)$Day) #"D0"    "D4"    "D7"    "DNEG3"
+fobar.gather$Day <- factor(fobar.gather$Day, levels=c("DNEG3", "D0", "D4","D7"))
+levels(sample_data(fobar.gather)$Day) #"DNEG3" "D0"    "D4"    "D7" 
 
 #Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of phylum
-fobar.gather %>% summarise_each(funs(n_distinct)) #19 total unique phyla
-fobar.gather <- fobar.gather %>% group_by(All) %>% mutate(value2=(value/(length(All)/19))*100) #19 refers to number of Phyla
+fobar.gather %>% summarise_each(funs(n_distinct)) #13 total unique phyla
+fobar.gather <- fobar.gather %>% group_by(All) %>% mutate(value2=(value/(length(All)/13))*100) #13 refers to number of Phyla
 
 #Phylum Figures
 
 #Day -3 Phylum
-PhylumFig_DNEG3 <- fobar.gather %>% filter(Day == '-3') %>%
+PhylumFig_DNEG3 <- fobar.gather %>% filter(Day == 'DNEG3') %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -94,12 +81,13 @@ PhylumFig_DNEG3 <- fobar.gather %>% filter(Day == '-3') %>%
     ggtitle("Day -3") +
     scale_fill_igv(name = "Phylum") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank())
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic"))
 PhylumFig_DNEG3
 ggsave("FS9_Phylum_DNEG3.tiff", plot=PhylumFig_DNEG3, width = 15, height = 10, dpi = 500, units =c("in"))
 
 #Day 0 Phylum
-PhylumFig_D0 <- fobar.gather %>% filter(Day == '0') %>%
+PhylumFig_D0 <- fobar.gather %>% filter(Day == 'D0') %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -110,12 +98,30 @@ PhylumFig_D0 <- fobar.gather %>% filter(Day == '0') %>%
     ggtitle("Day 0") +
     scale_fill_igv(name = "Phylum") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank())
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic"))
 PhylumFig_D0
 ggsave("FS9_Phylum_D0.tiff", plot=PhylumFig_D0, width = 15, height = 10, dpi = 500, units =c("in"))
 
+#Day 4 Phylum
+PhylumFig_D4 <- fobar.gather %>% filter(Day == 'D4') %>%
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
+    geom_boxplot(position = 'identity') +
+    geom_jitter(shape=21, width = .15)+
+    facet_wrap(~Phylum, scales = 'free') + 
+    ylab('Percent of Total Community') +
+    xlab ('') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    ggtitle("Day 4") +
+    scale_fill_igv(name = "Phylum") +
+    theme(axis.text.x=element_text(angle=45, hjust=1),
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic"))
+PhylumFig_D4
+ggsave("FS9_Phylum_D4.tiff", plot=PhylumFig_D4, width = 15, height = 10, dpi = 500, units =c("in"))
+
 #Day 7 Phylum
-PhylumFig_D7 <- fobar.gather %>% filter(Day == '7') %>%
+PhylumFig_D7 <- fobar.gather %>% filter(Day == 'D7') %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -126,11 +132,12 @@ PhylumFig_D7 <- fobar.gather %>% filter(Day == '7') %>%
     ggtitle("Day 7") +
     scale_fill_igv(name = "Phylum") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank())
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic"))
 PhylumFig_D7
 ggsave("FS9_Phylum_D7.tiff", plot=PhylumFig_D7, width = 15, height = 10, dpi = 500, units =c("in"))
 
-
+write.csv(fobar.gather, file = "FS9_Phylum.csv")
 
 ###################################################### Order #####################################################
 FS9.order <- tax_glom(FS9, 'Order')
@@ -142,37 +149,27 @@ order_tab2 <- order_tab/rowSums(order_tab) #Calculate the proportion of specific
 head(order_tab2)
 order_tab2$group <- rownames(order_tab2) #Create new column called "group" in 'order_tab2' containing rownames
 head(order_tab2)
-
-#Check to see if there is an extra "group" column. If so, run the next set of commands (up to "head(fobar)") and 
-#remove appropriate column
-which(colnames(order_tab2)=="group") #Results say column 50 is "group" column
-order_tab3 <- order_tab2[,-50] #Drop the 50th column
-order_tab4 <- order_tab3[,colSums(order_tab3)>0.1] #Keep the columns that have greater than 0.1 value
-order_tab4$group <- rownames(order_tab4) #Rename rownames as "group"
-fobar2 <- merge(meta, order_tab4, by = 'group')
-head(fobar2)
-
-fobar2.gather <- fobar2 %>% gather(Order, value, -(group:All))  #This converts 'fobar' to long-form dataframe. This is handy for using ggplot faceting functions, check out tidyverse tutorials
-#This also created new columns "Order", "value"; it added columns "group" through "All" before "Order" and "value"
-head(fobar2.gather)
+fobar.order <- merge(meta, order_tab2, by = 'group')
+head(fobar.order)
+fobar.gather.order <- fobar.order %>% gather(Order, value, -(group:All))
+head(fobar.gather.order)
 
 #Reorder days 0-14 in 'fobar.gather' plot
-levels(sample_data(fobar2.gather)$Day)
-fobar2.gather$Day <- factor(fobar2.gather$Day, levels=c("-3", "0", "7"))
-head(fobar2.gather$Day)
-
-#Create "All" column with "Day", "Treatment" and "Tissue" in 'fobar.gather'
-fobar2.gather$All <- paste(fobar2.gather$Day, fobar2.gather$Treatment, sep = '_')
-head(fobar2.gather$All)
+levels(sample_data(fobar.gather.order)$Day) #"D0"    "D4"    "D7"    "DNEG3"
+fobar.gather.order$Day <- factor(fobar.gather.order$Day, levels=c("DNEG3", "D0", "D4", "D7"))
+levels(sample_data(fobar.gather.order)$Day) #"DNEG3" "D0"    "D4"    "D7"  
 
 #Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of order
-fobar2.gather %>% summarise_each(funs(n_distinct)) #22 total unique order
-fobar2.gather <- fobar2.gather %>% group_by(All) %>% mutate(value2=(value/(length(All)/22))*100) #22 refers to number of Order
+fobar.gather.order %>% summarise_each(funs(n_distinct)) #52 total unique order
+fobar.gather.order <- fobar.gather.order %>% group_by(All) %>% mutate(value2=(value/(length(All)/52))*100) %>% 
+    arrange((desc(value2))) %>% 
+    filter(value2 > 0) #52 refers to number of Order 
+#add if/else statement
 
 #Order Figures
 
 #Day -3 Order
-OrderFig_DNEG3 <- fobar2.gather %>% filter(Day == '-3') %>%
+OrderFig_DNEG3 <- fobar.gather.order %>% filter(Day == 'DNEG3' & value2 > 0) %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -183,12 +180,13 @@ OrderFig_DNEG3 <- fobar2.gather %>% filter(Day == '-3') %>%
     ggtitle("Day -3") +
     scale_fill_igv(name = "Order") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank())
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic"))
 OrderFig_DNEG3
 ggsave("FS9_Order_DNEG3.tiff", plot=OrderFig_DNEG3, width = 17, height = 10, dpi = 500, units =c("in"))
 
 #Day 0 Order
-OrderFig_D0 <- fobar2.gather %>% filter(Day == '0') %>%
+OrderFig_D0 <- fobar.gather.order %>% filter(Day == 'D0' & value2 > 0) %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -199,12 +197,30 @@ OrderFig_D0 <- fobar2.gather %>% filter(Day == '0') %>%
     ggtitle("Day 0") +
     scale_fill_igv(name = "Order") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank())
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic"))
 OrderFig_D0
 ggsave("FS9_Order_D0.tiff", plot=OrderFig_D0, width = 17, height = 10, dpi = 500, units =c("in"))
 
+#Day 4 Order
+OrderFig_D4 <- fobar.gather.order %>% filter(Day == 'D4' & value2 > 0) %>%
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
+    geom_boxplot(position = 'identity') +
+    geom_jitter(shape=21, width = .15)+
+    facet_wrap(~Order, scales = 'free') + 
+    ylab('Percent of Total Community') +
+    xlab ('') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    ggtitle("Day 4") +
+    scale_fill_igv(name = "Order") +
+    theme(axis.text.x=element_text(angle=45, hjust=1),
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic"))
+OrderFig_D4
+ggsave("FS9_Order_D4.tiff", plot=OrderFig_D4, width = 17, height = 10, dpi = 500, units =c("in"))
+
 #Day 7 Order
-OrderFig_D7 <- fobar2.gather %>% filter(Day == '7') %>%
+OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -215,8 +231,9 @@ OrderFig_D7 <- fobar2.gather %>% filter(Day == '7') %>%
     ggtitle("Day 7") +
     scale_fill_igv(name = "Order") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank())
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic"))
 OrderFig_D7
 ggsave("FS9_Order_D7.tiff", plot=OrderFig_D7, width = 17, height = 10, dpi = 500, units =c("in"))
 
-write.csv(fobar2.gather, file = "FS9_Order.csv")
+write.csv(fobar.gather.order, file = "FS9_Order.csv")
