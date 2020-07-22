@@ -155,6 +155,7 @@ D7Phylum <- fobar.gather %>%
 #Decide which phyla to remove from plot that isn't present in all 4 treatment groups
 
 PhylumFig_D7 <- fobar.gather %>% filter(Day == 'D7' & forplot == "keep") %>%
+    filter(Phylum != "Kiritimatiellaeota" & Phylum != "Verrucomicrobia") %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -284,7 +285,10 @@ D7Order <- fobar.gather.order %>%
 #Decide which order to remove from plot that isn't present in all 4 treatment groups
 
 OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
-    #filter(Order != "WCHB1-41") etc.
+    filter(Order!= "Actinomycetales" & Order!="Anaeroplasmatales" & Order!="Bacillales" & Order!="Bacteroidetes_unclassified" & Order!="Betaproteobacteriales" &
+               Order!= "Clostridia_unclassified" & Order!="Corynebacteriales" & Order!="Deltaproteobacteria_unclassified" & Order!="Elusimicrobiales" &
+               Order!="Fibrobacterales" & Order!="Gammaproteobacteria_unclassified" & Order!="Pasteurellales" & Order!="Subgroup_6_or" & Order!="Synergistales" &
+               Order!="Verrucomicrobiales" & Order!="WCHB1-41") %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -297,7 +301,7 @@ OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_blank(),
           legend.text = element_text(face = "italic")) +
-    guides(fill= guide_legend(ncol = 2))
+    guides(fill= guide_legend(ncol = 1))
 OrderFig_D7
 
 write.csv(fobar.gather.order, file = "FS9_Order.csv")
