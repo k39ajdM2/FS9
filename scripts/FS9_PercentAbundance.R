@@ -71,6 +71,8 @@ fobar.gather <- fobar.gather %>%
     mutate(forplot=if_else(value2>0, "keep", "toss")) %>% 
     group_by(All) %>% 
     filter(forplot=='keep') %>% 
+    mutate_if(is.numeric, round, digits = 4)%>% 
+    arrange(desc(value2)) %>% 
     ungroup()
 
 #Phylum Figures
@@ -94,10 +96,9 @@ PhylumFig_DNEG3 <- fobar.gather %>% filter(Day == 'DNEG3' & forplot == "keep") %
     ggtitle("Day -3") +
     scale_fill_igv(name = "Phylum") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
+          axis.title.x = element_text(size=5),
           legend.text = element_text(face = "italic"))
 PhylumFig_DNEG3
-ggsave("FS9_Phylum_DNEG3.tiff", plot=PhylumFig_DNEG3, width = 15, height = 10, dpi = 500, units =c("in"))
 
 #Day 0 Phylum
 D0Phylum <- fobar.gather %>% 
@@ -121,7 +122,6 @@ PhylumFig_D0 <- fobar.gather %>% filter(Day == 'D0'  & forplot == "keep") %>%
           axis.title.x = element_blank(),
           legend.text = element_text(face = "italic"))
 PhylumFig_D0
-ggsave("FS9_Phylum_D0.tiff", plot=PhylumFig_D0, width = 15, height = 10, dpi = 500, units =c("in"))
 
 #Day 4 Phylum
 D4Phylum <- fobar.gather %>% 
@@ -145,7 +145,6 @@ PhylumFig_D4 <- fobar.gather %>% filter(Day == 'D4' & forplot == "keep") %>%
           axis.title.x = element_blank(),
           legend.text = element_text(face = "italic"))
 PhylumFig_D4
-ggsave("FS9_Phylum_D4.tiff", plot=PhylumFig_D4, width = 15, height = 10, dpi = 500, units =c("in"))
 
 #Day 7 Phylum
 D7Phylum <- fobar.gather %>% 
@@ -169,7 +168,6 @@ PhylumFig_D7 <- fobar.gather %>% filter(Day == 'D7' & forplot == "keep") %>%
           axis.title.x = element_blank(),
           legend.text = element_text(face = "italic"))
 PhylumFig_D7
-ggsave("FS9_Phylum_D7.tiff", plot=PhylumFig_D7, width = 15, height = 10, dpi = 500, units =c("in"))
 
 write.csv(fobar.gather, file = "FS9_Phylum.csv")
 
@@ -197,7 +195,11 @@ levels(sample_data(fobar.gather.order)$Day) #"DNEG3" "D0"    "D4"    "D7"
 fobar.gather.order %>% summarise_each(funs(n_distinct)) #52 total unique order
 fobar.gather.order <- fobar.gather.order %>% group_by(All) %>% mutate(value2=(value/(length(All)/52))*100) %>% 
     arrange((desc(value2))) %>% 
-    filter(value2 > 0) #52 refers to number of Order 
+    filter(value2 > 0) %>% 
+    mutate_if(is.numeric, round, digits = 4)%>% 
+    arrange(desc(value2)) %>% 
+    ungroup()
+    #52 refers to number of Order 
 
 #Order Figures
 
@@ -209,7 +211,7 @@ DNEG3Order <- fobar.gather.order %>%
     count(Treatment)
 #Decide which order to remove from plot that isn't present in all 4 treatment groups
 
-OrderFig_DNEG3 <- fobar.gather.order %>% filter(Day == 'DNEG3' & value2 > 0) %>% 
+OrderFig_DNEG3 <- fobar.gather.order %>% filter(Day == 'DNEG3') %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -221,9 +223,9 @@ OrderFig_DNEG3 <- fobar.gather.order %>% filter(Day == 'DNEG3' & value2 > 0) %>%
     scale_fill_igv(name = "Order") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic"))
+          legend.text = element_text(face = "italic")) +
+    guides(fill= guide_legend(ncol = 2))
 OrderFig_DNEG3
-ggsave("FS9_Order_DNEG3.tiff", plot=OrderFig_DNEG3, width = 17, height = 10, dpi = 500, units =c("in"))
 
 #Day 0 Order
 D0Order <- fobar.gather.order %>% 
@@ -233,7 +235,7 @@ D0Order <- fobar.gather.order %>%
     count(Treatment)
 #Decide which order to remove from plot that isn't present in all 4 treatment groups
 
-OrderFig_D0 <- fobar.gather.order %>% filter(Day == 'D0' & value2 > 0) %>%
+OrderFig_D0 <- fobar.gather.order %>% filter(Day == 'D0') %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -245,9 +247,9 @@ OrderFig_D0 <- fobar.gather.order %>% filter(Day == 'D0' & value2 > 0) %>%
     scale_fill_igv(name = "Order") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic"))
+          legend.text = element_text(face = "italic")) +
+    guides(fill= guide_legend(ncol = 2))
 OrderFig_D0
-ggsave("FS9_Order_D0.tiff", plot=OrderFig_D0, width = 17, height = 10, dpi = 500, units =c("in"))
 
 #Day 4 Order
 D4Order <- fobar.gather.order %>% 
@@ -257,7 +259,7 @@ D4Order <- fobar.gather.order %>%
     count(Treatment)
 #Decide which order to remove from plot that isn't present in all 4 treatment groups
 
-OrderFig_D4 <- fobar.gather.order %>% filter(Day == 'D4' & value2 > 0) %>%
+OrderFig_D4 <- fobar.gather.order %>% filter(Day == 'D4') %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -269,9 +271,9 @@ OrderFig_D4 <- fobar.gather.order %>% filter(Day == 'D4' & value2 > 0) %>%
     scale_fill_igv(name = "Order") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic"))
+          legend.text = element_text(face = "italic")) +
+    guides(fill= guide_legend(ncol = 2))
 OrderFig_D4
-ggsave("FS9_Order_D4.tiff", plot=OrderFig_D4, width = 17, height = 10, dpi = 500, units =c("in"))
 
 #Day 7 Order
 D7Order <- fobar.gather.order %>% 
@@ -294,8 +296,8 @@ OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
     scale_fill_igv(name = "Order") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic"))
+          legend.text = element_text(face = "italic")) +
+    guides(fill= guide_legend(ncol = 2))
 OrderFig_D7
-ggsave("FS9_Order_D7.tiff", plot=OrderFig_D7, width = 17, height = 10, dpi = 500, units =c("in"))
 
 write.csv(fobar.gather.order, file = "FS9_Order.csv")

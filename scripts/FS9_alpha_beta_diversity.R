@@ -150,18 +150,17 @@ df_ell$Day = factor(df_ell$Day, levels = c("DNEG3", "D0", "D4", "D7"))
 levels(df_ell$Day) #"DNEG3" "D0"    "D4"    "D7" 
 levels(metanmds$Day) #"DNEG3" "D0"    "D4"    "D7" 
 
-#Skip renaming treatment groups until have more info
-#Renaming treatment groups xxx to xxx, respectively, in 'metanmds' and 'df_ell' dataframes
-metanmds$Treatment2 = metanmds$Treatment
-metanmds$Treatment2 <- as.character(metanmds$Treatment2)
-metanmds$Treatment2[metanmds$Treatment2 == 'INF_OralOCT'] <- "INF_OralOTC"
-metanmds$Treatment2[metanmds$Treatment2 == 'INF_InjOCT'] <- "INF_InjOTC"
-df_ell$Treatment2 = df_ell$Treatment
-df_ell$Treatment2 <- as.character(df_ell$Treatment2)
-df_ell$Treatment2[df_ell$Treatment2 == 'INF_OralOCT'] <- "INF_OralOTC"
-df_ell$Treatment2[df_ell$Treatment2 == 'INF_InjOCT'] <- "INF_InjOTC"
-metanmds$Treatment2
-df_ell$Treatment2
+#If need to rename treatment groups in 'metanmds' and 'df_ell' dataframes
+#metanmds$Treatment2 = metanmds$Treatment
+# metanmds$Treatment2 <- as.character(metanmds$Treatment2)
+# metanmds$Treatment2[metanmds$Treatment2 == 'INF_OralOCT'] <- "INF_OralOTC"
+# metanmds$Treatment2[metanmds$Treatment2 == 'INF_InjOCT'] <- "INF_InjOTC"
+# df_ell$Treatment2 = df_ell$Treatment
+# df_ell$Treatment2 <- as.character(df_ell$Treatment2)
+# df_ell$Treatment2[df_ell$Treatment2 == 'INF_OralOCT'] <- "INF_OralOTC"
+# df_ell$Treatment2[df_ell$Treatment2 == 'INF_InjOCT'] <- "INF_InjOTC"
+# metanmds$Treatment2
+# df_ell$Treatment2
 
 #Creating NMDS day+treatment plot from NMDS calculations
 nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
@@ -176,7 +175,7 @@ nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_p
 #nmdsplot2 <- nmdsplot + scale_colour_manual(values=c("#E69F00", "#56B4E9")) + theme(legend.position = "right")
 nmdsplot
 #Save 'nmdsplot' as a .tiff for publication, 500dpi
-ggsave("NMDS_DayAndTreatment.tiff", plot=nmdsplot, width = 11, height = 5, dpi = 500, units =c("in"))
+#ggsave("NMDS_DayAndTreatment.tiff", plot=nmdsplot, width = 11, height = 5, dpi = 500, units =c("in"))
 
 #Creating NMDS day plot from NMDS calculations
 nmdsplot_day <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Day)) + geom_point() + 
@@ -185,7 +184,7 @@ nmdsplot_day <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Day)) + geom_poi
     labs(caption = 'Ordination stress = 0.196') 
 nmdsplot_day
 #Save 'nmdsplot_day' as a .tiff for publication, 500dpi
-ggsave("NMDS_Day.tiff", plot=nmdsplot_day, width = 10, height = 6, dpi = 500, units =c("in"))
+#ggsave("NMDS_Day.tiff", plot=nmdsplot_day, width = 10, height = 6, dpi = 500, units =c("in"))
 
 #Creating NMDS treatment plot from NMDS calculations
 nmdsplot_treatment<- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
@@ -194,7 +193,7 @@ nmdsplot_treatment<- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment))
   labs(caption = 'Ordination stress = 0.196')  
 nmdsplot_treatment
 #Save 'nmdsplot_treatment' as a .tiff for publication, 500dpi
-ggsave("NMDS_Treatment.tiff", plot=nmdsplot_treatment, width = 10, height = 6, dpi = 500, units =c("in"))
+#ggsave("NMDS_Treatment.tiff", plot=nmdsplot_treatment, width = 10, height = 6, dpi = 500, units =c("in"))
 
 #All points, all days, all treatments, samples that aren't relevant are grayed out on plot
 #Plotting with gridlines and axes, gray points for All days
@@ -218,7 +217,7 @@ nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanm
   labs(caption = 'Ordination stress = 0.196', color="Treatment group")
 nmdsplot_treatment2
 #Save 'nmdsplot_treatment2' as a .tiff for publication, 500dpi
-ggsave("NMDS_DayAndTreatment_AllSamples.tiff", plot=nmdsplot_treatment2, width = 10, height = 6, dpi = 500, units =c("in"))
+#ggsave("NMDS_DayAndTreatment_AllSamples.tiff", plot=nmdsplot_treatment2, width = 10, height = 6, dpi = 500, units =c("in"))
 
 #Using pairwise.adonis function (beta diversity)
 adon <- pairwise.adonis(otu, meta$All) #Run pairwise.adonis on 'otu' OTU table and "All" column of 'meta' dataframe
@@ -294,7 +293,7 @@ print(pairwise.wilcox.invsimpson.test)
 # "position = position_dodge2(preserve = 'total')" fixes the ggplot box width, making them wider, prevents narrow boxes from forming in the plot
 
 #Save 'shan' as a .tiff for publication, 500dpi
-ggsave("FS9_Shannon.tiff", plot=shan, width = 7, height = 7, dpi = 500, units =c("in"))
+#ggsave("FS9_Shannon.tiff", plot=shan, width = 7, height = 7, dpi = 500, units =c("in"))
 
 #Generate a box and whisker plot of inverse simpson 
 (invsimp <- ggplot(data = meta, aes(x=All, y=invsimpson, group=All, fill=Treatment)) +
@@ -308,4 +307,4 @@ ggsave("FS9_Shannon.tiff", plot=shan, width = 7, height = 7, dpi = 500, units =c
     theme(legend.position = "none"))
 
 #Save 'invsimp' as a .tiff for publication, 500dpi
-ggsave("FS9_InverseSimpson.tiff", plot=invsimp, width = 7, height = 7, dpi = 500, units =c("in"))
+#ggsave("FS9_InverseSimpson.tiff", plot=invsimp, width = 7, height = 7, dpi = 500, units =c("in"))
