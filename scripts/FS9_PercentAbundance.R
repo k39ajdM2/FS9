@@ -20,7 +20,6 @@ library(data.table)
 
 otu <- import_mothur(mothur_shared_file = './data/stability.outsingletons.abund.opti_mcc.0.03.subsample.shared')
 taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outsingletons.abund.opti_mcc.0.03.cons.taxonomy')
-shared <- read.table('./data/stability.outsingletons.abund.opti_mcc.0.03.subsample.shared', header = TRUE)
 meta <- read.table('./data/FS9_metadata.csv', header = TRUE, sep = ",")
 meta$All <- with(meta, paste0(Day, sep="_", Treatment))
 colnames(meta)[1] <- 'group' 
