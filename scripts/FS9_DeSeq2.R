@@ -21,8 +21,8 @@ sessionInfo()
 ########################################################################################################
 
 #Import files
-otu <- import_mothur(mothur_shared_file = './data/stability.outsingletons.abund.opti_mcc.shared') #use unrarified data
-taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outsingletons.abund.opti_mcc.0.03.cons.taxonomy')
+otu <- import_mothur(mothur_shared_file = './data/stability.outdoubletons.abund.opti_mcc.shared') #use unrarified data
+taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outdoubletons.abund.opti_mcc.0.03.cons.taxonomy')
 meta <- read.table(file = './data/FS9_metadata.csv', sep = ',', header = TRUE)
 
 #Organize meta file
@@ -39,9 +39,9 @@ colnames(tax_table(FS9)) <- c('Kingdom', 'Phylum', 'Class', 'Order', 'Family', '
 
 FS9
 #phyloseq-class experiment-level object
-#otu_table()   OTU Table:         [ 2838 taxa and 172 samples ]
+#otu_table()   OTU Table:         [ 2039 taxa and 172 samples ]
 #sample_data() Sample Data:       [ 172 samples by 5 sample variables ]
-#tax_table()   Taxonomy Table:    [ 2838 taxa by 6 taxonomic ranks ]
+#tax_table()   Taxonomy Table:    [ 2039 taxa by 6 taxonomic ranks ]
 
 #Prune
 FS9 <- prune_samples(sample_sums(FS9) > 1300, FS9)  # This removes samples that have fewer than 1300 sequences associated with them.
@@ -246,8 +246,8 @@ sum(meta$Set == "DNEG3_INFfeed")
 #Extract results from a DESeq analysis, organize table
 FS9.DNEG3.De$Set
 resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
-#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm"
+#[1] "Intercept"                              "Set_DNEG3_NONINFnm_vs_DNEG3_INFnm"  
+#[3] "Set_DNEG3_INFinject_vs_DNEG3_INFnm"     "Set_DNEG3_INFfeed_vs_DNEG3_INFnm"
 sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
                                      levels =c("DNEG3_INFinject", "DNEG3_INFfeed",
                                                'DNEG3_INFnm',"DNEG3_NONINFnm"))
@@ -364,17 +364,8 @@ sum(meta$Set == "DNEG3_INFinject")
 #20
 
 resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                             "Set_DNEG3_INFfeed_vs_DNEG3_INFinject" 
-#[3] "Set_DNEG3_INFnm_vs_DNEG3_INFinject"    "Set_DNEG3_NONINFnm_vs_DNEG3_INFinject" 
-sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
-                                     levels =c("DNEG3_NONINFnm", 'DNEG3_INFnm',
-                                               "DNEG3_INFinject", "DNEG3_INFfeed"))
-FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
-FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
-FS9.DNEG3.De$Set
-resultsNames(FS9.DNEG3.De)
-#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
-#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm"  
+#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"     
+#[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm" 
 res.DNEG3.jn = lfcShrink(FS9.DNEG3.De, coef = "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm", type = 'apeglm')
 sigtab.DNEG3.jn = res.DNEG3.jn[which(res.DNEG3.jn$padj < .05), ]
 sigtab.DNEG3.jn = cbind(as(sigtab.DNEG3.jn, "data.frame"), as(tax_table(FS9.DNEG3)[rownames(sigtab.DNEG3.jn), ], "matrix"))
@@ -383,7 +374,7 @@ sigtab.DNEG3.jn$Treatment <- ifelse(sigtab.DNEG3.jn$log2FoldChange >=0, "INFinje
 
 deseq.DNEG3.jn <- 
   ggplot(sigtab.DNEG3.jn, aes(x=reorder(rownames(sigtab.DNEG3.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.jn), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.jn), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -433,7 +424,7 @@ sum.sigtab.DNEG3.on
 
 #ggplot
 deseq.DNEG3.on <- ggplot(sigtab.DNEG3.on, aes(x=reorder(rownames(sigtab.DNEG3.on), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.on), y=-1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.on), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),

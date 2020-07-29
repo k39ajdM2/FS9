@@ -299,7 +299,6 @@ print(pairwise.wilcox.shannon.test) #Look at the results of 'pairwise.wilcox.sha
 pairwise.wilcox.invsimpson.test <- pairwise.wilcox.test(meta$invsimpson, meta$All, p.adjust.method = 'none')
 print(pairwise.wilcox.invsimpson.test)
 
-#Continue here!!
 #Generate a box and whisker plot of shannon (both shannon and inverse simpson diversity indices showed same trends: 
 #no significant differences between treatment groups within a day)
 (shan <- ggplot(data = meta, aes(x=All, y=shannon, group=All, fill=Treatment)) +
