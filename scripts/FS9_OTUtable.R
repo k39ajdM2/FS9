@@ -49,5 +49,5 @@ ncol(OTUtable) #170 (singletons removed), 169 (doubletons removed)
 write.csv(OTUtable, file= "FS9.OTUtable.doubleton.csv") #In a spreadsheet editor, open "FS9.OTUtable.doubleton.csv" and remove first column (unnecessary)
 
 #check OTU table
-OTUtable <-read.csv("./data/FS9.OTUtable.csv")
+OTUtable <-read.csv("./data/FS9.OTUtable.doubleton.csv")
 head(OTUtable)

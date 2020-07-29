@@ -112,7 +112,7 @@ pairwise.adonis <- function(x,factors, sim.method = 'bray', p.adjust.m = 'none',
 
 ###########################################################################################################
 #Load 'phyloseq.FS9.RData' into environment
-load('phyloseq.FS9.RData')
+load('./data/phyloseq.FS9.doubleton.RData')
 
 #Setting up 'phyloseq' into dataframes for NMDS calculation
 meta <- data.frame(phyloseq.FS9@sam_data) #Make 'phyloseq.FS9' sam_data into dataframe
@@ -124,10 +124,11 @@ head(meta)
 
 #NMDS calculation (aka beta diversity)
 otu[1:10,1:10]
-dim(otu) #166 1582
+dim(otu) #166 1582 (singletons removed) 165 1404 (doubletons removed)
 NMDS <- NMDS_ellipse(meta, otu, grouping_set = 'All')
 #Output:
-#[1] "Ordination stress: 0.195589341005357"
+#[1] "Ordination stress: 0.195589341005357" (singletons removed)
+#[1] "Ordination stress: 0.194889203579284" (doubletons removed)
 
 #Separate meta data and ellipse data to two lists to make NMDS plot
 head(NMDS)
@@ -171,7 +172,7 @@ nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_p
   theme_gray(base_size = 10) +
   theme(strip.text.x = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size=13), axis.title.x = element_text(size=14), axis.title.y = element_text(size=14), legend.text=element_text(size=14), legend.title=element_text(size=14)) +
   labs(color="Treatment group")+
-  labs(caption = 'Ordination stress = 0.196')
+  labs(caption = 'Ordination stress = 0.195')
 #nmdsplot2 <- nmdsplot + scale_colour_manual(values=c("#E69F00", "#56B4E9")) + theme(legend.position = "right")
 nmdsplot
 #Save 'nmdsplot' as a .tiff for publication, 500dpi
@@ -181,7 +182,7 @@ nmdsplot
 nmdsplot_day <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Day)) + geom_point() + 
     geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
     geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Day, group=group)) + 
-    labs(caption = 'Ordination stress = 0.196') 
+    labs(caption = 'Ordination stress = 0.195') 
 nmdsplot_day
 #Save 'nmdsplot_day' as a .tiff for publication, 500dpi
 #ggsave("NMDS_Day.tiff", plot=nmdsplot_day, width = 10, height = 6, dpi = 500, units =c("in"))
@@ -190,7 +191,7 @@ nmdsplot_day
 nmdsplot_treatment<- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
   geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
   geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment, group=group)) + 
-  labs(caption = 'Ordination stress = 0.196')  
+  labs(caption = 'Ordination stress = 0.195')  
 nmdsplot_treatment
 #Save 'nmdsplot_treatment' as a .tiff for publication, 500dpi
 #ggsave("NMDS_Treatment.tiff", plot=nmdsplot_treatment, width = 10, height = 6, dpi = 500, units =c("in"))
@@ -214,7 +215,7 @@ nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanm
         panel.border = element_rect(fill = NA, color = 'grey57'),
         axis.line = element_blank()) + facet_wrap(~Day, nrow = 1) +
   theme_bw() +
-  labs(caption = 'Ordination stress = 0.196', color="Treatment group")
+  labs(caption = 'Ordination stress = 0.195', color="Treatment group")
 nmdsplot_treatment2
 #Save 'nmdsplot_treatment2' as a .tiff for publication, 500dpi
 #ggsave("NMDS_DayAndTreatment_AllSamples.tiff", plot=nmdsplot_treatment2, width = 10, height = 6, dpi = 500, units =c("in"))
@@ -236,7 +237,7 @@ adon.good
 adon.good$p.adjusted <- p.adjust(adon.good$p.value, method = 'fdr') #"p.adjust" function returns a set of p-values adjusted with "fdr" method
 adon.good$p.adjusted2 <- round(adon.good$p.adjusted, 3) #Round p-values to 3 decimal points and list in new "p.adjusted2" column
 adon.good$p.adjusted2[adon.good$p.adjusted2 > 0.05] <- NA #For all p-values greater than 0.05, replace with "NA"
-write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.txt', row.names=TRUE)
+write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.doubletons.txt', row.names=TRUE)
 
 
 
@@ -250,7 +251,7 @@ levels(sample_data(meta)$Day) # Set the level order of values in "Day" column
 #Calculate the average shannon, invsimpson, numOTUs for each "All" subtype within meta
 shannon.invsimpson.numOTUs <- aggregate(meta[, 6:8], list(meta$All), mean)
 print(shannon.invsimpson.numOTUs)
-#Output:
+#Output (singletons removed):
 #     Group.1   numOTUS  shannon invsimpson
 #1       D0_INFfeed  89.40000 3.540890  15.396725
 #2     D0_INFinject  84.23077 3.412381  16.902103
@@ -268,7 +269,27 @@ print(shannon.invsimpson.numOTUs)
 #14 DNEG3_INFinject  96.23529 3.870772  24.026425
 #15     DNEG3_INFnm 110.76471 4.089676  32.931460
 #16  DNEG3_NONINFnm 101.38889 3.930916  26.243361
-write.csv(shannon.invsimpson.numOTUs, file="FS9.shannon.invsimpson.num.OTUs.txt", row.names=TRUE)
+
+#Output (doubletons removed):
+#           Group.1   numOTUS  shannon invsimpson
+#1       D0_INFfeed  90.00000 3.571562  15.935195
+#2     D0_INFinject  84.00000 3.387670  16.956581
+#3         D0_INFnm  83.00000 3.153554  15.628239
+#4      D0_NONINFnm  71.33333 3.089266  13.274195
+#5       D4_INFfeed  65.50000 3.142650  11.607014
+#6     D4_INFinject  69.14286 3.164137  11.997787
+#7         D4_INFnm  79.66667 3.202696  11.903607
+#8      D4_NONINFnm  77.60000 3.117897   9.115051
+#9       D7_INFfeed  89.10000 3.584760  16.726134
+#10    D7_INFinject  98.70000 3.866633  22.417602
+#11        D7_INFnm  94.80000 3.661901  19.286844
+#12     D7_NONINFnm  92.37500 3.770617  18.321736
+#13   DNEG3_INFfeed  90.55000 3.778206  23.139891
+#14 DNEG3_INFinject  99.29412 3.866062  23.587685
+#15     DNEG3_INFnm 113.11765 4.062337  31.949254
+#16  DNEG3_NONINFnm  97.64706 3.864239  25.325367
+
+write.csv(shannon.invsimpson.numOTUs, file="FS9.shannon.invsimpson.num.OTUs.doubletons.txt", row.names=TRUE)
 
 #Shannon
 pairwise.wilcox.shannon.test <- pairwise.wilcox.test(meta$shannon, meta$All, p.adjust.method = 'none') #Calculate pairwise comparisons by "All" column of the shannon indices in "Shannon" column
@@ -278,6 +299,7 @@ print(pairwise.wilcox.shannon.test) #Look at the results of 'pairwise.wilcox.sha
 pairwise.wilcox.invsimpson.test <- pairwise.wilcox.test(meta$invsimpson, meta$All, p.adjust.method = 'none')
 print(pairwise.wilcox.invsimpson.test)
 
+#Continue here!!
 #Generate a box and whisker plot of shannon (both shannon and inverse simpson diversity indices showed same trends: 
 #no significant differences between treatment groups within a day)
 (shan <- ggplot(data = meta, aes(x=All, y=shannon, group=All, fill=Treatment)) +

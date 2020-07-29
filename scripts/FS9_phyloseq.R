@@ -20,20 +20,20 @@ sessionInfo()
 
 #Read files for metadata and OTU table
 meta <- read.csv("./data/FS9_metadata.csv", row.names = 1)
-otu <- read.csv("./data/FS9.OTUtable.csv", row.names=1)
-dim(otu) #1583 169
-head(otu[,165:169])
+otu <- read.csv("./data/FS9.OTUtable.doubleton.csv", row.names=1)
+dim(otu) #1405 168
+head(otu[,165:168])
 
 #Remove taxonomy from 'otu'
-tax <- otu[,(168:169)] #Removed column 169 "Taxonomy" and 168 to include the row names
+tax <- otu[,(167:168)] #Removed column 168 "Taxonomy" and 167 to include the row names
 head(tax)
-colnames(tax)[1] <- "delete" #Renamed column 1 (formerly 168) as "delete" which will later be deleted
+colnames(tax)[1] <- "delete" #Renamed column 1 (formerly 167) as "delete" which will later be deleted
 head(tax)
 
 #Modify 'otu' with only OTU count data
-otu <- otu[,-169] #Remove column 169 "Taxonomy" to have only OTU data
-head(otu[,165:168]) 
-dim(otu) #1583 rows 168 columns
+otu <- otu[,-168] #Remove column 168 "Taxonomy" to have only OTU data
+head(otu[,165:167]) 
+dim(otu) #1405 rows 167 columns
 
 #Transpose 'otu' to match format of 'meta'
 otu.trans <- t(otu) #Now rownames are sample names, columns are OTUs
@@ -45,7 +45,7 @@ class(otu) #dataframe
 otu.meta <- merge(meta, otu.trans, by.x=0, by.y=0) 
 #x=0 means match via rownames from 'meta'; y=0 means match via rownames from 'otu.trans'
 head(otu.meta[,1:10])
-dim(otu.meta) #166 1588
+dim(otu.meta) #166 1588 (singletons removed) 165 1410 (doubletons removed)
 rownames(otu.meta) <- otu.meta[,1] #Set column 1 as rownames for 'otu.meta'
 otu.meta <- otu.meta[,-1] #Remove first column "rownames"
 class(otu.meta) #dataframe
@@ -56,17 +56,17 @@ otu.meta2<- cbind(otu.meta) #Make second copy of otu.meta to use to include "All
 colnames(otu.meta2)
 otu.meta2$All <- with(otu.meta2, paste0(Day, sep="_", Treatment)) #Create "All" column with Day and Treatment combined
 head(otu.meta2)
-dim(otu.meta2) #166 1588
-head(otu.meta2[,1584:1588])
+dim(otu.meta2) #166 1588 (singletons removed) 165 1410 (doubletons removed)
+head(otu.meta2[,1405:1410])
 head(otu.meta2[,1:10])
-otu.meta2<- otu.meta2[,c(1:4,1588,5:1587)] #Reorder columns to have "All" column after "Treatment" column
-write.csv(otu.meta2, file="FS9.otu.meta_all.csv")
+otu.meta2<- otu.meta2[,c(1:4,1410,5:1409)] #Reorder columns to have "All" column after "Treatment" column
+#write.csv(otu.meta2, file="FS9.otu.meta_all.doubleton.csv")
 
 #Pull out metadata from 'otu.meta2' dataframe
 head(otu.meta2[,1:10])
 meta2 <- otu.meta2[,c(1:5)] #Take columns 1-5 ("Day" to "All") from 'otu.meta2' to make 'meta2'
 head(meta2)
-dim(meta2) #166 5
+dim(meta2) #166 5 (singletons removed) 165 5 (doubletons removed)
 
 #Create SAM metadata table phyloseq object
 SAM = sample_data(meta2, errorIfNULL = TRUE)
@@ -75,32 +75,32 @@ dim(SAM) #166 5
 
 #Pull out OTU data from 'otu.meta2' dataframe
 head(otu.meta2[,1:10])
-tail(otu.meta2[,1584:1588])
-otu2 <- otu.meta2[,c(6:1588)] #Select OTU columns to create 'otu2' dataframe
+tail(otu.meta2[,1405:1410])
+otu2 <- otu.meta2[,c(6:1410)] #Select OTU columns to create 'otu2' dataframe
 head(otu2[,1:10])
-dim(otu2) #166 1583
+dim(otu2) #166 1583 (singletons removed) 165 1405 (doubletons removed)
 otu2.trans <- t(otu2) #Transpose otu.all to have OTUs as rownames, sample names as column names
 head(otu2.trans[,1:10])
-dim(otu2.trans) #1583 166
+dim(otu2.trans) #1583 166 (singletons removed) 1405 165 (doubletons removed)
 
 #Merge 'tax' back into 'otu2.trans' for correct format and taxons
 head(tax)
 otu2.tax <- merge(otu2.trans, tax, by=0) #Merge by rownames aka OTU rownames
-dim(otu2.tax) #1583 169
+dim(otu2.tax) #1583 169 (singletons removed) 1405 168 (doubletons removed)
 head(otu2.tax[,1:10])
-head(otu2.tax[,160:169])
+head(otu2.tax[,160:168])
 row.names(otu2.tax) <- otu2.tax[,1] #Set first row of 'otu2.tax' as rownames
 head(otu2.tax[,1:5])
 otu2.tax <- otu2.tax[,-1] #Remove first row aka extraneous "Row.names" column from 'otu2.tax'
 head(otu2.tax[,1:5])
 
 #Split again
-dim(otu2.tax) #1583 168
-head(otu2.tax[,160:168])
-otu2.notax <- otu2.tax[,1:166] #take rows 1-166 to make new dataframe 'otu2.notax' (167 is "delete" column, 168 is "Taxonomy" column)
-dim(otu2.notax) #1583 166
+dim(otu2.tax) #1583 168 (singletons removed) 1405 167 (doubletons removed)
+head(otu2.tax[,160:167])
+otu2.notax <- otu2.tax[,1:165] #take rows 1-165 to make new dataframe 'otu2.notax' (166 is "delete" column, 167 is "Taxonomy" column)
+dim(otu2.notax) #1583 166 (singletons removed) 1405 165 (doubletons removed)
 head(otu2.notax[,1:5])
-head(otu2.notax[,160:166])
+head(otu2.notax[,160:165])
 class(otu2.notax) #dataframe
 otu2.notax <- as.matrix(otu2.notax) #turn 'otu2.notax' into a matrix class
 class(otu2.notax) #matrix
@@ -111,27 +111,27 @@ head(otu2.notax.trans[,1:10])
 #Create OTU table phyloseq object
 OTU = otu_table(otu2.notax.trans, taxa_are_rows = FALSE)
 head(OTU[,1:10])
-dim(OTU) #166 1583
+dim(OTU) #166 1583 (singletons removed) 165 1405 (doubletons removed)
 class(OTU)
 OTU2 <- prune_taxa(taxa_sums(OTU) > 0, OTU)
 class(OTU2)
 head(OTU2[,1:10])
 taxa_sums(OTU2)
-dim(OTU2) #166 1582
+dim(OTU2) #166 1582 (singletons removed) 165 1404 (doubletons removed)
 
 #Edit taxonomy
-dim(otu2.tax) #1583 168
-head(otu2.tax[,160:168])
+dim(otu2.tax) #1583 168 (singletons removed) 1405 167 (doubletons removed)
+head(otu2.tax[,160:167])
 tax2 <- separate(data = otu2.tax, 
                            col = Taxonomy, 
                            into=c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"), sep=";")
 #"separate" function separates "Taxonomy" column into 7 separate columns labeled "Kingdom", "Phylum", "Class", etc.
 head(tax2) #notice that Species column is blank
-dim(tax2) #1583 174
-head(tax2[,168:173])
-tax2.kg <- tax2[,168:173] #Keep only taxonomy columns "Kingdom" to "Genus"
+dim(tax2) #1583 174 (singletons removed) 1405 173 (doubletons removed)
+head(tax2[,167:172])
+tax2.kg <- tax2[,167:172] #Keep only taxonomy columns "Kingdom" to "Genus"
 head(tax2.kg)
-dim(tax2.kg) #1583 6
+dim(tax2.kg) #1583 6 (singletons removed) 1405 6 (doubletons removed)
 class(tax2.kg) #dataframe
 tax2.kg <- as.matrix(tax2.kg)
 class(tax2.kg) #matrix
@@ -140,16 +140,16 @@ tax2.kg
 #Create TAX taxonomy table phyloseq object
 TAX = tax_table(tax2.kg)
 head(TAX)
-dim(TAX) #1583 6
+dim(TAX) #1583 6 (singletons removed) 1405 6 (doubletons removed)
 
 #Create phyloseq object containing taxonomy, metadata, and otu table
 phyloseq.FS9 <- phyloseq(OTU2, SAM, TAX) #prune out any OTUs that have total to 0 in all samples
 phyloseq.FS9
-#otu_table()   OTU Table:         [ 1582 taxa and 166 samples ]
-#sample_data() Sample Data:       [ 166 samples by 5 sample variables ]
-#tax_table()   Taxonomy Table:    [ 1582 taxa by 6 taxonomic ranks ]
+#otu_table()   OTU Table:         [ 1404 taxa and 165 samples ]
+#sample_data() Sample Data:       [ 165 samples by 5 sample variables ]
+#tax_table()   Taxonomy Table:    [ 1404 taxa by 6 taxonomic ranks ]
 
-save(phyloseq.FS9, file="phyloseq.FS9.RData") #Use for FS9_alpha_beta_diversity.R when loading phyloseq.FS9 object
+save(phyloseq.FS9, file="phyloseq.FS9.doubleton.RData") #Use for FS9_alpha_beta_diversity.R when loading phyloseq.FS9 object
 
 ###############################################################################
 
@@ -169,12 +169,12 @@ adonis.FS9
 #Terms added sequentially (first to last)
 
 #                 Df SumsOfSqs  MeanSqs   F.Model   R2        Pr(>F)    
-#Day               3     5.582  1.86051   9.6752    0.14888   0.0001 ***
-#Treatment         3     1.246  0.41542   2.1603    0.03324   0.0001 ***
-#Day:Treatment     9     1.819  0.20209   1.0509    0.04851   0.3053    
-#Residuals      150     28.845  0.19230             0.76937           
-#Total          165     37.491                      1.00000          
-
-#  Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+# Day             3     5.654   1.88462   9.9680    0.15359   0.0001 ***
+# Treatment       3     1.200   0.40015   2.1165    0.03261   0.0001 ***
+# Day:Treatment   9     1.786   0.19849   1.0498    0.04853   0.3136    
+# Residuals     149    28.171   0.18907             0.76527           
+# Total         164    36.812                       1.00000           
+#---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 #Only Day, Treatment had significant effects on the gut microbial community variation observed between four groups
