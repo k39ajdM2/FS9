@@ -287,7 +287,7 @@ OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
     filter(Order!= "Actinomycetales" & Order!="Bacillales" & Order!="Bacteroidetes_unclassified" & Order!="Betaproteobacteriales" &
                Order!= "Clostridia_unclassified" & Order!="Deltaproteobacteria_unclassified" & Order!="Elusimicrobiales" &
                Order!="Fibrobacterales" & Order!="Fusobacteriales" & Order!="Gammaproteobacteria_unclassified" & Order!="Pasteurellales" & Order!="Pyrinomonadales" & 
-               Order!="Rhodospirillales" & Order!="Subgroup_6_or" & Order!="Synergistales" &
+               Order!="Subgroup_6_or" & Order!="Synergistales" &
                Order!="Verrucomicrobiales" & Order!="WCHB1-41") %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
