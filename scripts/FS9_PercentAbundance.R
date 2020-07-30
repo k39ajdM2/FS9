@@ -18,8 +18,8 @@ library(data.table)
 
 ############################################################
 
-otu <- import_mothur(mothur_shared_file = './data/stability.outsingletons.abund.opti_mcc.0.03.subsample.shared')
-taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outsingletons.abund.opti_mcc.0.03.cons.taxonomy')
+otu <- import_mothur(mothur_shared_file = './data/stability.outdoubletons.abund.opti_mcc.0.03.subsample.shared')
+taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outdoubletons.abund.opti_mcc.0.03.cons.taxonomy')
 meta <- read.table('./data/FS9_metadata.csv', header = TRUE, sep = ",")
 meta$All <- with(meta, paste0(Day, sep="_", Treatment))
 colnames(meta)[1] <- 'group' 
@@ -80,8 +80,8 @@ fobar.gather <- fobar.gather %>%
 DNEG3Phylum <- fobar.gather %>% 
     subset(Day == "DNEG3") %>% 
     group_by(Phylum) %>% 
-    select(Phylum, Treatment) %>% 
-    count(Treatment)
+    select(Phylum, All) %>% 
+    count(All)
 #Decide which phyla to remove from plot that isn't present in all 4 treatment groups
 
 PhylumFig_DNEG3 <- fobar.gather %>% filter(Day == 'DNEG3' & forplot == "keep") %>%
@@ -169,7 +169,7 @@ PhylumFig_D7 <- fobar.gather %>% filter(Day == 'D7' & forplot == "keep") %>%
           legend.text = element_text(face = "italic"))
 PhylumFig_D7
 
-write.csv(fobar.gather, file = "FS9_Phylum.csv")
+write.csv(fobar.gather, file = "FS9_Phylum_OutDoubletons.csv")
 
 ###################################################### Order #####################################################
 FS9.order <- tax_glom(FS9, 'Order')
@@ -192,14 +192,14 @@ fobar.gather.order$Day <- factor(fobar.gather.order$Day, levels=c("DNEG3", "D0",
 levels(sample_data(fobar.gather.order)$Day) #"DNEG3" "D0"    "D4"    "D7"  
 
 #Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of order
-fobar.gather.order %>% summarise_each(funs(n_distinct)) #52 total unique order
-fobar.gather.order <- fobar.gather.order %>% group_by(All) %>% mutate(value2=(value/(length(All)/52))*100) %>% 
+fobar.gather.order %>% summarise_each(funs(n_distinct)) #48 total unique order
+fobar.gather.order <- fobar.gather.order %>% group_by(All) %>% mutate(value2=(value/(length(All)/48))*100) %>% 
     arrange((desc(value2))) %>% 
     filter(value2 > 0) %>% 
     mutate_if(is.numeric, round, digits = 4)%>% 
     arrange(desc(value2)) %>% 
     ungroup()
-    #52 refers to number of Order 
+    #48 refers to number of Order 
 
 #Order Figures
 
@@ -284,9 +284,10 @@ D7Order <- fobar.gather.order %>%
 #Decide which order to remove from plot that isn't present in all 4 treatment groups
 
 OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
-    filter(Order!= "Actinomycetales" & Order!="Anaeroplasmatales" & Order!="Bacillales" & Order!="Bacteroidetes_unclassified" & Order!="Betaproteobacteriales" &
-               Order!= "Clostridia_unclassified" & Order!="Corynebacteriales" & Order!="Deltaproteobacteria_unclassified" & Order!="Elusimicrobiales" &
-               Order!="Fibrobacterales" & Order!="Gammaproteobacteria_unclassified" & Order!="Pasteurellales" & Order!="Subgroup_6_or" & Order!="Synergistales" &
+    filter(Order!= "Actinomycetales" & Order!="Bacillales" & Order!="Bacteroidetes_unclassified" & Order!="Betaproteobacteriales" &
+               Order!= "Clostridia_unclassified" & Order!="Deltaproteobacteria_unclassified" & Order!="Elusimicrobiales" &
+               Order!="Fibrobacterales" & Order!="Fusobacteriales" & Order!="Gammaproteobacteria_unclassified" & Order!="Pasteurellales" & Order!="Pyrinomonadales" & 
+               Order!="Rhodospirillales" & Order!="Subgroup_6_or" & Order!="Synergistales" &
                Order!="Verrucomicrobiales" & Order!="WCHB1-41") %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
@@ -303,4 +304,4 @@ OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
     guides(fill= guide_legend(ncol = 1))
 OrderFig_D7
 
-write.csv(fobar.gather.order, file = "FS9_Order.csv")
+write.csv(fobar.gather.order, file = "FS9_Order_OutDoubletons.csv")
