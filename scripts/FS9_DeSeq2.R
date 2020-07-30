@@ -690,7 +690,6 @@ sigtab.D0.on$Treatment <- ifelse(sigtab.D0.on$log2FoldChange >=0, "INFfeed", "NO
 head(sigtab.D0.on) #DataFrame with 0 rows and 7 columns, meaning there were no orders that were significantly different
 #in abundance between the two groups, so I will skip to the next comparison
 
-###################CONTINUE HERE!!!!#########
 ##################################################### Day 4 ######################################################################
 
 sample_data(FS9.order)
@@ -847,7 +846,7 @@ sum.sigtab.D4.in
 
 #ggplot
 deseq.D4.in <- ggplot(sigtab.D4.in, aes(x=reorder(rownames(sigtab.D4.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D4.in), y=2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D4.in), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -883,14 +882,6 @@ sum(meta$Set == "D4_INFinject")
 resultsNames(FS9.D4.De)
 #[1] "Intercept"                       "Set_D4_INFnm_vs_D4_NONINFnm"     "Set_D4_INFinject_vs_D4_NONINFnm"
 #[4] "Set_D4_INFfeed_vs_D4_NONINFnm" 
-sample_data(FS9.D4)$Set <- factor(sample_data(FS9.D4)$Set,
-                                     levels =c("D4_NONINFnm", 'D4_INFnm',
-                                               "D4_INFinject", "D4_INFfeed"))
-FS9.D4.De <- phyloseq_to_deseq2(FS9.D4, ~ Set)
-FS9.D4.De <- DESeq(FS9.D4.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.D4.De)
-#[1] "Intercept"                       "Set_D4_INFnm_vs_D4_NONINFnm"     "Set_D4_INFinject_vs_D4_NONINFnm"
-#[4] "Set_D4_INFfeed_vs_D4_NONINFnm"  
 res.D4.jn = lfcShrink(FS9.D4.De, coef = "Set_D4_INFinject_vs_D4_NONINFnm", type = 'apeglm')
 sigtab.D4.jn = res.D4.jn[which(res.D4.jn$padj < .05), ]
 sigtab.D4.jn = cbind(as(sigtab.D4.jn, "data.frame"), as(tax_table(FS9.D4)[rownames(sigtab.D4.jn), ], "matrix"))
@@ -899,7 +890,7 @@ sigtab.D4.jn$Treatment <- ifelse(sigtab.D4.jn$log2FoldChange >=0, "INFinject", "
 
 deseq.D4.jn <- 
   ggplot(sigtab.D4.jn, aes(x=reorder(rownames(sigtab.D4.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D4.jn), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D4.jn), y=0.8, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -990,7 +981,7 @@ head(sigtab.D7.ji)
 
 deseq.D7.ji <- 
   ggplot(sigtab.D7.ji, aes(x=reorder(rownames(sigtab.D7.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.ji), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -1041,7 +1032,7 @@ sum.sigtab.D7.oi
 
 #ggplot
 deseq.D7.oi <- ggplot(sigtab.D7.oi, aes(x=reorder(rownames(sigtab.D7.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oi), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oi), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -1099,7 +1090,7 @@ sum.sigtab.D7.oj
 
 #ggplot
 deseq.D7.oj <- ggplot(sigtab.D7.oj, aes(x=reorder(rownames(sigtab.D7.oj), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oj), y=-1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oj), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -1251,7 +1242,7 @@ head(sigtab.D7.on) #DataFrame with 0 rows and 7 columns, meaning there were no o
 #######################################################################################################
 
 #write csv
-write.csv(final.sigtab, file= "FS9_FinalDiffAbund_Order.csv")
+write.csv(final.sigtab, file= "FS9_FinalDiffAbund_Order_OutDoubletons.csv")
 
 #######################################################################################################
 
@@ -1412,13 +1403,13 @@ sum(meta$Set == "DNEG3_INFnm")
 
 #Extract results from a DESeq analysis, organize table
 resultsNames(FS9.DNEG3.p.De)
-sample_data(FS9.DNEG3)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+sample_data(FS9.DNEG3.p)$Set <- factor(sample_data(FS9.DNEG3)$Set,
                                      levels =c('DNEG3_NONINFnm','DNEG3_INFnm', 
                                                "DNEG3_INFinject", "DNEG3_INFfeed"))
 FS9.DNEG3.p.De <- phyloseq_to_deseq2(FS9.DNEG3.p, ~ Set)
 FS9.DNEG3.p.De <- DESeq(FS9.DNEG3.p.De, test = "Wald", fitType = "parametric")
 resultsNames(FS9.DNEG3.p.De)
-#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"    
+#[1] "Intercept"                             "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"     
 #[3] "Set_DNEG3_INFinject_vs_DNEG3_NONINFnm" "Set_DNEG3_INFfeed_vs_DNEG3_NONINFnm" 
 res.DNEG3.p.in = lfcShrink(FS9.DNEG3.p.De, coef = "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm", type = 'apeglm')
 sigtab.DNEG3.p.in = res.DNEG3.p.in[which(res.DNEG3.p.in$padj < .05), ]
@@ -1789,7 +1780,8 @@ sigtab.D0.p.on$OTU <- rownames(sigtab.D0.p.on)
 sigtab.D0.p.on
 sigtab.D0.p.on$comp <- 'D0_INFinject_vs_NONINFnm'
 
-
+#Create final significant comparisons table
+final.sigtab.phylum <- rbind(final.sigtab.phylum, sigtab.D0.p.on)
 
 ##################################################### Day 4 ######################################################################
 
@@ -1825,7 +1817,6 @@ sample_data(FS9.D4.p)$Set <- factor(sample_data(FS9.D4.p)$Set,
                                             "D4_INFinject", "D4_INFfeed"))
 FS9.D4.p.De <- phyloseq_to_deseq2(FS9.D4.p, ~ Set)
 FS9.D4.p.De <- DESeq(FS9.D4.p.De, test = "Wald", fitType = "parametric")
-FS9.D4.p.De$Set
 resultsNames(FS9.D4.p.De)
 #[1] "Intercept"                    "Set_D4_NONINFnm_vs_D4_INFnm"  "Set_D4_INFinject_vs_D4_INFnm"
 #[4] "Set_D4_INFfeed_vs_D4_INFnm"  
@@ -1918,7 +1909,6 @@ sum(meta$Set == "D4_INFnm")
 #6
 
 #Extract results from a DESeq analysis, organize table
-FS9.D4.p.De$Set
 resultsNames(FS9.D4.p.De)
 #[1] "Intercept"                       "Set_D4_INFfeed_vs_D4_INFinject"  "Set_D4_INFnm_vs_D4_INFinject"   
 #[4] "Set_D4_NONINFnm_vs_D4_INFinject"
@@ -2008,7 +1998,6 @@ rowSums(FS9.D7.p@otu_table)
 sample_data(FS9.D7.p)
 
 
-#CONTINUE HERE!!!
 ######### 1. Day 7 INFinject vs INFnm ###################
 
 #NONINFnm = N
@@ -2143,6 +2132,7 @@ sigtab.D7.p.oj = cbind(as(sigtab.D7.p.oj, "data.frame"), as(tax_table(FS9.D7.p)[
 format(sigtab.D7.p.oj$padj, scientific = TRUE)
 sigtab.D7.p.oj$newp <- format(round(sigtab.D7.p.oj$padj, digits = 3), scientific = TRUE)
 sigtab.D7.p.oj$Treatment <- ifelse(sigtab.D7.p.oj$log2FoldChange >=0, "INFfeed", "INFinject")
+head(sigtab.D7.p.oj)
 
 #Summarize sigtab.D7.p.oj
 sum.sigtab.D7.p.oj <- summary(sigtab.D7.p.oj)
@@ -2150,7 +2140,7 @@ sum.sigtab.D7.p.oj
 
 #ggplot
 deseq.D7.p.oj <- ggplot(sigtab.D7.p.oj, aes(x=reorder(rownames(sigtab.D7.p.oj), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.oj), y=-1, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.oj), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -2305,6 +2295,6 @@ head(sigtab.D7.p.on) #DataFrame with 0 rows and 7 columns, meaning there were no
 #######################################################################################################
 
 #write csv
-write.csv(final.sigtab.phylum, file= "FS9_FinalDiffAbund_Phylum.csv")
+write.csv(final.sigtab.phylum, file= "FS9_FinalDiffAbund_Phylum_OutDoubletons.csv")
 
 #######################################################################################################
