@@ -246,7 +246,9 @@ write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.doubletons.txt', row
 #Calculating alpha diversity metrics: Shannon, Inverse Simpson
 meta$shannon <- diversity(otu) #"diversity" is a vegan function. The default index is set at "shannon". I added a shannon index column in 'meta'
 meta$invsimpson <- diversity(otu,index = 'invsimpson') #We used 'invsimpson' since it is easier to interpret than Simpson values and won't need to "inverse" the Simpson values to understand (With Simpson values, the lower the number, the higher the diversity)
-levels(sample_data(meta)$Day) # Set the level order of values in "Day" column
+levels(sample_data(meta)$Day)
+meta$Day = factor(meta$Day, levels = c("DNEG3", "D0", "D4", "D7"))  # Set the level order of values in "Day" column
+levels(sample_data(meta)$Day) #"DNEG3" "D0"    "D4"    "D7"
 
 #Calculate the average shannon, invsimpson, numOTUs for each "All" subtype within meta
 shannon.invsimpson.numOTUs <- aggregate(meta[, 6:8], list(meta$All), mean)
@@ -303,7 +305,7 @@ print(pairwise.wilcox.invsimpson.test)
 #no significant differences between treatment groups within a day)
 (shan <- ggplot(data = meta, aes(x=All, y=shannon, group=All, fill=Treatment)) +
     geom_boxplot(position = position_dodge2(preserve = 'total')) +
-    facet_wrap(~Treatment, scales = 'free') +
+    facet_wrap(~Day, scales = 'free') +
     scale_y_continuous(name = "Shannon diversity") +
     theme(axis.title.x = element_blank(),
           axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
@@ -319,7 +321,7 @@ print(pairwise.wilcox.invsimpson.test)
 #Generate a box and whisker plot of inverse simpson 
 (invsimp <- ggplot(data = meta, aes(x=All, y=invsimpson, group=All, fill=Treatment)) +
     geom_boxplot(position = position_dodge2(preserve = 'total')) +
-    facet_wrap(~Treatment, scales = 'free') +
+    facet_wrap(~Day, scales = 'free') +
     scale_y_continuous(name = "Inverse Simpson diversity") +
     theme(axis.title.x = element_blank(),
           axis.text.x = element_text(size = 12, angle = 45, hjust = 1),

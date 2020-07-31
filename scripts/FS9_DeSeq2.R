@@ -158,11 +158,11 @@ sigtab.DNEG3.ji$Treatment <- ifelse(sigtab.DNEG3.ji$log2FoldChange >=0, "INFinje
 
 deseq.DNEG3.ji <- 
   ggplot(sigtab.DNEG3.ji, aes(x=reorder(rownames(sigtab.DNEG3.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.ji), y=-1.5, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to INFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFinject Group Relative to INFnm\n in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066'))
 deseq.DNEG3.ji
@@ -210,11 +210,11 @@ sum.sigtab.DNEG3.oi
 
 #ggplot
 deseq.DNEG3.oi <- ggplot(sigtab.DNEG3.oi, aes(x=reorder(rownames(sigtab.DNEG3.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.oi), y=-1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.oi), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to INFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFfeed Group Relative to INFnm\n in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFfeed='#999999', INFnm='#CC0066'))
 deseq.DNEG3.oi
@@ -269,11 +269,11 @@ sum.sigtab.DNEG3.oj
 
 #ggplot
 deseq.DNEG3.oj <- ggplot(sigtab.DNEG3.oj, aes(x=reorder(rownames(sigtab.DNEG3.oj), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.oj), y=-1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.oj), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to INFinject in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFfeed Group Relative to INFinject\n in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFfeed='#999999', INFinject='#E69F00'))
 deseq.DNEG3.oj
@@ -330,11 +330,11 @@ sum.sigtab.DNEG3.in
 
 #ggplot
 deseq.DNEG3.in <- ggplot(sigtab.DNEG3.in, aes(x=reorder(rownames(sigtab.DNEG3.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.in), y=2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.in), y=1.5, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFnm Group Relative to NONINFnm\n in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
 deseq.DNEG3.in
@@ -374,11 +374,11 @@ sigtab.DNEG3.jn$Treatment <- ifelse(sigtab.DNEG3.jn$log2FoldChange >=0, "INFinje
 
 deseq.DNEG3.jn <- 
   ggplot(sigtab.DNEG3.jn, aes(x=reorder(rownames(sigtab.DNEG3.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.jn), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.jn), y=0.5, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFinject Group Relative to NONINFnm\n in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', NONINFnm='#56B4E9'))
 deseq.DNEG3.jn
@@ -424,11 +424,11 @@ sum.sigtab.DNEG3.on
 
 #ggplot
 deseq.DNEG3.on <- ggplot(sigtab.DNEG3.on, aes(x=reorder(rownames(sigtab.DNEG3.on), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.on), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.on), y=1, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFfeed Group Relative to NONINFnm\n in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFfeed='#999999', NONINFnm='#56B4E9'))
 deseq.DNEG3.on
@@ -599,11 +599,11 @@ sum.sigtab.D0.in
 
 #ggplot
 deseq.D0.in <- ggplot(sigtab.D0.in, aes(x=reorder(rownames(sigtab.D0.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.in), y=2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.in), y=3e-07, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day 0')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFnm Group Relative to NONINFnm\n in Fecal Microbiota on Day 0')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
 deseq.D0.in
@@ -644,11 +644,11 @@ head(sigtab.D0.jn)
 
 deseq.D0.jn <- 
   ggplot(sigtab.D0.jn, aes(x=reorder(rownames(sigtab.D0.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.jn), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.jn), y=3e-07, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to NONINFnm in Fecal Microbiota on Day 0')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFinject Group Relative to NONINFnm\n in Fecal Microbiota on Day 0')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', NONINFnm='#56B4E9'))
 deseq.D0.jn
@@ -846,11 +846,11 @@ sum.sigtab.D4.in
 
 #ggplot
 deseq.D4.in <- ggplot(sigtab.D4.in, aes(x=reorder(rownames(sigtab.D4.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D4.in), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D4.in), y=0.6, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day 4')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFnm Group Relative to NONINFnm\n in Fecal Microbiota on Day 4')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
 deseq.D4.in
@@ -894,7 +894,7 @@ deseq.D4.jn <-
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to NONINFnm in Fecal Microbiota on Day 4')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFinject Group Relative to NONINFnm\n in Fecal Microbiota on Day 4')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', NONINFnm='#56B4E9'))
 deseq.D4.jn
@@ -985,7 +985,7 @@ deseq.D7.ji <-
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to INFnm in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFinject Group Relative to INFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066'))
 deseq.D7.ji
@@ -1032,11 +1032,11 @@ sum.sigtab.D7.oi
 
 #ggplot
 deseq.D7.oi <- ggplot(sigtab.D7.oi, aes(x=reorder(rownames(sigtab.D7.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oi), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oi), y=-3, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to INFnm in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFfeed Group Relative to INFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFfeed='#999999', INFnm='#CC0066'))
 deseq.D7.oi
@@ -1090,11 +1090,11 @@ sum.sigtab.D7.oj
 
 #ggplot
 deseq.D7.oj <- ggplot(sigtab.D7.oj, aes(x=reorder(rownames(sigtab.D7.oj), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oj), y=-2, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oj), y=-3, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFfeed Group Relative to INFinject in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFfeed Group Relative to INFinject\n in Fecal Microbiota on Day 7')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFfeed='#999999', INFinject='#E69F00'))
 deseq.D7.oj
@@ -1149,11 +1149,11 @@ sum.sigtab.D7.in
 
 #ggplot
 deseq.D7.in <- ggplot(sigtab.D7.in, aes(x=reorder(rownames(sigtab.D7.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.in), y=0, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.in), y=3, label = paste(Phylum,Order, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum Order")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFnm Group Relative to NONINFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
 deseq.D7.in
@@ -1197,7 +1197,7 @@ deseq.D7.jn <-
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant OTUs in INFinject Group Relative to NONINFnm in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INFinject Group Relative to NONINFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', NONINFnm='#56B4E9'))
 deseq.D7.jn
@@ -1304,11 +1304,11 @@ head(sigtab.DNEG3.p.ji)
 
 deseq.DNEG3.p.ji <- 
   ggplot(sigtab.DNEG3.p.ji, aes(x=reorder(rownames(sigtab.DNEG3.p.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.ji), y=0, label = paste(Phylum)), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.ji), y=-1, label = paste(Phylum)), size=5, fontface = 'italic')+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phyla in INFinject Group Relative to INFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFinject Group Relative to INFnm\n in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066'))
 deseq.DNEG3.p.ji
@@ -1403,7 +1403,7 @@ sum(meta$Set == "DNEG3_INFnm")
 
 #Extract results from a DESeq analysis, organize table
 resultsNames(FS9.DNEG3.p.De)
-sample_data(FS9.DNEG3.p)$Set <- factor(sample_data(FS9.DNEG3)$Set,
+sample_data(FS9.DNEG3.p)$Set <- factor(sample_data(FS9.DNEG3.p)$Set,
                                      levels =c('DNEG3_NONINFnm','DNEG3_INFnm', 
                                                "DNEG3_INFinject", "DNEG3_INFfeed"))
 FS9.DNEG3.p.De <- phyloseq_to_deseq2(FS9.DNEG3.p, ~ Set)
@@ -1429,7 +1429,7 @@ deseq.DNEG3.p.in <- ggplot(sigtab.DNEG3.p.in, aes(x=reorder(rownames(sigtab.DNEG
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFnm Group Relative to NONINFnm\n in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
 deseq.DNEG3.p.in
@@ -1501,11 +1501,11 @@ sum.sigtab.DNEG3.p.on
 
 #ggplot
 deseq.DNEG3.p.on <- ggplot(sigtab.DNEG3.p.on, aes(x=reorder(rownames(sigtab.DNEG3.p.on), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.on), y=1, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p.on), y=0.1, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phyla in INFfeed Group Relative to NONINFnm in Fecal Microbiota on Day -3')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFfeed Group Relative to NONINFnm\n in Fecal Microbiota on Day -3')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFfeed='#999999', NONINFnm='#56B4E9'))
 deseq.DNEG3.p.on
@@ -1673,11 +1673,11 @@ sum.sigtab.D0.p.in
 
 #ggplot
 deseq.D0.p.in <- ggplot(sigtab.D0.p.in, aes(x=reorder(rownames(sigtab.D0.p.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.p.in), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.p.in), y=2e-07, label = paste(Phylum, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day 0')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum \nin INFnm Group Relative to NONINFnm \nin Fecal Microbiota on Day 0')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
 deseq.D0.p.in
@@ -1718,11 +1718,11 @@ head(sigtab.D0.p.jn)
 
 deseq.D0.p.jn <- 
   ggplot(sigtab.D0.p.jn, aes(x=reorder(rownames(sigtab.D0.p.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.p.jn), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.p.jn), y=0.01, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phyla in INFinject Group Relative to NONINFnm in Fecal Microbiota on Day 0')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum \nin INFinject Group Relative to NONINFnm \nin Fecal Microbiota on Day 0')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', NONINFnm='#56B4E9'))
 deseq.D0.p.jn
@@ -2029,11 +2029,11 @@ head(sigtab.D7.p.ji)
 
 deseq.D7.p.ji <- 
   ggplot(sigtab.D7.p.ji, aes(x=reorder(rownames(sigtab.D7.p.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.ji), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.ji), y=-1e-06, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phyla in INFinject Group Relative to INFnm in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFinject Group Relative to INFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066'))
 deseq.D7.p.ji
@@ -2081,11 +2081,11 @@ sum.sigtab.D7.p.oi
 
 #ggplot
 deseq.D7.p.oi <- ggplot(sigtab.D7.p.oi, aes(x=reorder(rownames(sigtab.D7.p.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.oi), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.oi), y=-5e-07, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phyla in INFfeed Group Relative to INFnm in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFfeed Group Relative to INFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFfeed='#999999', INFnm='#CC0066'))
 deseq.D7.p.oi
@@ -2140,11 +2140,11 @@ sum.sigtab.D7.p.oj
 
 #ggplot
 deseq.D7.p.oj <- ggplot(sigtab.D7.p.oj, aes(x=reorder(rownames(sigtab.D7.p.oj), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.oj), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.oj), y=-5e-07, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phyla in INFfeed Group Relative to INFinject in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFfeed Group Relative to INFinject\n in Fecal Microbiota on Day 7')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFfeed='#999999', INFinject='#E69F00'))
 deseq.D7.p.oj
@@ -2199,11 +2199,11 @@ sum.sigtab.D7.p.in
 
 #ggplot
 deseq.D7.p.in <- ggplot(sigtab.D7.p.in, aes(x=reorder(rownames(sigtab.D7.p.in), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.in), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.in), y=2, label = paste(Phylum, sep = ' ')), size=5, fontface= "italic")+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phyla in INFnm Group Relative to NONINFnm in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFnm Group Relative to NONINFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
 deseq.D7.p.in
@@ -2241,13 +2241,17 @@ sigtab.D7.p.jn = cbind(as(sigtab.D7.p.jn, "data.frame"), as(tax_table(FS9.D7.p)[
 sigtab.D7.p.jn$newp <- format(round(sigtab.D7.p.jn$padj, digits = 3), scientific = TRUE)
 sigtab.D7.p.jn$Treatment <- ifelse(sigtab.D7.p.jn$log2FoldChange >=0, "INFinject", "NONINFnm")
 
+#Summarize sigtab.D7.p.in
+sum.sigtab.D7.p.jn <- summary(sigtab.D7.p.jn)
+sum.sigtab.D7.p.jn
+
 deseq.D7.p.jn <- 
   ggplot(sigtab.D7.p.jn, aes(x=reorder(rownames(sigtab.D7.p.jn), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.jn), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p.jn), y=-1e-06, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phyla in INFinject Group Relative to NONINFnm in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFinject Group Relative to NONINFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
   scale_fill_manual(values = c(INFinject='#E69F00', NONINFnm='#56B4E9'))
 deseq.D7.p.jn

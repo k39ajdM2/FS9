@@ -12,7 +12,6 @@ library(phyloseq)
 library(tidyverse)
 library(ggplot2)
 library(dplyr)
-library(cowplot)
 library("ggsci")
 library(data.table)
 
@@ -154,7 +153,7 @@ D7Phylum <- fobar.gather %>%
 #Decide which phyla to remove from plot that isn't present in all 4 treatment groups
 
 PhylumFig_D7 <- fobar.gather %>% filter(Day == 'D7' & forplot == "keep") %>%
-    filter(Phylum != "Kiritimatiellaeota" & Phylum != "Verrucomicrobia") %>% 
+    filter(Phylum != "Verrucomicrobia") %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
