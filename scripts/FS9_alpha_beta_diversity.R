@@ -172,6 +172,7 @@ nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_p
   theme_gray(base_size = 10) +
   theme(strip.text.x = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size=13), axis.title.x = element_text(size=14), axis.title.y = element_text(size=14), legend.text=element_text(size=14), legend.title=element_text(size=14)) +
   labs(color="Treatment group")+
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
   labs(caption = 'Ordination stress = 0.195')
 #nmdsplot2 <- nmdsplot + scale_colour_manual(values=c("#E69F00", "#56B4E9")) + theme(legend.position = "right")
 nmdsplot
@@ -191,6 +192,7 @@ nmdsplot_day
 nmdsplot_treatment<- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
   geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
   geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment, group=group)) + 
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
   labs(caption = 'Ordination stress = 0.195')  
 nmdsplot_treatment
 #Save 'nmdsplot_treatment' as a .tiff for publication, 500dpi
@@ -215,6 +217,7 @@ nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanm
         panel.border = element_rect(fill = NA, color = 'grey57'),
         axis.line = element_blank()) + facet_wrap(~Day, nrow = 1) +
   theme_bw() +
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='black')) +
   labs(caption = 'Ordination stress = 0.195', color="Treatment group")
 nmdsplot_treatment2
 #Save 'nmdsplot_treatment2' as a .tiff for publication, 500dpi
