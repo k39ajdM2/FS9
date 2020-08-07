@@ -16,6 +16,7 @@ library(phyloseq)
 library(scales)
 library(RColorBrewer)
 library(philentropy)
+library(cowplot)
 
 #Load NMDS_ellipse function from https://github.com/Jtrachsel/funfuns
 NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
@@ -306,7 +307,7 @@ print(pairwise.wilcox.invsimpson.test)
 
 #Generate a box and whisker plot of shannon (both shannon and inverse simpson diversity indices showed same trends: 
 #no significant differences between treatment groups within a day)
-(shan <- ggplot(data = meta, aes(x=All, y=shannon, group=All, fill=Treatment)) +
+shan <- ggplot(data = meta, aes(x=All, y=shannon, group=All, fill=Treatment)) +
     geom_boxplot(position = position_dodge2(preserve = 'total')) +
     facet_wrap(~Day, scales = 'free') +
     scale_y_continuous(name = "Shannon diversity") +
@@ -314,7 +315,9 @@ print(pairwise.wilcox.invsimpson.test)
           axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
           strip.text.x = element_text(size=14),
           axis.title.y = element_text(size=15)) +
-    theme(legend.position = "none"))
+    scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
+    theme(legend.position = "none")
+shan
 # "free" within "facet_wrap" allows each plot to customize the scale to the specific data set (no forced scaling applied to all plots)
 # "position = position_dodge2(preserve = 'total')" fixes the ggplot box width, making them wider, prevents narrow boxes from forming in the plot
 
@@ -322,7 +325,7 @@ print(pairwise.wilcox.invsimpson.test)
 #ggsave("FS9_Shannon.tiff", plot=shan, width = 7, height = 7, dpi = 500, units =c("in"))
 
 #Generate a box and whisker plot of inverse simpson 
-(invsimp <- ggplot(data = meta, aes(x=All, y=invsimpson, group=All, fill=Treatment)) +
+invsimp <- ggplot(data = meta, aes(x=All, y=invsimpson, group=All, fill=Treatment)) +
     geom_boxplot(position = position_dodge2(preserve = 'total')) +
     facet_wrap(~Day, scales = 'free') +
     scale_y_continuous(name = "Inverse Simpson diversity") +
@@ -330,7 +333,17 @@ print(pairwise.wilcox.invsimpson.test)
           axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
           strip.text.x = element_text(size=14),
           axis.title.y = element_text(size=15)) +
-    theme(legend.position = "none"))
-
+    scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
+    theme(legend.position = "none")
+invsimp
 #Save 'invsimp' as a .tiff for publication, 500dpi
 #ggsave("FS9_InverseSimpson.tiff", plot=invsimp, width = 7, height = 7, dpi = 500, units =c("in"))
+
+alphadiv <- plot_grid(shan, invsimp, labels = c('A', 'B'), label_size = 12) #How to fix plot dimensions so that y-axis labels doesn't overlap the plots?
+ggsave(alphadiv,
+       filename = './results/alpha_diversity.jpeg',
+       width = 300,
+       height = 120,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
