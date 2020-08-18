@@ -1,9 +1,9 @@
 #######################################################################
-#FS9 16S alpha and beta diversity - Noninfected vs Infected (days -3, 0)
+#FS9 16S alpha and beta diversity - Infected (days 4, 7): inject vs feed vs nm
 #Kathy Mou
 
 #NOTES: 
-#This code analyzes alpha and beta diversity statistics for fecal samples on days -3, 0; and associated plots
+#This code analyzes alpha and beta diversity for fecal samples on days 4, 7; and associated plots
 #This script uses files created in "FS9_phyloseq.R"
 
 #Clear workspace and load necessary packages
@@ -15,7 +15,9 @@ library(tidyverse)
 library(phyloseq)
 library(scales)
 library(RColorBrewer)
+install.packages('philentropy')
 library(philentropy)
+install.packages('cowplot')
 library(cowplot)
 
 #Load NMDS_ellipse function from https://github.com/Jtrachsel/funfuns
@@ -125,10 +127,10 @@ head(meta)
 
 #NMDS calculation (aka beta diversity)
 otu[1:10,1:10]
-dim(otu) #166 1582 (singletons removed) 105 1223 (doubletons removed)
+dim(otu) #47 866 (doubletons removed)
 NMDS <- NMDS_ellipse(meta, otu, grouping_set = 'All')
 #Output:
-#[1] "Ordination stress: 0.194361182108003"
+#[1] "Ordination stress: 0.178187987127504"
 
 #Separate meta data and ellipse data to two lists to make NMDS plot
 head(NMDS)
@@ -144,12 +146,12 @@ df_ell <- df_ell %>% separate(group, into=c("Day","Treatment"), sep="_", remove=
 View(df_ell)
 
 #Restructure level order for 'metanmds' and 'df_ell'
-unique(metanmds$Day) #DNEG3 D0  
-unique(df_ell$Day) #"D0"  "DNEG3" 
-metanmds$Day = factor(metanmds$Day, levels = c("DNEG3", "D0"))
-df_ell$Day = factor(df_ell$Day, levels = c("DNEG3", "D0"))
-levels(df_ell$Day) #"DNEG3" "D0" 
-levels(metanmds$Day) #"DNEG3" "D0" 
+unique(metanmds$Day) #D4 D7
+unique(df_ell$Day) #D4 D7
+metanmds$Day = factor(metanmds$Day, levels = c("D4", "D7"))
+df_ell$Day = factor(df_ell$Day, levels = c("D4", "D7"))
+levels(df_ell$Day) #"D4" "D7" 
+levels(metanmds$Day) #"D4" "D7"
 
 #Creating NMDS day+treatment plot from NMDS calculations
 nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
@@ -160,12 +162,15 @@ nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_p
   theme_gray(base_size = 10) +
   theme(strip.text.x = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size=13), axis.title.x = element_text(size=14), axis.title.y = element_text(size=14), legend.text=element_text(size=14), legend.title=element_text(size=14)) +
   labs(color="Treatment group")+
-  scale_color_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
-  labs(caption = 'Ordination stress = 0.194')
+  scale_color_manual(values = c(INFnm='#CC0066', INFfeed='#999999', INFinject='#E69F00')) +
+  labs(caption = 'Ordination stress = 0.178')
 #nmdsplot2 <- nmdsplot + scale_colour_manual(values=c("#E69F00", "#56B4E9")) + theme(legend.position = "right")
 nmdsplot
 #Save 'nmdsplot' as a .tiff for publication, 500dpi
-#ggsave("NMDS_DayAndTreatment.tiff", plot=nmdsplot, width = 11, height = 5, dpi = 500, units =c("in"))
+#ggsave("FS9_Q2_NMDS_DayAndTreatment.tiff", plot=nmdsplot, width = 11, height = 5, dpi = 500, units =c("in"))
+
+
+#CONTINUE HERE!!
 
 #Creating NMDS day plot from NMDS calculations
 nmdsplot_day <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Day)) + geom_point() + 
