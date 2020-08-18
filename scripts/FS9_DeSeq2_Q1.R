@@ -332,8 +332,42 @@ sigtab.D0.p$newp <- format(round(sigtab.D0.p$padj, digits = 3), scientific = TRU
 sigtab.D0.p$Treatment <- ifelse(sigtab.D0.p$log2FoldChange >=0, "INF", "NONINF")
 head(sigtab.D0.p) 
 
-#CONTINUE HERE!
+deseq.D0.p <- 
+  ggplot(sigtab.D0.p, aes(x=reorder(rownames(sigtab.D0.p), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.p), y=0, label = paste(Phylum)), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INF Group Relative to NONINF\n in Fecal Microbiota on Day 0')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c(INF='#CC0066', NONINF='#56B4E9'))
+deseq.D0.p
 
+#Add OTU and comparisons columns
+sigtab.D0.p
+sigtab.D0.p$OTU <- rownames(sigtab.D0.p)
+sigtab.D0.p
+sigtab.D0.p$comp <- 'D0_INF_vs_NONINF'
+
+#Create final significant comparisons table
+final.sigtab.phylum <- rbind(final.sigtab.phylum, sigtab.D0.p)
+
+#Create final significant comparisons table
+final.sigtab <- rbind(sigtab.D0, final.sigtab)
+
+#Filtering out OTUs that have log2-fold values less than 0.25
+final.sigtab.phylum2 <- final.sigtab.phylum %>% 
+  filter(log2FoldChange > 0.25) 
+deseq.D0.DNEG3.p <- 
+  ggplot(final.sigtab.phylum2, aes(x=reorder(rownames(final.sigtab.phylum2), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(final.sigtab.phylum2), y=1, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Order\n in INF Group Relative to NONINF\n in Fecal Microbiota on Day -3')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c(INF='#CC0066', NONINF='#56B4E9'))
+deseq.D0.DNEG3.p
 
 
 #######################################################################################################
