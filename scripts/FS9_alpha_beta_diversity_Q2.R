@@ -169,27 +169,24 @@ nmdsplot
 #Save 'nmdsplot' as a .tiff for publication, 500dpi
 #ggsave("FS9_Q2_NMDS_DayAndTreatment.tiff", plot=nmdsplot, width = 11, height = 5, dpi = 500, units =c("in"))
 
-
-#CONTINUE HERE!!
-
 #Creating NMDS day plot from NMDS calculations
 nmdsplot_day <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Day)) + geom_point() + 
   geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
   geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Day, group=group)) + 
-  labs(caption = 'Ordination stress = 0.194') 
+  labs(caption = 'Ordination stress = 0.178') 
 nmdsplot_day
 #Save 'nmdsplot_day' as a .tiff for publication, 500dpi
-#ggsave("NMDS_Day.tiff", plot=nmdsplot_day, width = 10, height = 6, dpi = 500, units =c("in"))
+ggsave("Q2_NMDS_Day.tiff", plot=nmdsplot_day, width = 10, height = 6, dpi = 500, units =c("in"))
 
 #Creating NMDS treatment plot from NMDS calculations
 nmdsplot_treatment<- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
   geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
   geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment, group=group)) + 
-  scale_color_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
-  labs(caption = 'Ordination stress = 0.194')  
+  scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
+  labs(caption = 'Ordination stress = 0.178')  
 nmdsplot_treatment
 #Save 'nmdsplot_treatment' as a .tiff for publication, 500dpi
-#ggsave("NMDS_Treatment.tiff", plot=nmdsplot_treatment, width = 10, height = 6, dpi = 500, units =c("in"))
+ggsave("Q2_NMDS_Treatment.tiff", plot=nmdsplot_treatment, width = 10, height = 6, dpi = 500, units =c("in"))
 
 #All points, all days, all treatments, samples that aren't relevant are grayed out on plot
 #Plotting with gridlines and axes, gray points for All days
@@ -210,18 +207,18 @@ nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanm
         panel.border = element_rect(fill = NA, color = 'grey57'),
         axis.line = element_blank()) + facet_wrap(~Day) +
   theme_bw() +
-  scale_color_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
-  labs(caption = 'Ordination stress = 0.194', color="Treatment group")
+  scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
+  labs(caption = 'Ordination stress = 0.178', color="Treatment group")
 nmdsplot_treatment2
 #Save 'nmdsplot_treatment2' as a .tiff for publication, 500dpi
-#ggsave("NMDS_DayAndTreatment_AllSamples.tiff", plot=nmdsplot_treatment2, width = 10, height = 6, dpi = 500, units =c("in"))
+ggsave("Q2_NMDS_DayAndTreatment_AllSamples.tiff", plot=nmdsplot_treatment2, width = 10, height = 6, dpi = 500, units =c("in"))
 
 #Using pairwise.adonis function (beta diversity)
 adon <- pairwise.adonis(otu, meta$All) #Run pairwise.adonis on 'otu' OTU table and "All" column of 'meta' dataframe
 #adon contains all the pairwise comparisons
 adon$pairs #List all comparisons in the "pairs" column of 'nw.adon'
-goodcomps <- c(grep('DNEG3_[A-Za-z]+ vs DNEG3_[A-Za-z]+', adon$pairs),
-               grep('D0_[A-Za-z]+ vs D0_[A-Za-z]+', adon$pairs))
+goodcomps <- c(grep('D4_[A-Za-z]+ vs D4_[A-Za-z]+', adon$pairs),
+               grep('D7_[A-Za-z]+ vs D7_[A-Za-z]+', adon$pairs))
 # "[A-Za-z]" matches all capital and lowercase letters
 # "+" matches a whole word and not just one letter (if you didn't have "+", then it would match by one letter)
 # "c" creates the vector, lumps all pairs of specific groups of interest together
@@ -231,7 +228,7 @@ adon.good
 adon.good$p.adjusted <- p.adjust(adon.good$p.value, method = 'fdr') #"p.adjust" function returns a set of p-values adjusted with "fdr" method
 adon.good$p.adjusted2 <- round(adon.good$p.adjusted, 3) #Round p-values to 3 decimal points and list in new "p.adjusted2" column
 adon.good$p.adjusted2[adon.good$p.adjusted2 > 0.05] <- NA #For all p-values greater than 0.05, replace with "NA"
-write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.Q1.doubletons.txt', row.names=TRUE)
+write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.Q2.doubletons.txt', row.names=TRUE)
 
 
 
@@ -240,20 +237,21 @@ write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.Q1.doubletons.txt', 
 #Calculating alpha diversity metrics: Shannon, Inverse Simpson
 meta$shannon <- diversity(otu) #"diversity" is a vegan function. The default index is set at "shannon". I added a shannon index column in 'meta'
 meta$invsimpson <- diversity(otu,index = 'invsimpson') #We used 'invsimpson' since it is easier to interpret than Simpson values and won't need to "inverse" the Simpson values to understand (With Simpson values, the lower the number, the higher the diversity)
-levels(sample_data(meta)$Day)
-meta$Day = factor(meta$Day, levels = c("DNEG3", "D0"))  # Set the level order of values in "Day" column
-levels(sample_data(meta)$Day) #"DNEG3" "D0"
+meta$Day = factor(meta$Day, levels = c("D4", "D7"))  # Set the level order of values in "Day" column
+levels(sample_data(meta)$Day) #"D4" "D7"
 
 #Calculate the average shannon, invsimpson, numOTUs for each "All" subtype within meta
 shannon.invsimpson.numOTUs <- aggregate(meta[, 6:8], list(meta$All), mean)
 print(shannon.invsimpson.numOTUs)
 #Output (singletons removed):
-#        Group.1    numOTUS   shannon    invsimpson
-#1       D0_INF     84.92000  3.358896   16.38037
-#2    D0_NONINF     71.33333  3.089266   13.27419
-#3    DNEG3_INF     100.40741 3.895313   26.05418
-#4 DNEG3_NONINF     97.64706  3.864239   25.32537
-write.csv(shannon.invsimpson.numOTUs, file="FS9.shannon.invsimpson.num.OTUs.doubletons.txt", row.names=TRUE)
+#     Group.1   numOTUS  shannon    invsimpson
+#1   D4_INFfeed 65.50000 3.142650   11.60701
+#2 D4_INFinject 69.14286 3.164137   11.99779
+#3     D4_INFnm 79.66667 3.202696   11.90361
+#4   D7_INFfeed 89.10000 3.584760   16.72613
+#5 D7_INFinject 98.70000 3.866633   22.41760
+#6     D7_INFnm 94.80000 3.661901   19.28684
+write.csv(shannon.invsimpson.numOTUs, file="FS9.Q2.shannon.invsimpson.num.OTUs.doubletons.txt", row.names=TRUE)
 
 #Shannon
 pairwise.wilcox.shannon.test <- pairwise.wilcox.test(meta$shannon, meta$All, p.adjust.method = 'none') #Calculate pairwise comparisons by "All" column of the shannon indices in "Shannon" column
@@ -273,7 +271,7 @@ shan <- ggplot(data = meta, aes(x=All, y=shannon, group=All, fill=Treatment)) +
         axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
         strip.text.x = element_text(size=14),
         axis.title.y = element_text(size=15)) +
-  scale_fill_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
+  scale_fill_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
   theme(legend.position = "none")
 shan
 # "free" within "facet_wrap" allows each plot to customize the scale to the specific data set (no forced scaling applied to all plots)
@@ -291,7 +289,7 @@ invsimp <- ggplot(data = meta, aes(x=All, y=invsimpson, group=All, fill=Treatmen
         axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
         strip.text.x = element_text(size=14),
         axis.title.y = element_text(size=15)) +
-  scale_fill_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
+  scale_fill_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
   theme(legend.position = "none")
 invsimp
 #Save 'invsimp' as a .tiff for publication, 500dpi
@@ -299,7 +297,7 @@ invsimp
 
 alphadiv <- plot_grid(shan, invsimp, labels = c('A', 'B'), label_size = 12) #How to fix plot dimensions so that y-axis labels doesn't overlap the plots?
 ggsave(alphadiv,
-       filename = './results/alpha_diversity_NONINFvsINF.jpeg',
+       filename = './results/alpha_diversity_INFnm.feed.inject.jpeg',
        width = 300,
        height = 120,
        device = 'jpeg',
