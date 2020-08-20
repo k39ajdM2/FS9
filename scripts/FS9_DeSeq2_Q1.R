@@ -6,22 +6,17 @@
 #abundant between the two groups on the two days sampled
 
 #Load library packages
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("DESeq2")
 library(DESeq2)
-BiocManager::install("phyloseq")
 library(phyloseq)
 library(ggplot2)
 library("wesanderson")
 library(plotly)
 library(gapminder)
 library("ggsci")
-BiocManager::install("apeglm")
 library("apeglm")
 
 sessionInfo()
-#R version 3.6.0 (2019-04-26)
+#R version 4.0.2 (2020-06-22)
 
 ########################################################################################################
 

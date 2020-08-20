@@ -16,7 +16,7 @@ library("ggsci")
 library("apeglm")
 
 sessionInfo()
-#R version 3.6.0 (2019-04-26)
+#R version 4.0.2 (2020-06-22)
 
 ########################################################################################################
 
@@ -1778,7 +1778,7 @@ deseq.D0.p.on
 sigtab.D0.p.on
 sigtab.D0.p.on$OTU <- rownames(sigtab.D0.p.on)
 sigtab.D0.p.on
-sigtab.D0.p.on$comp <- 'D0_INFinject_vs_NONINFnm'
+sigtab.D0.p.on$comp <- 'D0_INFfeed_vs_NONINFnm'
 
 #Create final significant comparisons table
 final.sigtab.phylum <- rbind(final.sigtab.phylum, sigtab.D0.p.on)
