@@ -19,7 +19,7 @@ sessionInfo()
 #########################################
 
 #Read files for metadata and OTU table
-meta <- read.csv("./data/FS9_metadata_NONINFvINF_DNEG3D0.csv", row.names = 1)
+meta <- read.csv("./data/FS9_metadata_NONINFvINF_alldays.csv", row.names = 1)
 otu <- read.csv("./data/FS9.OTUtable.doubleton.csv", row.names=1)
 dim(otu) #1405 168
 head(otu[,165:168])
@@ -45,8 +45,9 @@ class(otu) #dataframe
 otu.meta <- merge(meta, otu.trans, by.x=0, by.y=0) 
 #x=0 means match via rownames from 'meta'; y=0 means match via rownames from 'otu.trans'
 head(otu.meta[,1:10])
-dim(otu.meta) #166 1588 (singletons removed) 105 1410 (doubletons removed)
+dim(otu.meta) #79 1410 (doubletons removed)
 rownames(otu.meta) <- otu.meta[,1] #Set column 1 as rownames for 'otu.meta'
+otu.meta <- otu.meta[,-1]
 class(otu.meta) #dataframe
 rownames(otu.meta)
 
@@ -55,7 +56,7 @@ otu.meta2<- cbind(otu.meta) #Make second copy of otu.meta to use to include "All
 colnames(otu.meta2)
 otu.meta2$All <- with(otu.meta2, paste0(Day, sep="_", Treatment)) #Create "All" column with Day and Treatment combined
 head(otu.meta2)
-dim(otu.meta2) #166 1588 (singletons removed) 105 1410 (doubletons removed)
+dim(otu.meta2) #79 1410 (doubletons removed)
 head(otu.meta2[,1405:1410])
 head(otu.meta2[,1:10])
 otu.meta2<- otu.meta2[,c(1:4,1410,5:1409)] #Reorder columns to have "All" column after "Treatment" column
@@ -65,12 +66,14 @@ otu.meta2<- otu.meta2[,c(1:4,1410,5:1409)] #Reorder columns to have "All" column
 head(otu.meta2[,1:10])
 meta2 <- otu.meta2[,c(1:5)] #Take columns 1-5 ("Day" to "All") from 'otu.meta2' to make 'meta2'
 head(meta2)
-dim(meta2) #166 5 (singletons removed) 105 5 (doubletons removed)
+dim(meta2) #79 5 (doubletons removed)
 
 #Create SAM metadata table phyloseq object
 SAM = sample_data(meta2, errorIfNULL = TRUE)
 head(SAM)
-dim(SAM) #105 5
+dim(SAM) #79 5
+
+#Continue here!!!
 
 #Pull out OTU data from 'otu.meta2' dataframe
 head(otu.meta2[,1:10])
