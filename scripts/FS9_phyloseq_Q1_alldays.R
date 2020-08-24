@@ -1,5 +1,5 @@
 #########################################
-#FS9 16S phyloseq - Noninfected vs infected
+#FS9 16S phyloseq - Noninfected vs infected, all days
 #Kathy Mou
 
 #NOTES: 
@@ -80,29 +80,29 @@ head(otu.meta2[,1:10])
 tail(otu.meta2[,1405:1410])
 otu2 <- otu.meta2[,c(6:1410)] #Select OTU columns to create 'otu2' dataframe
 head(otu2[,1:10])
-dim(otu2) #166 1583 (singletons removed) 105 1405 (doubletons removed)
+dim(otu2) #79 1405 (doubletons removed)
 otu2.trans <- t(otu2) #Transpose otu.all to have OTUs as rownames, sample names as column names
 head(otu2.trans[,1:10])
-dim(otu2.trans) #1583 166 (singletons removed) 1405 105 (doubletons removed)
+dim(otu2.trans) #1405 79 (doubletons removed)
 
 #Merge 'tax' back into 'otu2.trans' for correct format and taxons
 head(tax)
 otu2.tax <- merge(otu2.trans, tax, by=0) #Merge by rownames aka OTU rownames
-dim(otu2.tax) #1583 169 (singletons removed) 1405 108 (doubletons removed)
+dim(otu2.tax) #1405 82 (doubletons removed)
 head(otu2.tax[,1:10])
-head(otu2.tax[,100:108])
+head(otu2.tax[,75:82])
 row.names(otu2.tax) <- otu2.tax[,1] #Set first row of 'otu2.tax' as rownames
 head(otu2.tax[,1:5])
 otu2.tax <- otu2.tax[,-1] #Remove first row aka extraneous "Row.names" column from 'otu2.tax'
 head(otu2.tax[,1:5])
 
 #Split again
-dim(otu2.tax) #1583 168 (singletons removed) 1405 107 (doubletons removed)
-head(otu2.tax[,100:107])
-otu2.notax <- otu2.tax[,1:105] #take rows 1-105 to make new dataframe 'otu2.notax' (106 is "delete" column, 107 is "Taxonomy" column)
-dim(otu2.notax) #1583 166 (singletons removed) 1405 105 (doubletons removed)
+dim(otu2.tax) #1405 81 (doubletons removed)
+head(otu2.tax[,70:81])
+otu2.notax <- otu2.tax[,1:79] #take rows 1-79 to make new dataframe 'otu2.notax' (80 is "delete" column, 81 is "Taxonomy" column)
+dim(otu2.notax) #1405 79 (doubletons removed)
 head(otu2.notax[,1:5])
-head(otu2.notax[,100:105])
+head(otu2.notax[,70:79])
 class(otu2.notax) #dataframe
 otu2.notax <- as.matrix(otu2.notax) #turn 'otu2.notax' into a matrix class
 class(otu2.notax) #matrix
@@ -113,25 +113,25 @@ head(otu2.notax.trans[,1:10])
 #Create OTU table phyloseq object
 OTU = otu_table(otu2.notax.trans, taxa_are_rows = FALSE)
 head(OTU[,1:10])
-dim(OTU) #166 1583 (singletons removed) 105 1405 (doubletons removed)
+dim(OTU) #179 1405 (doubletons removed)
 class(OTU)
 OTU2 <- prune_taxa(taxa_sums(OTU) > 0, OTU)
 class(OTU2)
 head(OTU2[,1:10])
 taxa_sums(OTU2)
-dim(OTU2) #166 1582 (singletons removed) 105 1223 (doubletons removed)
+dim(OTU2) #79 1156 (doubletons removed)
 
 #Edit taxonomy
-dim(otu2.tax) #1583 168 (singletons removed) 1405 107 (doubletons removed)
-head(otu2.tax[,100:107])
+dim(otu2.tax) #1405 81 (doubletons removed)
+head(otu2.tax[,71:81])
 tax2 <- separate(data = otu2.tax, 
                  col = Taxonomy, 
                  into=c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"), sep=";")
 #"separate" function separates "Taxonomy" column into 7 separate columns labeled "Kingdom", "Phylum", "Class", etc.
 head(tax2) #notice that Species column is blank
-dim(tax2) #1583 174 (singletons removed) 1405 113 (doubletons removed)
-head(tax2[,107:113])
-tax2.kg <- tax2[,107:112] #Keep only taxonomy columns "Kingdom" to "Genus"
+dim(tax2) #1405 87 (doubletons removed)
+head(tax2[,80:87])
+tax2.kg <- tax2[,81:86] #Keep only taxonomy columns "Kingdom" to "Genus"
 head(tax2.kg)
 dim(tax2.kg) #1583 6 (singletons removed) 1405 6 (doubletons removed)
 class(tax2.kg) #dataframe
@@ -147,9 +147,9 @@ dim(TAX) #1583 6 (singletons removed) 1405 6 (doubletons removed)
 #Create phyloseq object containing taxonomy, metadata, and otu table
 phyloseq.FS9 <- phyloseq(OTU2, SAM, TAX) #prune out any OTUs that have total to 0 in all samples
 phyloseq.FS9
-#otu_table()   OTU Table:         [ 1404 taxa and 165 samples ]
-#sample_data() Sample Data:       [ 165 samples by 5 sample variables ]
-#tax_table()   Taxonomy Table:    [ 1404 taxa by 6 taxonomic ranks ]
+#otu_table()   OTU Table:         [ 1156 taxa and 79 samples ]
+#sample_data() Sample Data:       [ 79 samples by 5 sample variables ]
+#tax_table()   Taxonomy Table:    [ 1156 taxa by 6 taxonomic ranks ]
 
 save(phyloseq.FS9, file="phyloseq.FS9.doubleton.RData") #Use for FS9_alpha_beta_diversity.R when loading phyloseq.FS9 object
 
@@ -170,11 +170,11 @@ adonis.FS9
 
 #Terms added sequentially (first to last)
 
-#                 Df SumsOfSqs  MeanSqs   F.Model   R2        Pr(>F)    
-# Day             1    2.5603   2.56029   12.0980   0.10496   0.0001 ***
-# Treatment       1    0.3024   0.30236   1.4287    0.01240   0.0938 .  
-# Day:Treatment   1    0.1552   0.15516   0.7332    0.00636   0.8210    
-# Residuals     101   21.3745   0.21163             0.87628           
-# Total         104   24.3923                       1.00000           
+#                Df SumsOfSqs   MeanSqs   F.Model   R2        Pr(>F)    
+# Day            3    3.4257    1.14191   5.8259    0.18716   0.0001 ***
+# Treatment      1    0.3912    0.39125   1.9961    0.02138   0.0194 *  
+# Day:Treatment  3    0.5699    0.18998   0.9693    0.03114   0.5125    
+# Residuals     71   13.9164    0.19601             0.76032           
+# Total         78   18.3033                        1.00000            
 # ---
 #  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

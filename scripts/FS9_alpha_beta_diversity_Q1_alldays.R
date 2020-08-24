@@ -1,9 +1,9 @@
 #######################################################################
-#FS9 16S alpha and beta diversity - Noninfected vs Infected (days -3, 0)
+#FS9 16S alpha and beta diversity - Noninfected vs Infected, all days
 #Kathy Mou
 
 #NOTES: 
-#This code analyzes alpha and beta diversity statistics for fecal samples on days -3, 0; and associated plots
+#This code analyzes alpha and beta diversity statistics for fecal samples from all days; and associated plots
 #This script uses files created in "FS9_phyloseq.R"
 
 #Clear workspace and load necessary packages
@@ -125,10 +125,10 @@ head(meta)
 
 #NMDS calculation (aka beta diversity)
 otu[1:10,1:10]
-dim(otu) #166 1582 (singletons removed) 105 1223 (doubletons removed)
+dim(otu) #79 1156 (doubletons removed)
 NMDS <- NMDS_ellipse(meta, otu, grouping_set = 'All')
 #Output:
-#[1] "Ordination stress: 0.194361182108003"
+#[1] "Ordination stress: 0.177167945792148"
 
 #Separate meta data and ellipse data to two lists to make NMDS plot
 head(NMDS)
@@ -144,12 +144,14 @@ df_ell <- df_ell %>% separate(group, into=c("Day","Treatment"), sep="_", remove=
 View(df_ell)
 
 #Restructure level order for 'metanmds' and 'df_ell'
-unique(metanmds$Day) #DNEG3 D0  
-unique(df_ell$Day) #"D0"  "DNEG3" 
-metanmds$Day = factor(metanmds$Day, levels = c("DNEG3", "D0"))
-df_ell$Day = factor(df_ell$Day, levels = c("DNEG3", "D0"))
-levels(df_ell$Day) #"DNEG3" "D0" 
-levels(metanmds$Day) #"DNEG3" "D0" 
+unique(metanmds$Day) #"D4"    "DNEG3" "D0"    "D7" 
+unique(df_ell$Day) #"D0"    "D4"    "D7"    "DNEG3" 
+metanmds$Day = factor(metanmds$Day, levels = c("DNEG3", "D0", "D4", "D7"))
+df_ell$Day = factor(df_ell$Day, levels = c("DNEG3", "D0", "D4", "D7"))
+levels(df_ell$Day) #"DNEG3" "D0"    "D4"    "D7"
+levels(metanmds$Day) #"DNEG3" "D0"    "D4"    "D7"
+dim(metanmds) #79 10
+dim(df_ell) #808 5
 
 #Creating NMDS day+treatment plot from NMDS calculations
 nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
@@ -160,8 +162,8 @@ nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_p
   theme_gray(base_size = 10) +
   theme(strip.text.x = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size=13), axis.title.x = element_text(size=14), axis.title.y = element_text(size=14), legend.text=element_text(size=14), legend.title=element_text(size=14)) +
   labs(color="Treatment group")+
-  scale_color_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
-  labs(caption = 'Ordination stress = 0.194')
+  scale_color_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9')) +
+  labs(caption = 'Ordination stress = 0.177')
 #nmdsplot2 <- nmdsplot + scale_colour_manual(values=c("#E69F00", "#56B4E9")) + theme(legend.position = "right")
 nmdsplot
 #Save 'nmdsplot' as a .tiff for publication, 500dpi
@@ -171,7 +173,7 @@ nmdsplot
 nmdsplot_day <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Day)) + geom_point() + 
   geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
   geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Day, group=group)) + 
-  labs(caption = 'Ordination stress = 0.194') 
+  labs(caption = 'Ordination stress = 0.177') 
 nmdsplot_day
 #Save 'nmdsplot_day' as a .tiff for publication, 500dpi
 #ggsave("NMDS_Day.tiff", plot=nmdsplot_day, width = 10, height = 6, dpi = 500, units =c("in"))
@@ -180,8 +182,8 @@ nmdsplot_day
 nmdsplot_treatment<- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
   geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
   geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment, group=group)) + 
-  scale_color_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
-  labs(caption = 'Ordination stress = 0.194')  
+  scale_color_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9')) +
+  labs(caption = 'Ordination stress = 0.177')  
 nmdsplot_treatment
 #Save 'nmdsplot_treatment' as a .tiff for publication, 500dpi
 #ggsave("NMDS_Treatment.tiff", plot=nmdsplot_treatment, width = 10, height = 6, dpi = 500, units =c("in"))
@@ -205,8 +207,8 @@ nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanm
         panel.border = element_rect(fill = NA, color = 'grey57'),
         axis.line = element_blank()) + facet_wrap(~Day) +
   theme_bw() +
-  scale_color_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
-  labs(caption = 'Ordination stress = 0.194', color="Treatment group")
+  scale_color_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9')) +
+  labs(caption = 'Ordination stress = 0.177', color="Treatment group")
 nmdsplot_treatment2
 #Save 'nmdsplot_treatment2' as a .tiff for publication, 500dpi
 #ggsave("NMDS_DayAndTreatment_AllSamples.tiff", plot=nmdsplot_treatment2, width = 10, height = 6, dpi = 500, units =c("in"))
@@ -216,7 +218,9 @@ adon <- pairwise.adonis(otu, meta$All) #Run pairwise.adonis on 'otu' OTU table a
 #adon contains all the pairwise comparisons
 adon$pairs #List all comparisons in the "pairs" column of 'nw.adon'
 goodcomps <- c(grep('DNEG3_[A-Za-z]+ vs DNEG3_[A-Za-z]+', adon$pairs),
-               grep('D0_[A-Za-z]+ vs D0_[A-Za-z]+', adon$pairs))
+               grep('D0_[A-Za-z]+ vs D0_[A-Za-z]+', adon$pairs),
+               grep('D4_[A-Za-z]+ vs D4_[A-Za-z]+', adon$pairs),
+               grep('D7_[A-Za-z]+ vs D7_[A-Za-z]+', adon$pairs))
 # "[A-Za-z]" matches all capital and lowercase letters
 # "+" matches a whole word and not just one letter (if you didn't have "+", then it would match by one letter)
 # "c" creates the vector, lumps all pairs of specific groups of interest together
@@ -226,9 +230,10 @@ adon.good
 adon.good$p.adjusted <- p.adjust(adon.good$p.value, method = 'fdr') #"p.adjust" function returns a set of p-values adjusted with "fdr" method
 adon.good$p.adjusted2 <- round(adon.good$p.adjusted, 3) #Round p-values to 3 decimal points and list in new "p.adjusted2" column
 adon.good$p.adjusted2[adon.good$p.adjusted2 > 0.05] <- NA #For all p-values greater than 0.05, replace with "NA"
-write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.Q1.doubletons.txt', row.names=TRUE)
+write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.Q1.doubletons.alldays.txt', row.names=TRUE)
 
-
+#CONTINUE HERE
+#Try without days -3 and 0 to see if it'll change 
 
 
 #Alpha diversity
