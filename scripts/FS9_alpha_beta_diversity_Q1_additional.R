@@ -246,14 +246,16 @@ print(shannon.invsimpson.numOTUs)
 #Output (singletons removed):
 #        Group.1    numOTUS   shannon    invsimpson
 #1       D0_INFnm  83.00000 3.153554  15.628239
-2    D0_NONINFnm  71.33333 3.089266  13.274195
-3       D4_INFnm  79.66667 3.202696  11.903607
-4    D4_NONINFnm  77.60000 3.117897   9.115051
-5       D7_INFnm  94.80000 3.661901  19.286844
-6    D7_NONINFnm  92.37500 3.770617  18.321736
-7    DNEG3_INFnm 113.11765 4.062337  31.949254
-8 DNEG3_NONINFnm  97.64706 3.864239  25.325367
+#2    D0_NONINFnm  71.33333 3.089266  13.274195
+#3       D4_INFnm  79.66667 3.202696  11.903607
+#4    D4_NONINFnm  77.60000 3.117897   9.115051
+#5       D7_INFnm  94.80000 3.661901  19.286844
+#6    D7_NONINFnm  92.37500 3.770617  18.321736
+#7    DNEG3_INFnm 113.11765 4.062337  31.949254
+#8 DNEG3_NONINFnm  97.64706 3.864239  25.325367
 write.csv(shannon.invsimpson.numOTUs, file="FS9.shannon.invsimpson.num.OTUs.doubletons.txt", row.names=TRUE)
+
+#Continue here!
 
 #Shannon
 pairwise.wilcox.shannon.test <- pairwise.wilcox.test(meta$shannon, meta$All, p.adjust.method = 'none') #Calculate pairwise comparisons by "All" column of the shannon indices in "Shannon" column
