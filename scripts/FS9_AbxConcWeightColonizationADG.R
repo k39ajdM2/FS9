@@ -271,3 +271,45 @@ pm2 %>% filter(Sample == 'Tonsil') %>%
 #Import file
 
 adg <- read.csv('./data/FS9_AverageDailyGain.csv', stringsAsFactors = FALSE)
+colnames(adg)
+adg2 <- pivot_longer(adg, cols=c("DNEG8", "D4", "D7"), names_to="Day", values_to="Weight_kg")
+adg2 <- pivot_longer(adg2, cols=c("DNEG8_to_D4_ADG", "D4_to_D7_ADG", "DNEG8_to_D7_ADG"), names_to="Day_ADG", values_to="ADG")
+adg2$Day_ADG <- as.character((adg2$Day_ADG))
+adg2 <- adg2[!(adg2$Day_ADG =="DNEG8_to_D7_ADG"),]
+adg2$Day <- as.character((adg2$Day))
+adg2$Day[adg2$Day == "D4"] <- "D4_Weight"
+adg2$Day[adg2$Day == "D7"] <- "D7_Weight"
+adg2$Day_ADG[adg2$Day_ADG == "DNEG8_to_D4_ADG"] <- "D4"
+adg2$Day_ADG[adg2$Day_ADG == "D4_to_D7_ADG"] <- "D7"
+fig_adg <- adg2 %>% ggplot(aes(x=Day_ADG, y=ADG, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999', NONINFnm="#56B4E9" )) +
+  geom_boxplot() +
+  labs(y= 'ADG (kg)', x= NULL) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12),
+        axis.title.y = element_text(size=12))
+fig_adg
+
+fig_adg <- adg2 %>% ggplot(aes(x=Day_ADG, y=ADG, color=Treatment)) +
+  geom_boxplot() +
+  geom_point +
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999', NONINFnm="#56B4E9" )) +
+  labs(y= 'ADG (kg)', x= NULL) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12),
+        axis.title.y = element_text(size=12))
+fig_adg
+
+#Why are the points all over the place?
+
+ggsave(fig_adg,
+       filename = './figure_ADG.jpeg',
+       width = 160,
+       height = 200,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
