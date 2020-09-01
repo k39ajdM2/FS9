@@ -1,8 +1,9 @@
 #####################################################################################################
-#FS9 Antibiotic concentration and weight
+#FS9 Antibiotic concentration, weight, average daily gain, Bordetella bronchiseptica and Pasteurella multocida colonization
 #Kathy Mou
 
-#Purpose: This code graphs concentration of oxytetracycline of each tissue for each group and also relative to weight.
+#Purpose: This code graphs concentration of oxytetracycline of each tissue for each group and also relative to weight; ADG, B. bronchiseptica and
+#P. multocida colonization in each tissue
 #This was taken from Jules' code (FS1_ABX_conc.R) with some modifications to fit FS9 dataset.
 
 #Load library packages
@@ -12,7 +13,7 @@ library(ggplot2)
 library(cowplot)
 
 sessionInfo()
-#R version 3.6.3 (2020-02-29)
+#R version 4.0.2 (2020-06-22)
 
 ########################################################################################################
 
@@ -192,3 +193,21 @@ ggsave(fig1_nasal,
        device = 'jpeg',
        dpi = 300,
        units = 'mm')
+
+########################################################################################################
+#Colonization
+
+#Import file
+bb <- read.csv('./data/FS9_Bordetella_bronchiseptica_colonization.csv', stringsAsFactors = FALSE)  # reads in data, already cleaned a little
+pm <- read.csv('./data/FS9_Pasteurella_multocida_colonization.csv', stringsAsFactors = FALSE)
+
+
+
+
+
+########################################################################################################
+#ADG
+
+#Import file
+
+adg <- read.csv('./data/FS9_AverageDailyGain.csv', stringsAsFactors = FALSE)
