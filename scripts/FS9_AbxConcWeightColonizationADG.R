@@ -197,12 +197,72 @@ ggsave(fig1_nasal,
 ########################################################################################################
 #Colonization
 
+install.packages("mdthemes")
+library("mdthemes")
+
 #Import file
 bb <- read.csv('./data/FS9_Bordetella_bronchiseptica_colonization.csv', stringsAsFactors = FALSE)  # reads in data, already cleaned a little
 pm <- read.csv('./data/FS9_Pasteurella_multocida_colonization.csv', stringsAsFactors = FALSE)
 
+#Bordetella
+bb2 <- pivot_longer(bb, cols=c("Nasal._Wash", "Tonsil", "Tracheal_Wash", "Lung_Lavage", "Lung_Tissue"), names_to="Sample", values_to="log10CFU/g_or_mL")
+bb2$Sample <- as.character((bb2$Sample))
+bb2$Sample[bb2$Sample == "Nasal._Wash"] <- "Nasal_Wash"
+colnames(bb2)
+names(bb2)[names(bb2)== "log10CFU/g_or_mL"] <- "log10CFU"
+
+#Samples
+bb2 %>% filter(Sample == 'Nasal_Wash') %>%
+  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999')) +
+  geom_boxplot() + ylab('Bordetella bronchiseptica log10CFU per mL in nasal wash')
+
+bb2 %>% filter(Sample == 'Tonsil') %>%
+  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999')) +
+  geom_boxplot() + ylab('Bordetella bronchiseptica log10CFU per gram in tonsil')
+
+bb2 %>% filter(Sample == 'Tracheal_Wash') %>%
+  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999')) +
+  geom_boxplot() + ylab('Bordetella bronchiseptica log10CFU per mL in tracheal wash')
+
+bb2 %>% filter(Sample == 'Lung_Lavage') %>%
+  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999')) +
+  geom_boxplot() + ylab('Bordetella bronchiseptica log10CFU per mL in lung lavage')
+
+bb2 %>% filter(Sample == 'Lung_Tissue') %>%
+  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999')) +
+  geom_boxplot() + ylab('Bordetella bronchiseptica log10CFU per gram in lung tissue')
 
 
+#Pasteurella
+pm2 <- pivot_longer(pm, cols=c("Nasal_Wash", "Tonsil"), names_to="Sample", values_to="log10CFU")
+pm2$Sample <- as.character((pm2$Sample))
+colnames(pm2)
+
+#Nasal wash
+pm_nasal <- pm2 %>% filter(Sample == 'Nasal_Wash') %>%
+  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999')) +
+  geom_boxplot() + labs(y= '*Pasteurella multocida* log10CFU per mL in nasal wash') + md_theme_linedraw() +
+  ylim(0, 7)
+pm_nasal
+ggsave(pm_nasal,
+       filename = './figure_Pm_nasal.jpeg',
+       width = 120,
+       height = 140,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
+
+#Tonsil
+pm2 %>% filter(Sample == 'Tonsil') %>%
+  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999')) +
+  geom_boxplot() + ylab('Pasteurella multocida log10CFU per gram in tonsil')
 
 
 ########################################################################################################

@@ -199,7 +199,7 @@ metanmds.2$Treatment2
 nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanmds.2$MDS1, y=metanmds.2$MDS2, color='grey57', geom = 'point')+
   geom_path(data = df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment), size=1.25) + 
   geom_point(aes(color = Treatment), size = 2) + 
-  geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY, color=Treatment), alpha=.5) + 
+  #geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY, color=Treatment), alpha=.5) + 
   theme(panel.background = element_blank(),
         axis.text = element_blank(),
         axis.title = element_blank(),
@@ -212,6 +212,96 @@ nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanm
 nmdsplot_treatment2
 #Save 'nmdsplot_treatment2' as a .tiff for publication, 500dpi
 ggsave("Q2_NMDS_DayAndTreatment_AllSamples.tiff", plot=nmdsplot_treatment2, width = 10, height = 6, dpi = 500, units =c("in"))
+
+
+#Visualizing NMDS with only centroids plotted
+OTU <- read_tsv('data/stability.outdoubletons.abund.opti_mcc.0.03.subsample.shared')
+META <- read_csv('./data/FS9_metadata_INF_InjectFeedNM.csv')
+OTU <- OTU %>% column_to_rownames(var = 'Group')
+OTU <- OTU[,-c(1:2)]
+rownames(OTU) %in% META$Sample
+#META <- META[META$Sample %in% rownames(OTU),]
+OTU <- OTU[rownames(OTU) %in% META$Sample,]
+META <- META[match(rownames(OTU), META$Sample),]
+rownames(OTU) == META$Sample
+META <- META %>% column_to_rownames(var = 'Sample')
+META$Set <- paste(META$Treatment, META$Day, sep='_')
+rownames(OTU) == rownames(META)
+metaNMDS <- NMDS_ellipse(metadata = META, OTU_table = OTU, grouping_set = 'Set')
+#[1] "Ordination stress: 0.178187987127504"
+meta_with_NMDS <- metaNMDS[[1]]
+df_ell <- metaNMDS[[2]] #'df_ell' is accessing 2nd list from 'NMDS' that has ellipse calculations
+
+#Need two separate lists for making NMDS plot
+df_ell$group
+head(df_ell)
+
+#Create "Day" and "Treatment" columns within 'df_ell' for faceting purposes
+df_ell <- df_ell %>% separate(group, into=c("Treatment","Day"), sep="_", remove=FALSE)
+View(df_ell)
+
+#Restructure level order for 'metanmds' and 'df_ell'
+unique(meta_with_NMDS$Day) #D4 D7
+unique(df_ell$Day) #D4 D7
+meta_with_NMDS$Day = factor(meta_with_NMDS$Day, levels = c("D4", "D7"))
+df_ell$Day = factor(df_ell$Day, levels = c("D4", "D7"))
+levels(df_ell$Day) #"D4" "D7" 
+levels(meta_with_NMDS$Day) #"D4" "D7"
+
+meta_with_NMDS %>%
+  ggplot(aes(x=MDS1, y=MDS2)) +
+  geom_point(color='lightgrey') + 
+  geom_point(data=CENTROIDS, aes(x=centroidX, y=centroidY, color=Treatment, shape=Day), size=4) +
+  scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
+  theme(panel.background = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank(), 
+        panel.border = element_rect(fill = NA, color = 'grey57'),
+        axis.line = element_blank()) + facet_wrap(~Day) +
+  theme_bw()
+
+nmdsplot <- ggplot(data=meta_with_NMDS, aes(x=MDS1, y=MDS2, color=Treatment)) + #geom_point() + 
+  #geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = 0.5) + 
+  geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment, group=group)) + 
+  facet_wrap(~Day, scales = 'free') +
+  #scale_color_brewer(palette="Dark2") +
+  theme_gray(base_size = 10) +
+  theme(strip.text.x = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size=13), axis.title.x = element_text(size=14), axis.title.y = element_text(size=14), legend.text=element_text(size=14), legend.title=element_text(size=14)) +
+  labs(color="Treatment group")+
+  scale_color_manual(values = c(INFnm='#CC0066', INFfeed='#999999', INFinject='#E69F00')) +
+  labs(caption = 'Ordination stress = 0.178')
+#nmdsplot2 <- nmdsplot + scale_colour_manual(values=c("#E69F00", "#56B4E9")) + theme(legend.position = "right")
+nmdsplot
+
+metanmds.2 <- meta_with_NMDS
+metanmds.2$Treatment2 = metanmds.2$Treatment
+metanmds.2$Treatment2 <- as.character(metanmds.2$Treatment2)
+metanmds.2$Treatment2
+
+#All days and treatments faceted by day (gridlines)
+nmdsplot_treatment2<- ggplot(meta_with_NMDS, aes(x=MDS1, y=MDS2)) +  annotate(x=metanmds.2$MDS1, y=metanmds.2$MDS2, color='lightgrey', geom = 'point')+
+  geom_path(data = df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment), size=1.25) + 
+  #geom_point(aes(color = Treatment), size = 2) + 
+  #geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY, color=Treatment), alpha=.5) + 
+  theme(panel.background = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank(), 
+        panel.border = element_rect(fill = NA, color = 'grey57'),
+        axis.line = element_blank()) + facet_wrap(~Day) +
+  theme_bw() +
+  scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
+  labs(caption = 'Ordination stress = 0.178', color="Treatment group")
+nmdsplot_treatment2
+#Save 'nmdsplot_treatment2' as a .tiff for publication, 500dpi
+ggsave("Q2_NMDS_DayAndTreatment_AllSamples_Centroid.tiff", plot=nmdsplot_treatment2, width = 10, height = 6, dpi = 500, units =c("in"))
+
+
+
+
+
+
 
 #Using pairwise.adonis function (beta diversity)
 adon <- pairwise.adonis(otu, meta$All) #Run pairwise.adonis on 'otu' OTU table and "All" column of 'meta' dataframe
