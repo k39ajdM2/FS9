@@ -294,7 +294,8 @@ fig_adg
 
 fig_adg <- adg2 %>% ggplot(aes(x=Day_ADG, y=ADG, color=Treatment)) +
   geom_boxplot() +
-  geom_point +
+  geom_jitter() +
+  #geom_point() +
   scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999', NONINFnm="#56B4E9" )) +
   labs(y= 'ADG (kg)', x= NULL) +
   theme(axis.text.x = element_text(size=12),
