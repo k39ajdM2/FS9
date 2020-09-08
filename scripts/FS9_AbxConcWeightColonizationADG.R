@@ -197,7 +197,7 @@ ggsave(fig1_nasal,
 ########################################################################################################
 #Colonization
 
-install.packages("mdthemes")
+# install.packages("mdthemes")
 library("mdthemes")
 
 #Import file
@@ -281,9 +281,16 @@ adg2$Day[adg2$Day == "D4"] <- "D4_Weight"
 adg2$Day[adg2$Day == "D7"] <- "D7_Weight"
 adg2$Day_ADG[adg2$Day_ADG == "DNEG8_to_D4_ADG"] <- "D4"
 adg2$Day_ADG[adg2$Day_ADG == "D4_to_D7_ADG"] <- "D7"
-fig_adg <- adg2 %>% ggplot(aes(x=Day_ADG, y=ADG, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999', NONINFnm="#56B4E9" )) +
-  geom_boxplot() +
+
+
+fig_adg <- adg2 %>% 
+  ggplot(aes(x=Day_ADG, y=ADG, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00',
+                                INFnm='#CC0066',
+                                INFfeed='#999999',
+                                NONINFnm="#56B4E9" )) +
+  geom_boxplot() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
   labs(y= 'ADG (kg)', x= NULL) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
