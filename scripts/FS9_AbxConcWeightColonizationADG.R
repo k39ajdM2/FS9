@@ -269,7 +269,6 @@ pm2 %>% filter(Sample == 'Tonsil') %>%
 #ADG
 
 #Import file
-
 adg <- read.csv('./data/FS9_AverageDailyGain.csv', stringsAsFactors = FALSE)
 colnames(adg)
 adg2 <- pivot_longer(adg, cols=c("DNEG8", "D4", "D7"), names_to="Day", values_to="Weight_kg")
@@ -298,21 +297,6 @@ fig_adg <- adg2 %>%
         legend.title = element_text(size=12),
         axis.title.y = element_text(size=12))
 fig_adg
-
-fig_adg <- adg2 %>% ggplot(aes(x=Day_ADG, y=ADG, color=Treatment)) +
-  geom_boxplot() +
-  geom_jitter() +
-  #geom_point() +
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999', NONINFnm="#56B4E9" )) +
-  labs(y= 'ADG (kg)', x= NULL) +
-  theme(axis.text.x = element_text(size=12),
-        axis.text.y = element_text(size=12),
-        legend.text = element_text(size=12),
-        legend.title = element_text(size=12),
-        axis.title.y = element_text(size=12))
-fig_adg
-
-#Why are the points all over the place?
 
 ggsave(fig_adg,
        filename = './figure_ADG.jpeg',
