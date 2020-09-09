@@ -272,14 +272,13 @@ pm2 %>% filter(Sample == 'Tonsil') %>%
 adg <- read.csv('./data/FS9_AverageDailyGain.csv', stringsAsFactors = FALSE)
 colnames(adg)
 adg2 <- pivot_longer(adg, cols=c("DNEG8", "D4", "D7"), names_to="Day", values_to="Weight_kg")
-adg2 <- pivot_longer(adg2, cols=c("DNEG8_to_D4_ADG", "D4_to_D7_ADG", "DNEG8_to_D7_ADG"), names_to="Day_ADG", values_to="ADG")
+adg2 <- pivot_longer(adg2, cols=c("DNEG8_to_D4_ADG", "DNEG8_to_D7_ADG"), names_to="Day_ADG", values_to="ADG")
 adg2$Day_ADG <- as.character((adg2$Day_ADG))
-adg2 <- adg2[!(adg2$Day_ADG =="DNEG8_to_D7_ADG"),]
 adg2$Day <- as.character((adg2$Day))
 adg2$Day[adg2$Day == "D4"] <- "D4_Weight"
 adg2$Day[adg2$Day == "D7"] <- "D7_Weight"
 adg2$Day_ADG[adg2$Day_ADG == "DNEG8_to_D4_ADG"] <- "D4"
-adg2$Day_ADG[adg2$Day_ADG == "D4_to_D7_ADG"] <- "D7"
+adg2$Day_ADG[adg2$Day_ADG == "DNEG8_to_D7_ADG"] <- "D7"
 
 
 fig_adg <- adg2 %>% 
@@ -290,7 +289,7 @@ fig_adg <- adg2 %>%
                                 NONINFnm="#56B4E9" )) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'ADG (kg)', x= NULL) +
+  labs(y= 'ADG (lb)', x= NULL) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         legend.text = element_text(size=12),
