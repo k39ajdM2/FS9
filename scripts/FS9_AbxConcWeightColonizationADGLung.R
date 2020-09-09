@@ -1,9 +1,9 @@
 #####################################################################################################
-#FS9 Antibiotic concentration, weight, average daily gain, Bordetella bronchiseptica and Pasteurella multocida colonization
+#FS9 Antibiotic concentration, weight, average daily gain, Bordetella bronchiseptica and Pasteurella multocida colonization, lung lesion
 #Kathy Mou
 
 #Purpose: This code graphs concentration of oxytetracycline of each tissue for each group and also relative to weight; ADG, B. bronchiseptica and
-#P. multocida colonization in each tissue
+#P. multocida colonization in each tissue; lung lesion
 #This was taken from Jules' code (FS1_ABX_conc.R) with some modifications to fit FS9 dataset.
 
 #Load library packages
@@ -299,6 +299,35 @@ fig_adg
 
 ggsave(fig_adg,
        filename = './figure_ADG.jpeg',
+       width = 160,
+       height = 200,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
+
+########################################################################################################
+#Lung Lesion
+
+lung <- read.csv('./data/FS9_LungLesionScores.csv', stringsAsFactors = FALSE)
+colnames(lung)
+fig_lung <- lung %>% 
+  ggplot(aes(x=Day, y=WeightedAverage, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00',
+                                INFnm='#CC0066',
+                                INFfeed='#999999',
+                                NONINFnm="#56B4E9" )) +
+  geom_boxplot() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
+  labs(y= 'Lung Lesion Weighted Average Score', x= NULL) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12),
+        axis.title.y = element_text(size=12))
+fig_lung
+
+ggsave(fig_lung,
+       filename = './figure_lung.jpeg',
        width = 160,
        height = 200,
        device = 'jpeg',
