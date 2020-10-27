@@ -11,6 +11,7 @@ library(tidyverse)
 library(reshape2)
 library(ggplot2)
 library(cowplot)
+library(dplyr)
 
 sessionInfo()
 #R version 4.0.2 (2020-06-22)
@@ -325,6 +326,11 @@ fig_lung <- lung %>%
         legend.title = element_text(size=12),
         axis.title.y = element_text(size=12))
 fig_lung
+
+stats <- lung %>% 
+  group_by(lung$Treatment, Day) %>% 
+  summarise(Sum=sum(WeightedAverage), Mean=(mean(WeightedAverage)), sd = sd(WeightedAverage))
+write.csv(stats, file= "lunglesionstats.csv")
 
 ggsave(fig_lung,
        filename = './figure_lung.jpeg',
