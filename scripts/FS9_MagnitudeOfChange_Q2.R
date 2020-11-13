@@ -33,15 +33,17 @@ class(fecal)
 fecal$Day <- factor(fecal$Day) #Encode "Day" as a factor
 fecal$p.adjusted <- round(fecal$p.adjusted, 3)
 fecal2 <- ggplot(data=fecal, aes(x=Day, y=F.Model, group=Treatment)) +
-  geom_line(aes(color=Treatment)) + geom_point(aes(color=Treatment)) +
+  #geom_line(aes(color=Treatment)) + 
+  geom_point(aes(color=Treatment, size = 10)) +
   ylab("PERMANOVA F vs control \n(difference relative to control)") +
   scale_fill_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
   scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
-  geom_label_repel(aes(label=p.adjusted), box.padding = 0.35, point.padding=0.5,segment.color = 'grey50') +
+  geom_label_repel(aes(label=p.adjusted), box.padding = 0.35, point.padding=0.5,segment.color = 'grey50', size = 5) +
   theme_classic(base_size = 12) +
   theme(axis.text.y = element_text(size = 14), axis.text.x = element_text(size=14), axis.title.x = element_text(size=14), axis.title.y = element_text(size=14), legend.text=element_text(size=14), legend.title=element_text(size=14)) +
-  labs(color="Treatment group")
+  labs(color="Treatment group") +
+  scale_size(guide = 'none')
 fecal2
 
 #Save 'fecal2' as a .tiff for publication, 500dpi
-ggsave("FS9_Q2_Fecal_Magnitude.tiff", plot=fecal2, width = 10, height = 5, dpi = 500, units =c("in"))
+ggsave("FS9_Q2_Fecal_Magnitude_NoLine.tiff", plot=fecal2, width = 6, height = 5, dpi = 500, units =c("in"))
