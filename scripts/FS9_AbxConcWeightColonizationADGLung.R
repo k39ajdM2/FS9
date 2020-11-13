@@ -272,15 +272,15 @@ pm2 %>% filter(Sample == 'Tonsil') %>%
 #Import file
 adg <- read.csv('./data/FS9_AverageDailyGain.csv', stringsAsFactors = FALSE)
 colnames(adg)
-adg2 <- pivot_longer(adg, cols=c("DNEG8", "D4", "D7"), names_to="Day", values_to="Weight_kg")
-adg2 <- pivot_longer(adg2, cols=c("DNEG8_to_D4_ADG", "DNEG8_to_D7_ADG"), names_to="Day_ADG", values_to="ADG")
+adg1 <- pivot_longer(adg, cols=c("DNEG8", "D4", "D7"), names_to="Day", values_to="Weight_kg")
+adg2 <- pivot_longer(adg1, cols=c("D4_ADG", "D7_ADG"), names_to="Day_ADG", values_to="ADG")
 adg2$Day_ADG <- as.character((adg2$Day_ADG))
 adg2$Day <- as.character((adg2$Day))
-adg2$Day[adg2$Day == "D4"] <- "D4_Weight"
-adg2$Day[adg2$Day == "D7"] <- "D7_Weight"
-adg2$Day_ADG[adg2$Day_ADG == "DNEG8_to_D4_ADG"] <- "D4"
-adg2$Day_ADG[adg2$Day_ADG == "DNEG8_to_D7_ADG"] <- "D7"
 
+stats <- adg2 %>% 
+  group_by(adg2$Treatment, Day_ADG) %>% 
+  summarise(Sum=sum(ADG, na.rm = TRUE), Mean=(mean(ADG, na.rm = TRUE)), sd = sd(ADG, na.rm = TRUE))
+write.csv(stats, file= "ADGstats.csv")
 
 fig_adg <- adg2 %>% 
   ggplot(aes(x=Day_ADG, y=ADG, color=Treatment)) +
