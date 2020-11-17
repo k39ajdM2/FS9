@@ -35,7 +35,7 @@ fecal$p.adjusted <- round(fecal$p.adjusted, 3)
 fecal2 <- ggplot(data=fecal, aes(x=Day, y=F.Model, group=Treatment)) +
   #geom_line(aes(color=Treatment)) + 
   geom_point(aes(color=Treatment, size = 10)) +
-  ylab("PERMANOVA F vs control \n(difference relative to control)") +
+  ylab("PERMANOVA F vs INFnm \n(difference relative to INFnm)") +
   scale_fill_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
   scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
   geom_label_repel(aes(label=p.adjusted), box.padding = 0.35, point.padding=0.5,segment.color = 'grey50', size = 5) +
