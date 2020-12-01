@@ -155,6 +155,10 @@ save(phyloseq.FS9, file="phyloseq.FS9.doubleton.RData") #Use for FS9_alpha_beta_
 
 #Distance calculation
 phyloseq.vegdist <- vegdist(phyloseq.FS9@otu_table, method="bray") 
+dispersion <- betadisper(phyloseq.vegdist, phyloseq.FS9@sam_data(All), type=c("median"))
+#Error in is.factor(group) : attempt to apply non-function
+All <- as.factor(phyloseq.FS9@sam_data(All)) #Trying to convert All into a factor...
+#Error in is.factor(x) : attempt to apply non-function
 phyloseq.adonis <- as(sample_data(phyloseq.FS9), "data.frame")
 set.seed(1)
 adonis.FS9 <- adonis(phyloseq.vegdist~Day*Treatment, data=phyloseq.adonis, permutations=9999)

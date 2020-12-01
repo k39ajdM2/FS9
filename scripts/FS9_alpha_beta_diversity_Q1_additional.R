@@ -3,7 +3,7 @@
 #Kathy Mou
 
 #NOTES: 
-#This code analyzes alpha and beta diversity statistics for fecal samples from all days or only days 4 and 7; and associated plots
+#This code analyzes alpha and beta diversity statistics for fecal samples from all days or only days 4 and 7 of NONINFnm and INFnm groups; and associated plots
 #This script uses files created in "FS9_phyloseq.R"
 
 #Clear workspace and load necessary packages
