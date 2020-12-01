@@ -154,7 +154,43 @@ save(phyloseq.FS9, file="phyloseq.FS9.doubleton.RData") #Use for FS9_alpha_beta_
 ###############################################################################
 
 #Distance calculation
-phyloseq.vegdist <- vegdist(phyloseq.FS9@otu_table, method="bray") 
+phyloseq.vegdistq2 <- vegdist(phyloseq.FS9@otu_table, method="bray") 
+dispersionq2 <- betadisper(phyloseq.vegdistq2, phyloseq.FS9@sam_data$All, type = c("median"))
+anovabetaq2 <- anova(dispersionq2)
+anovabetaq2
+#Analysis of Variance Table
+#Response: Distances
+#           Df  Sum Sq    Mean Sq     F value Pr(>F)
+#Groups     5   0.04097   0.0081941   0.7031  0.6243
+#Residuals 41   0.47781   0.0116539
+
+
+Tukeyq2 <- TukeyHSD(dispersionq2)
+Tukeyq2
+
+#Tukey multiple comparisons of means
+#95% family-wise confidence level
+
+#Fit: aov(formula = distances ~ group, data = df)
+
+#$group
+#                           diff         lwr        upr         p adj
+#D4_INFinject-D4_INFfeed    0.0208560458 -0.18136536 0.22307746 0.9995987
+#D4_INFnm-D4_INFfeed        0.0215626427 -0.18669655 0.22982184 0.9995910
+#D7_INFfeed-D4_INFfeed      0.0250819916 -0.16579071 0.21595470 0.9987006
+#D7_INFinject-D4_INFfeed   -0.0533979794 -0.24427068 0.13747473 0.9589152
+#D7_INFnm-D4_INFfeed       -0.0067167257 -0.19758943 0.18415598 0.9999980
+#D4_INFnm-D4_INFinject      0.0007065969 -0.17879026 0.18020345 1.0000000
+#D7_INFfeed-D4_INFinject    0.0042259459 -0.15476971 0.16322160 0.9999995
+#D7_INFinject-D4_INFinject -0.0742540251 -0.23324968 0.08474163 0.7292512
+#D7_INFnm-D4_INFinject     -0.0275727714 -0.18656842 0.13142288 0.9951486
+#D7_INFfeed-D4_INFnm        0.0035193490 -0.16308801 0.17012671 0.9999998
+#D7_INFinject-D4_INFnm     -0.0749606220 -0.24156798 0.09164673 0.7586490
+#D7_INFnm-D4_INFnm         -0.0282793683 -0.19488672 0.13832799 0.9956123
+#D7_INFinject-D7_INFfeed   -0.0784799710 -0.22276617 0.06580623 0.5869497
+#D7_INFnm-D7_INFfeed       -0.0317987173 -0.17608492 0.11248749 0.9854368
+#D7_INFnm-D7_INFinject      0.0466812537 -0.09760495 0.19096746 0.9257214
+
 phyloseq.adonis <- as(sample_data(phyloseq.FS9), "data.frame")
 set.seed(1)
 adonis.FS9 <- adonis(phyloseq.vegdist~Day*Treatment, data=phyloseq.adonis, permutations=9999)

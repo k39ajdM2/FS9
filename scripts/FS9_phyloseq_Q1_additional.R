@@ -155,10 +155,57 @@ save(phyloseq.FS9, file="phyloseq.FS9.doubleton.RData") #Use for FS9_alpha_beta_
 
 #Distance calculation
 phyloseq.vegdist <- vegdist(phyloseq.FS9@otu_table, method="bray") 
-dispersion <- betadisper(phyloseq.vegdist, phyloseq.FS9@sam_data(All), type=c("median"))
-#Error in is.factor(group) : attempt to apply non-function
-All <- as.factor(phyloseq.FS9@sam_data(All)) #Trying to convert All into a factor...
-#Error in is.factor(x) : attempt to apply non-function
+dispersion <- betadisper(phyloseq.vegdist, phyloseq.FS9@sam_data$All, type = c("median"))
+anovabeta <- anova(dispersion)
+anovabeta
+#Analysis of Variance Table
+
+#Response: Distances
+#          Df   Sum Sq    Mean Sq     F value   Pr(>F)   
+#Groups     7   0.17093   0.0244187   3.1046    0.006488 **
+#Residuals 71   0.55843   0.0078653                    
+#---
+#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Tukey <- TukeyHSD(dispersion)
+Tukey
+#Tukey multiple comparisons of means
+#95% family-wise confidence level
+
+#Fit: aov(formula = distances ~ group, data = df)
+
+#$group
+#                           diff         lwr          upr     p adj
+#D0_NONINFnm-D0_INFnm       -0.072470915 -0.21205416  0.067112332 0.7358772
+#D4_INFnm-D0_INFnm          -0.113681537 -0.26777727  0.040414196 0.3060539
+#D4_NONINFnm-D0_INFnm       -0.159304459 -0.32148554  0.002876619 0.0577704
+#D7_INFnm-D0_INFnm          -0.142176885 -0.27867260 -0.005681168 0.0352404
+#D7_NONINFnm-D0_INFnm       -0.138262269 -0.28161144  0.005086906 0.0665635
+#DNEG3_INFnm-D0_INFnm       -0.044696129 -0.16908334  0.079691080 0.9497728
+#DNEG3_NONINFnm-D0_INFnm    -0.070618088 -0.19500530  0.053769121 0.6399012
+#D4_INFnm-D0_NONINFnm       -0.041210622 -0.18719028  0.104769033 0.9868189
+#D4_NONINFnm-D0_NONINFnm    -0.086833543 -0.24132389  0.067656802 0.6514810
+#D7_INFnm-D0_NONINFnm       -0.069705969 -0.19696808  0.057556143 0.6804110
+#D7_NONINFnm-D0_NONINFnm    -0.065791353 -0.20037794  0.068795238 0.7905117
+#DNEG3_INFnm-D0_NONINFnm     0.027774787 -0.08640377  0.141953341 0.9945957
+#DNEG3_NONINFnm-D0_NONINFnm  0.001852827 -0.11232573  0.116031382 1.0000000
+#D4_NONINFnm-D4_INFnm       -0.045622922 -0.21334078  0.122094932 0.9894029
+#D7_INFnm-D4_INFnm          -0.028495348 -0.17152561  0.114534919 0.9984552
+#D7_NONINFnm-D4_INFnm       -0.024580732 -0.17416537  0.125003901 0.9995583
+#DNEG3_INFnm-D4_INFnm        0.068985408 -0.06253932  0.200510137 0.7258187
+#DNEG3_NONINFnm-D4_INFnm     0.043063449 -0.08846128  0.174588177 0.9694540
+#D7_INFnm-D4_NONINFnm        0.017127574 -0.13457893  0.168834081 0.9999644
+#D7_NONINFnm-D4_NONINFnm     0.021042190 -0.13685895  0.178943329 0.9998906
+#DNEG3_INFnm-D4_NONINFnm     0.114608330 -0.02630285  0.255519513 0.1960130
+#DNEG3_NONINFnm-D4_NONINFnm  0.088686371 -0.05222481  0.229597553 0.5118729
+#D7_NONINFnm-D7_INFnm        0.003914616 -0.12746707  0.135296305 1.0000000
+#DNEG3_INFnm-D7_INFnm        0.097480756 -0.01290194  0.207863454 0.1226233
+#DNEG3_NONINFnm-D7_INFnm     0.071558797 -0.03882390  0.181941494 0.4731456
+#DNEG3_INFnm-D7_NONINFnm     0.093566140 -0.02518673  0.212319015 0.2294320
+#DNEG3_NONINFnm-D7_NONINFnm  0.067644181 -0.05110869  0.186397056 0.6360143
+#DNEG3_NONINFnm-DNEG3_INFnm -0.025921959 -0.12092426  0.069080340 0.9892092
+
+
 phyloseq.adonis <- as(sample_data(phyloseq.FS9), "data.frame")
 set.seed(1)
 adonis.FS9 <- adonis(phyloseq.vegdist~Day*Treatment, data=phyloseq.adonis, permutations=9999)
@@ -327,7 +374,36 @@ save(phyloseq.FS9, file="phyloseq.FS9.doubleton.RData") #Use for FS9_alpha_beta_
 ###############################################################################
 
 #Distance calculation
-phyloseq.vegdist <- vegdist(phyloseq.FS9@otu_table, method="bray") 
+phyloseq.vegdistd4d7 <- vegdist(phyloseq.FS9@otu_table, method="bray")
+dispersiond4d7 <- betadisper(phyloseq.vegdistd4d7, phyloseq.FS9@sam_data$All, type = c("median"))
+anovabetad4d7 <- anova(dispersiond4d7)
+anovabetad4d7
+#Analysis of Variance Table
+
+#Response: Distances
+#             Df  Sum Sq   Mean Sq    F value Pr(>F)
+#Groups       3   0.005917 0.0019723  0.2484  0.8617
+#Residuals    25  0.198511 0.0079404 
+
+
+Tukeyd4d7 <- TukeyHSD(dispersiond4d7)
+Tukeyd4d7
+
+#Tukey multiple comparisons of means
+#95% family-wise confidence level
+
+#Fit: aov(formula = distances ~ group, data = df)
+
+#$group
+#                         diff        lwr        upr        p adj
+#D4_NONINFnm-D4_INFnm    -0.045337551 -0.1937575 0.10308236 0.8348096
+#D7_INFnm-D4_INFnm       -0.028305246 -0.1548782 0.09826768 0.9262971
+#D7_NONINFnm-D4_INFnm    -0.024579890 -0.1569530 0.10779324 0.9557583
+#D7_INFnm-D4_NONINFnm     0.017032305 -0.1172186 0.15128316 0.9850609
+#D7_NONINFnm-D4_NONINFnm  0.020757661 -0.1189751 0.16049038 0.9764601
+#D7_NONINFnm-D7_INFnm     0.003725356 -0.1125393 0.11999001 0.9997476
+
+
 phyloseq.adonis <- as(sample_data(phyloseq.FS9), "data.frame")
 set.seed(1)
 adonis.FS9 <- adonis(phyloseq.vegdist~Day*Treatment, data=phyloseq.adonis, permutations=9999)
