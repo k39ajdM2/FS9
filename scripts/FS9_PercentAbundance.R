@@ -185,13 +185,12 @@ head(fobar.order)
 fobar.gather.order <- fobar.order %>% gather(Order, value, -(group:All))
 head(fobar.gather.order)
 
-#Reorder days 0-14 in 'fobar.gather' plot
-levels(sample_data(fobar.gather.order)$Day) #"D0"    "D4"    "D7"    "DNEG3"
+#Reorder days -3 to 7 in 'fobar.gather' plot
 fobar.gather.order$Day <- factor(fobar.gather.order$Day, levels=c("DNEG3", "D0", "D4", "D7"))
 levels(sample_data(fobar.gather.order)$Day) #"DNEG3" "D0"    "D4"    "D7"  
 
 #Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of order
-fobar.gather.order %>% summarise_each(funs(n_distinct)) #48 total unique order
+fobar.gather.order %>% summarise(n_distinct(fobar.gather.order$Order)) #48 total unique order
 fobar.gather.order <- fobar.gather.order %>% group_by(All) %>% mutate(value2=(value/(length(All)/48))*100) %>% 
     arrange((desc(value2))) %>% 
     filter(value2 > 0) %>% 
@@ -283,11 +282,11 @@ D7Order <- fobar.gather.order %>%
 #Decide which order to remove from plot that isn't present in all 4 treatment groups
 
 OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
-    filter(Order!= "Actinomycetales" & Order!="Bacillales" & Order!="Bacteroidetes_unclassified" & Order!="Betaproteobacteriales" &
-               Order!= "Clostridia_unclassified" & Order!="Deltaproteobacteria_unclassified" & Order!="Elusimicrobiales" &
-               Order!="Fibrobacterales" & Order!="Fusobacteriales" & Order!="Gammaproteobacteria_unclassified" & Order!="Pasteurellales" & Order!="Pyrinomonadales" & 
-               Order!="Subgroup_6_or" & Order!="Synergistales" &
-               Order!="Verrucomicrobiales" & Order!="WCHB1-41") %>% 
+#    filter(Order!= "Actinomycetales" & Order!="Bacillales" & Order!="Bacteroidetes_unclassified" & Order!="Betaproteobacteriales" &
+#               Order!= "Clostridia_unclassified" & Order!="Deltaproteobacteria_unclassified" & Order!="Elusimicrobiales" &
+#               Order!="Fibrobacterales" & Order!="Fusobacteriales" & Order!="Gammaproteobacteria_unclassified" & Order!="Pasteurellales" & Order!="Pyrinomonadales" & 
+#               Order!="Subgroup_6_or" & Order!="Synergistales" &
+#               Order!="Verrucomicrobiales" & Order!="WCHB1-41") %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
