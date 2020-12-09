@@ -170,6 +170,7 @@ PhylumFig_D7
 
 write.csv(fobar.gather, file = "FS9_Phylum_OutDoubletons.csv")
 
+
 ###################################################### Order #####################################################
 FS9.order <- tax_glom(FS9, 'Order')
 order_tab <- as.data.frame(t(FS9.order@otu_table)) #Transpose 'FS9.order' by "otu_table"
@@ -303,3 +304,64 @@ OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
 OrderFig_D7
 
 write.csv(fobar.gather.order, file = "FS9_Order_OutDoubletons.csv")
+
+
+###################################################### Order: Day 7 only #####################################################
+
+FS9.order <- tax_glom(FS9, 'Order')
+order_tab <- as.data.frame(t(FS9.order@otu_table)) #Transpose 'FS9.order' by "otu_table"
+head(order_tab)
+FS9.order@tax_table[,4] #Fourth column is Order column
+colnames(order_tab) <- FS9.order@tax_table[,4] #Replace column names in order_tab from Otuxxxx with Order names
+order_tab2 <- order_tab/rowSums(order_tab) #Calculate the proportion of specific order per order column in 'order_tab'
+head(order_tab2)
+order_tab2$group <- rownames(order_tab2) #Create new column called "group" in 'order_tab2' containing rownames
+head(order_tab2)
+fobar.order <- merge(meta, order_tab2, by = 'group')
+head(fobar.order)
+fobar.gather.order <- fobar.order %>% gather(Order, value, -(group:All))
+head(fobar.gather.order)
+
+#Reorder days -3 to 7 in 'fobar.gather' plot
+fobar.gather.order$Day <- factor(fobar.gather.order$Day, levels=c("DNEG3", "D0", "D4", "D7"))
+levels(sample_data(fobar.gather.order)$Day) #"DNEG3" "D0"    "D4"    "D7"  
+
+#Remove DNEG3, D0, D4, NONINFnm
+fobar.gather.order.2 <- fobar.gather.order %>% 
+    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value") %>% 
+    filter(Day == "D7") %>% 
+    filter(Treatment != "NONINFnm")
+
+unique(fobar.gather.order.2$Treatment)
+
+#Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of order
+fobar.gather.order.2 %>% summarise(n_distinct(fobar.gather.order.2$Order)) #48 total unique order
+fobar.gather.order.2 <- fobar.gather.order.2 %>% group_by(All) %>% mutate(value2=(value/(length(All)/48))*100) %>% 
+    arrange((desc(value2))) %>% 
+    filter(value2 > 0) %>% 
+    mutate_if(is.numeric, round, digits = 4)%>% 
+    arrange(desc(value2)) %>% 
+    ungroup()
+#48 refers to number of Order 
+
+unique(fobar.gather.order.2$Order)
+
+#Day 7 Order Figure
+OrderFig_D7_2 <- fobar.gather.order.2 %>% 
+    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value2") %>% 
+    filter(Order %in% c("Mollicutes_RF39", "Verrucomicrobiales", "Coriobacteriales")) %>% 
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
+    geom_boxplot(position = 'identity') +
+    geom_jitter(shape=21, width = .15)+
+    facet_wrap("Order", scales = "free") +
+    ylab('Percent of Total Community') +
+    xlab ('') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    ggtitle("Day 7") +
+    theme(axis.text.x=element_text(angle=45, hjust=1),
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic")) +
+    guides(fill= guide_legend(ncol = 1))
+OrderFig_D7_2
+
+ggsave("Q2_PercentAbundance_WithDeSeq2Data.tiff", plot=OrderFig_D7_2, width = 10, height = 6, dpi = 500, units =c("in"))
