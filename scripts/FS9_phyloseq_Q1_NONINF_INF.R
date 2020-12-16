@@ -1,5 +1,5 @@
 #########################################
-#FS9 16S phyloseq - Noninfected vs infected
+#FS9 16S phyloseq - Noninfected (NONINFnm) vs infected (INFnm, INFfeed, INFinject)
 #Kathy Mou
 
 #NOTES: 

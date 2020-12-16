@@ -1,5 +1,5 @@
 #########################################
-#FS9 16S phyloseq - Noninfected vs infected, additional analysis (only NONINFnm and INFnm, all days)
+#FS9 16S phyloseq - Noninfected (NONINFnm) vs infected (INFnm), all days or only days 4 and 7
 #Kathy Mou
 
 #NOTES: 
