@@ -14,6 +14,8 @@ library(ggplot2)
 library(dplyr)
 library("ggsci")
 library(data.table)
+library(cowplot)
+library(wesanderson)
 
 ############################################################
 
@@ -39,7 +41,7 @@ sample_sums(FS9) #Calculate the sum of all OTUs for each sample. All samples hav
 FS9 <- prune_taxa(taxa_sums(FS9) > 2, FS9)  #Removes OTUs that occur less than 2 times globally
 
 
-#################################################### Phylum #####################################################
+#################################################### Phylum All 4 groups #####################################################
 FS9.phylum <- tax_glom(FS9, 'Phylum')
 phyla_tab <- as.data.frame(t(FS9.phylum@otu_table)) #Transpose 'FS9.phylum' by "otu_table"
 head(phyla_tab)
@@ -170,7 +172,7 @@ PhylumFig_D7
 
 write.csv(fobar.gather, file = "FS9_Phylum_OutDoubletons.csv")
 
-###################################################### Order #####################################################
+###################################################### Order All 4 groups #####################################################
 FS9.order <- tax_glom(FS9, 'Order')
 order_tab <- as.data.frame(t(FS9.order@otu_table)) #Transpose 'FS9.order' by "otu_table"
 head(order_tab)
@@ -305,7 +307,7 @@ OrderFig_D7
 write.csv(fobar.gather.order, file = "FS9_Order_OutDoubletons.csv")
 
 
-#################################################### Q1 NONINFnm vs INFnm Phylum #####################################################
+#################################################### Q1 Days -3 and 7 Phylum NONINFnm vs INFnm #####################################################
 FS9.phylum <- tax_glom(FS9, 'Phylum')
 phyla_tab <- as.data.frame(t(FS9.phylum@otu_table)) #Transpose 'FS9.phylum' by "otu_table"
 head(phyla_tab)
@@ -365,14 +367,12 @@ PhylumFig_DNEG3 <- fobar.gather.phyla.q1 %>% filter(Day == 'DNEG3') %>%
     ylab('Percent of Total Community') +
     xlab ('') +
     theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day -3") +
     scale_fill_igv(name = "Phylum") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_text(size=5),
-          legend.text = element_text(face = "italic"))
+          legend.text = element_text(face = "italic")) +
+    theme_bw()
 PhylumFig_DNEG3
-
-#Take out gray background!
 
 ggsave("Q1_NONINFnm_INFnm_Phylum_PercentAbundance_WithDeSeq2Data.tiff", plot=PhylumFig_DNEG3, width = 10, height = 6, dpi = 500, units =c("in"))
 
@@ -394,23 +394,86 @@ PhylumFig_D7 <- fobar.gather.phyla.q1 %>% filter(Day == 'D7') %>%
     ylab('Percent of Total Community') +
     xlab ('') +
     theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day 7") +
     scale_fill_igv(name = "Phylum") +
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic"))
+          legend.text = element_text(face = "italic")) +
+    theme_bw()
 PhylumFig_D7
-
-#Cowplot of DNEG3 and D7 - continue here!
-
 
 write.csv(fobar.gather, file = "FS9_Phylum_OutDoubletons.csv")
 
 
+###################################################### Q1 Day -3 Order NONINFnm vs INFnm #####################################################
+
+FS9.order <- tax_glom(FS9, 'Order')
+order_tab <- as.data.frame(t(FS9.order@otu_table)) #Transpose 'FS9.order' by "otu_table"
+head(order_tab)
+FS9.order@tax_table[,4] #Fourth column is Order column
+colnames(order_tab) <- FS9.order@tax_table[,4] #Replace column names in order_tab from Otuxxxx with Order names
+order_tab2 <- order_tab/rowSums(order_tab) #Calculate the proportion of specific order per order column in 'order_tab'
+head(order_tab2)
+order_tab2$group <- rownames(order_tab2) #Create new column called "group" in 'order_tab2' containing rownames
+head(order_tab2)
+fobar.order <- merge(meta, order_tab2, by = 'group')
+head(fobar.order)
+fobar.gather.order <- fobar.order %>% gather(Order, value, -(group:All))
+head(fobar.gather.order)
+
+#Reorder days -3 to 7 in 'fobar.gather' plot
+fobar.gather.order$Day <- factor(fobar.gather.order$Day, levels=c("DNEG3", "D0", "D4", "D7"))
+levels(sample_data(fobar.gather.order)$Day) #"DNEG3" "D0"    "D4"    "D7"  
+
+#Remove INFfeed, INFinject
+fobar.gather.order.q1 <- fobar.gather.order %>% 
+    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value") %>% 
+    filter(Treatment != "INFfeed") %>% 
+    filter(Treatment != "INFinject")
+
+unique(fobar.gather.order.q1$Treatment) #"NONINFnm" "INFnm"
+
+#Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of phylum
+fobar.gather.order.q1 %>% summarise(n_distinct(fobar.gather.order.q1$Order)) #48 total unique order
+fobar.gather.order.q1 <- fobar.gather.order.q1 %>% 
+    group_by(All) %>% 
+    mutate(value2=(value/(length(All)/48))*100) %>% #48 refers to number of order
+    arrange((desc(value2))) %>% 
+    filter(value2 > 0.01) %>% 
+    mutate_if(is.numeric, round, digits = 4)%>% 
+    arrange(desc(value2)) %>% 
+    ungroup()
+
+unique(fobar.gather.order.q1$Order) #37 unique orders
+
+#Day -3 Order Figure
+OrderFig_DNEG3_Q1 <- fobar.gather.order.q1 %>% filter(Day == "DNEG3") %>% 
+    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value2") %>% 
+    filter(Order %in% c("Betaproteobacteriales", "Campylobacterales", "Pasteurellales")) %>% 
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
+    geom_boxplot(position = 'identity') +
+    geom_jitter(shape=21, width = .15) +
+    facet_wrap("Order", scales = "free") +
+    ylab('Percent of Total Community') +
+    xlab ('') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(strip.text = element_text(size=17),
+          axis.title.x = element_blank(),
+          axis.text.y = element_text(size=14), 
+          axis.title.y = element_text(size=14), 
+          legend.title=element_text(size=14),
+          legend.text = element_text(size=14)) +
+    guides(fill= guide_legend(ncol = 1)) +
+    theme_bw()
+OrderFig_DNEG3_Q1
+
+#Cowplot of Q1_NONINFnm_INFnm Order and Phylum DNEG3, D7
+Fig2abc <- plot_grid(PhylumFig_DNEG3, PhylumFig_D7, OrderFig_DNEG3_Q1, labels = c('A', 'B', 'C'), label_size = 12, rel_widths = c(4 ,1.5, 1.5))
+Fig2abc
+
+ggsave("Q1_NONINFnm_INFnm_Phylum_Order_PercentAbundance_WithDeSeq2Data.tiff", plot=Fig2abc, width = 12, height = 8, dpi = 500, units =c("in"))
 
 
-
-###################################################### Q2 Day 7 Order only #####################################################
+###################################################### Q2 Day 7 Order NONINFnm vs INFnm #####################################################
 
 FS9.order <- tax_glom(FS9, 'Order')
 order_tab <- as.data.frame(t(FS9.order@otu_table)) #Transpose 'FS9.order' by "otu_table"
@@ -436,7 +499,7 @@ fobar.gather.order.2 <- fobar.gather.order %>%
     filter(Day == "D7") %>% 
     filter(Treatment != "NONINFnm")
 
-unique(fobar.gather.order.2$Treatment)
+unique(fobar.gather.order.2$Treatment) #"INFfeed"   "INFinject" "INFnm"
 
 #Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of order
 fobar.gather.order.2 %>% summarise(n_distinct(fobar.gather.order.2$Order)) #48 total unique order
@@ -448,7 +511,7 @@ fobar.gather.order.2 <- fobar.gather.order.2 %>% group_by(All) %>% mutate(value2
     ungroup()
 #48 refers to number of Order 
 
-unique(fobar.gather.order.2$Order)
+unique(fobar.gather.order.2$Order) #33 unique orders
 
 #Day 7 Order Figure
 OrderFig_D7_2 <- fobar.gather.order.2 %>% 
@@ -461,11 +524,11 @@ OrderFig_D7_2 <- fobar.gather.order.2 %>%
     ylab('Percent of Total Community') +
     xlab ('') +
     theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day 7") +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic")) +
-    guides(fill= guide_legend(ncol = 1))
+    theme(axis.title.x = element_blank()) +
+          #axis.text.x=element_text(angle=45, hjust=1),
+          #legend.text = element_text(face = "italic")) +
+    guides(fill= guide_legend(ncol = 1)) +
+    theme_bw()
 OrderFig_D7_2
 
-ggsave("Q2_PercentAbundance_WithDeSeq2Data.tiff", plot=OrderFig_D7_2, width = 10, height = 6, dpi = 500, units =c("in"))
+ggsave("Q2_INFnm_INFinject_INFfeed_Order_PercentAbundance_WithDeSeq2Data.tiff", plot=OrderFig_D7_2, width = 10, height = 6, dpi = 500, units =c("in"))
