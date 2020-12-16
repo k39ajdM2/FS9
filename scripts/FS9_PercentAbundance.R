@@ -305,7 +305,7 @@ OrderFig_D7
 write.csv(fobar.gather.order, file = "FS9_Order_OutDoubletons.csv")
 
 
-#################################################### Q1 Phylum #####################################################
+#################################################### Q1 NONINFnm vs INFnm Phylum #####################################################
 FS9.phylum <- tax_glom(FS9, 'Phylum')
 phyla_tab <- as.data.frame(t(FS9.phylum@otu_table)) #Transpose 'FS9.phylum' by "otu_table"
 head(phyla_tab)
@@ -341,7 +341,7 @@ fobar.gather.phyla.q1 <- fobar.gather.phyla.q1 %>%
     group_by(All) %>% 
     mutate(value2=(value/(length(All)/13))*100) %>% #13 refers to number of Phyla
     arrange((desc(value2))) %>% 
-    filter(value2 > 0) %>% 
+    filter(value2 > 0.01) %>% 
     mutate_if(is.numeric, round, digits = 4)%>% 
     arrange(desc(value2)) %>% 
     ungroup()
@@ -356,8 +356,8 @@ DNEG3Phylum <- fobar.gather.phyla.q1 %>%
 #Decide which phyla to remove from plot that isn't present in all 4 treatment groups
 
 PhylumFig_DNEG3 <- fobar.gather.phyla.q1 %>% filter(Day == 'DNEG3') %>%
-    #select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value2") %>% 
-    #filter(Order %in% c("Mollicutes_RF39", "Verrucomicrobiales", "Coriobacteriales")) %>% 
+    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
+    filter(Phylum %in% c("Actinobacteria", "Cyanobacteria", "Epsilonbacteraeota", "Firmicutes", "Spirochaetes")) %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -372,82 +372,21 @@ PhylumFig_DNEG3 <- fobar.gather.phyla.q1 %>% filter(Day == 'DNEG3') %>%
           legend.text = element_text(face = "italic"))
 PhylumFig_DNEG3
 
+#Take out gray background!
 
-OrderFig_D7_2 <- fobar.gather.order.2 %>% 
-    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value2") %>% 
-    filter(Order %in% c("Mollicutes_RF39", "Verrucomicrobiales", "Coriobacteriales")) %>% 
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap("Order", scales = "free") +
-    ylab('Percent of Total Community') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day 7") +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic")) +
-    guides(fill= guide_legend(ncol = 1))
-OrderFig_D7_2
-
-
-
-#Day 0 Phylum
-D0Phylum <- fobar.gather %>% 
-    subset(Day == "D0") %>% 
-    group_by(Phylum) %>% 
-    select(Phylum, Treatment) %>% 
-    count(Treatment)
-#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
-
-PhylumFig_D0 <- fobar.gather %>% filter(Day == 'D0'  & forplot == "keep") %>%
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap(~Phylum, scales = 'free') + 
-    ylab('Percent of Total Community') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day 0") +
-    scale_fill_igv(name = "Phylum") +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic"))
-PhylumFig_D0
-
-#Day 4 Phylum
-D4Phylum <- fobar.gather %>% 
-    subset(Day == "D4") %>% 
-    group_by(Phylum) %>% 
-    select(Phylum, Treatment) %>% 
-    count(Treatment)
-#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
-
-PhylumFig_D4 <- fobar.gather %>% filter(Day == 'D4' & forplot == "keep") %>%
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap(~Phylum, scales = 'free') + 
-    ylab('Percent of Total Community') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day 4") +
-    scale_fill_igv(name = "Phylum") +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic"))
-PhylumFig_D4
+ggsave("Q1_NONINFnm_INFnm_Phylum_PercentAbundance_WithDeSeq2Data.tiff", plot=PhylumFig_DNEG3, width = 10, height = 6, dpi = 500, units =c("in"))
 
 #Day 7 Phylum
-D7Phylum <- fobar.gather %>% 
+D7Phylum <- fobar.gather.phyla.q1 %>% 
     subset(Day == "D7") %>% 
     group_by(Phylum) %>% 
     select(Phylum, Treatment) %>% 
     count(Treatment)
 #Decide which phyla to remove from plot that isn't present in all 4 treatment groups
 
-PhylumFig_D7 <- fobar.gather %>% filter(Day == 'D7' & forplot == "keep") %>%
-    filter(Phylum != "Verrucomicrobia") %>% 
+PhylumFig_D7 <- fobar.gather.phyla.q1 %>% filter(Day == 'D7') %>%
+    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
+    filter(Phylum %in% c("Verrucomicrobia")) %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -461,6 +400,9 @@ PhylumFig_D7 <- fobar.gather %>% filter(Day == 'D7' & forplot == "keep") %>%
           axis.title.x = element_blank(),
           legend.text = element_text(face = "italic"))
 PhylumFig_D7
+
+#Cowplot of DNEG3 and D7 - continue here!
+
 
 write.csv(fobar.gather, file = "FS9_Phylum_OutDoubletons.csv")
 
