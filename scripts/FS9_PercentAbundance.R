@@ -360,14 +360,14 @@ DNEG3Phylum <- fobar.gather.phyla.q1 %>%
 PhylumFig_DNEG3 <- fobar.gather.phyla.q1 %>% filter(Day == 'DNEG3') %>%
     select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
     filter(Phylum %in% c("Actinobacteria", "Cyanobacteria", "Epsilonbacteraeota", "Firmicutes", "Spirochaetes")) %>% 
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
     facet_wrap(~Phylum, scales = 'free') + 
     ylab('Percent of Total Community') +
     xlab ('') +
     theme(plot.title = element_text(hjust = 0.5)) +
-    scale_fill_igv(name = "Phylum") +
+    scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9')) +
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_text(size=5),
           legend.text = element_text(face = "italic")) +
@@ -387,14 +387,14 @@ D7Phylum <- fobar.gather.phyla.q1 %>%
 PhylumFig_D7 <- fobar.gather.phyla.q1 %>% filter(Day == 'D7') %>%
     select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
     filter(Phylum %in% c("Verrucomicrobia")) %>% 
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
     facet_wrap(~Phylum, scales = 'free') + 
     ylab('Percent of Total Community') +
     xlab ('') +
     theme(plot.title = element_text(hjust = 0.5)) +
-    scale_fill_igv(name = "Phylum") +
+    scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9')) +
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_blank(),
           legend.text = element_text(face = "italic")) +
@@ -449,7 +449,7 @@ unique(fobar.gather.order.q1$Order) #37 unique orders
 OrderFig_DNEG3_Q1 <- fobar.gather.order.q1 %>% filter(Day == "DNEG3") %>% 
     select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value2") %>% 
     filter(Order %in% c("Betaproteobacteriales", "Campylobacterales", "Pasteurellales")) %>% 
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15) +
     facet_wrap("Order", scales = "free") +
@@ -463,7 +463,8 @@ OrderFig_DNEG3_Q1 <- fobar.gather.order.q1 %>% filter(Day == "DNEG3") %>%
           legend.title=element_text(size=14),
           legend.text = element_text(size=14)) +
     guides(fill= guide_legend(ncol = 1)) +
-    theme_bw()
+    theme_bw() +
+    scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
 OrderFig_DNEG3_Q1
 
 #Cowplot of Q1_NONINFnm_INFnm Order and Phylum DNEG3, D7
@@ -514,10 +515,10 @@ fobar.gather.order.2 <- fobar.gather.order.2 %>% group_by(All) %>% mutate(value2
 unique(fobar.gather.order.2$Order) #33 unique orders
 
 #Day 7 Order Figure
-OrderFig_D7_2 <- fobar.gather.order.2 %>% 
+OrderFig_D7_2 <- fobar.gather.order.2 %>% filter(Day == "D7") %>% 
     select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value2") %>% 
     filter(Order %in% c("Mollicutes_RF39", "Verrucomicrobiales", "Coriobacteriales")) %>% 
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
     facet_wrap("Order", scales = "free") +
@@ -528,7 +529,8 @@ OrderFig_D7_2 <- fobar.gather.order.2 %>%
           #axis.text.x=element_text(angle=45, hjust=1),
           #legend.text = element_text(face = "italic")) +
     guides(fill= guide_legend(ncol = 1)) +
+    scale_fill_manual(values = c(INFnm='#CC0066', INFfeed='#999999', INFinject='#E69F00')) +
     theme_bw()
 OrderFig_D7_2
 
-ggsave("Q2_INFnm_INFinject_INFfeed_Order_PercentAbundance_WithDeSeq2Data.tiff", plot=OrderFig_D7_2, width = 10, height = 6, dpi = 500, units =c("in"))
+ggsave("Q2_INFnm_INFinject_INFfeed_Order_D7_PercentAbundance_WithDeSeq2Data.tiff", plot=OrderFig_D7_2, width = 10, height = 6, dpi = 500, units =c("in"))
