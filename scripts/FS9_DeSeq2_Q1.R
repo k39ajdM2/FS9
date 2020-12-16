@@ -1,9 +1,10 @@
 #####################################################################################################
-#FS9 DESeq2 - Noninfected vs Infected
+#FS9 DESeq2 - Noninfected (NONINFnm) vs Infected (INFnm, INFfeed, INFinject)
 #Kathy Mou
 
 #Purpose: This code uses DESeq2 package to identify fecal microbial genera that were differentially 
-#abundant between the two groups on the two days sampled
+#abundant between the infected groups (INFnm, INFfeed, INFinject) and non-infected group (NONINFnm) on days -3 and 0
+#prior to OTC administration
 
 #Load library packages
 library(DESeq2)
@@ -59,18 +60,12 @@ FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
 # This method merges species that have the same taxonomy at a certain taxanomic rank. 
 # Its approach is analogous to tip_glom, but uses categorical data instead of a tree. 
 
-######################################## PRIMARY COMPARISONS TO MAKE ############################################################
 
-# NMDS plot showed that disperion is different between days, so I subsetted by day
-# Though there were no significant differences between groups on all days sampled, I will still look at
-# taxons to see if there were consistent differences in abundance between groups across days
+##################################################################################################################################
 
-# Comparisons to make:
-# Day -3 
-# INF vs NONINF
+##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (ORDER LEVEL) BETWEEN GROUPS ###################################
 
-# Day 0 
-# INF vs NONINF
+##################################### Day -3, 0 ##########################################################################
 
 ######################################################### Day -3 #########################################################
 
@@ -225,11 +220,11 @@ write.csv(final.sigtab, file= "FS9_FinalDiffAbund_Order_OutDoubletons_Q1.csv")
 
 
 
-
-
 ##################################################################################################################################
 
-##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (PHYLUM LEVEL) BETWEEN TREATMENTS ###################################
+##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (PHYLUM LEVEL) BETWEEN GROUPS ###################################
+
+##################################### Day -3, 0 ##########################################################################
 
 ######################################################### Day -3 #########################################################
 

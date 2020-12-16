@@ -1,9 +1,9 @@
 #####################################################################################################
-#FS9 DESeq2 - Noninfected vs Infected, additional analysis
+#FS9 DESeq2 - Noninfected (NONINFnm) vs Infected (INFnm), additional analysis
 #Kathy Mou
 
 #Purpose: This code uses DESeq2 package to identify fecal microbial genera that were differentially 
-#abundant between the two groups on all days and only days 4 and 7
+#abundant between the two groups NONINFnm and INFnm on all days and only days 4 and 7 at the phylum and order level
 
 #Load library packages
 library(DESeq2)
@@ -59,18 +59,13 @@ FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
 # This method merges species that have the same taxonomy at a certain taxanomic rank. 
 # Its approach is analogous to tip_glom, but uses categorical data instead of a tree. 
 
-######################################## PRIMARY COMPARISONS TO MAKE ############################################################
 
-# NMDS plot showed that disperion is different between days, so I subsetted by day
-# Though there were no significant differences between groups on all days sampled, I will still look at
-# taxons to see if there were consistent differences in abundance between groups across days
+##################################################################################################################################
 
-# Comparisons to make:
-# Day -3 
-# INF vs NONINF
+##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (ORDER LEVEL) BETWEEN TREATMENTS ###################################
 
-# Day 0 
-# INF vs NONINF
+##################################### Day -3, 0, 4, 7 ##########################################################################
+
 
 ######################################################### Day -3 #########################################################
 
@@ -94,7 +89,7 @@ FS9.DNEG3.De <- phyloseq_to_deseq2(FS9.DNEG3, ~ Set)
 #based on the Negative Binomial (a.k.a. Gamma-Poisson) distribution
 FS9.DNEG3.De <- DESeq(FS9.DNEG3.De, test = "Wald", fitType = "parametric")
 
-######### Day -3 INF vs NONINF ###################
+######### Day -3 INFnm vs NONINFnm ###################
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
@@ -157,7 +152,7 @@ unique(sample_data(FS9.D0)$Set)
 FS9.D0.De <- phyloseq_to_deseq2(FS9.D0, ~ Set)
 FS9.D0.De <- DESeq(FS9.D0.De, test = "Wald", fitType = "parametric")
 
-######### Day 0 INF vs NONINF ###################
+######### Day 0 INFnm vs NONINFnm ###################
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
@@ -207,7 +202,7 @@ FS9.D4.De <- phyloseq_to_deseq2(FS9.D4, ~ Set)
 #based on the Negative Binomial (a.k.a. Gamma-Poisson) distribution
 FS9.D4.De <- DESeq(FS9.D4.De, test = "Wald", fitType = "parametric")
 
-######### Day 4 INF vs NONINF ###################
+######### Day 4 INFnm vs NONINFnm ###################
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
@@ -322,6 +317,8 @@ write.csv(final.sigtab, file= "FS9_FinalDiffAbund_Order_OutDoubletons_Q1_AllDays
 
 ##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (PHYLUM LEVEL) BETWEEN TREATMENTS ###################################
 
+##################################### Day -3, 0, 4, 7 ##########################################################################
+
 ######################################################### Day -3 #########################################################
 
 sample_data(FS9.phylum)
@@ -336,7 +333,7 @@ rowSums(FS9.DNEG3.p@otu_table)
 #Look at what Set is
 sample_data(FS9.DNEG3.p)
 
-######### Day -3 INFinject vs INFnm ###################
+######### Day -3 INFnm vs NONINFnm ###################
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
@@ -553,7 +550,12 @@ write.csv(final.sigtab.phylum, file= "FS9_FinalDiffAbund_Phylum_OutDoubletons_Q1
 
 
 
-################################ Days 4, 7 only ########################################################################
+##################################################################################################################################
+
+##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (ORDER LEVEL) BETWEEN TREATMENTS ###################################
+
+##################################### Days 4 and 7 ##########################################################################
+
 otu <- import_mothur(mothur_shared_file = './data/stability.outdoubletons.abund.opti_mcc.shared') #use unrarified data
 taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outdoubletons.abund.opti_mcc.0.03.cons.taxonomy')
 meta <- read.table(file = './data/FS9_metadata_NONINFvINF_alldays.csv', sep = ',', header = TRUE)
@@ -593,21 +595,6 @@ FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
 # This method merges species that have the same taxonomy at a certain taxanomic rank. 
 # Its approach is analogous to tip_glom, but uses categorical data instead of a tree. 
 
-######################################## PRIMARY COMPARISONS TO MAKE ############################################################
-
-# NMDS plot showed that disperion is different between days, so I subsetted by day
-# Though there were no significant differences between groups on all days sampled, I will still look at
-# taxons to see if there were consistent differences in abundance between groups across days
-
-# Comparisons to make:
-# Day -3 
-# INF vs NONINF
-
-# Day 0 
-# INF vs NONINF
-
-
-#CONTINUE HERE!!!
 ######################################################### Day 4 #########################################################
 
 unique(sample_data(FS9.order)$Set)
@@ -622,7 +609,7 @@ rowSums(FS9.D4@otu_table)
 #Look at what Set is
 unique(sample_data(FS9.D4)$Set)
 
-######### Day 4 INF vs NONINF ###################
+######### Day 4 INFnm vs NONINFnm ###################
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
@@ -660,7 +647,7 @@ rowSums(FS9.D7@otu_table)
 #Look at what Set is
 unique(sample_data(FS9.D7)$Set)
 
-######### Day 7 INF vs NONINF ###################
+######### Day 7 INFnm vs NONINFnm ###################
 
 #Number of pigs per group (using meta2 dataframe): 
 sum(meta2$Set == "D7_INFnm")
@@ -719,6 +706,8 @@ write.csv(final.sigtab, file= "FS9_FinalDiffAbund_Order_OutDoubletons_Q1_D4D7.cs
 
 ##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (PHYLUM LEVEL) BETWEEN TREATMENTS ###################################
 
+##################################### Days 4 and 7 ##########################################################################
+
 ######################################################### Day 4 #########################################################
 
 sample_data(FS9.phylum)
@@ -733,7 +722,7 @@ rowSums(FS9.D4.p@otu_table)
 #Look at what Set is
 sample_data(FS9.D4.p)
 
-######### Day 4 INFinject vs INFnm ###################
+######### Day 4 INFnm vs NONINFnm ###################
 
 #Number of pigs per group (using meta2 dataframe): 
 sum(meta2$Set == "D4_INFnm")
@@ -773,7 +762,7 @@ rowSums(FS9.D7.p@otu_table)
 #Look at what Set is
 unique(sample_data(FS9.D7.p)$Set)
 
-######### Day 7 INFinject vs INFnm ###################
+######### Day 7 INFnm vs NONINFnm ###################
 
 #Number of pigs per group (using meta2 dataframe): 
 sum(meta2$Set == "D7_INFnm")
