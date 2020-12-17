@@ -290,21 +290,26 @@ fig_adg <- adg2 %>%
                                 NONINFnm="#56B4E9" )) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'ADG (lb)', x= NULL) +
+  labs(y= 'Average Daily Gain (pounds)', x= NULL) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         legend.text = element_text(size=12),
         legend.title = element_text(size=12),
-        axis.title.y = element_text(size=12))
+        axis.title.y = element_text(size=12)) +
+  scale_x_discrete(breaks=c("D4_ADG", "D7_ADG"),
+                   labels=c("D4", "D7")) +
+  theme_bw()
 fig_adg
 
-ggsave(fig_adg,
-       filename = './figure_ADG.jpeg',
-       width = 160,
-       height = 200,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
+ggsave("ADG.tiff", plot=fig_adg, width = 5, height = 7, dpi = 500, units =c("in"))
+
+#ggsave(fig_adg,
+#        filename = './figure_ADG.jpeg',
+#       width = 160,
+#       height = 200,
+#       device = 'jpeg',
+#       dpi = 300,
+#       units = 'mm')
 
 ########################################################################################################
 #Lung Lesion
@@ -324,7 +329,8 @@ fig_lung <- lung %>%
         axis.text.y = element_text(size=12),
         legend.text = element_text(size=12),
         legend.title = element_text(size=12),
-        axis.title.y = element_text(size=12))
+        axis.title.y = element_text(size=12)) +
+  theme_bw()
 fig_lung
 
 stats <- lung %>% 
@@ -332,10 +338,12 @@ stats <- lung %>%
   summarise(Sum=sum(WeightedAverage), Mean=(mean(WeightedAverage)), sd = sd(WeightedAverage))
 write.csv(stats, file= "lunglesionstats.csv")
 
-ggsave(fig_lung,
-       filename = './figure_lung.jpeg',
-       width = 160,
-       height = 200,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
+ggsave("LungLesionSeverity.tiff", plot=fig_lung, width = 5, height = 7, dpi = 500, units =c("in"))
+
+#ggsave(fig_lung,
+#       filename = './figure_lung.jpeg',
+#       width = 160,
+#       height = 200,
+#       device = 'jpeg',
+#       dpi = 300,
+#       units = 'mm')
