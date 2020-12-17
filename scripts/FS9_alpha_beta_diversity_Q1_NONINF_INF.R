@@ -1,9 +1,10 @@
 #######################################################################
-#FS9 16S alpha and beta diversity - Noninfected vs Infected (days -3, 0)
+#FS9 16S alpha and beta diversity - Noninfected (NONINF) vs Infected (INF) (days -3, 0)
 #Kathy Mou
 
 #NOTES: 
-#This code analyzes alpha and beta diversity statistics for fecal samples on days -3, 0; and associated plots
+#This code analyzes alpha and beta diversity statistics for fecal samples from infected pigs (INFnm, INFfeed, INFinject) 
+#and non-infected pigs (NONINFnm)on days -3, 0; and associated plots
 #This script uses files created in "FS9_phyloseq.R"
 
 #Clear workspace and load necessary packages

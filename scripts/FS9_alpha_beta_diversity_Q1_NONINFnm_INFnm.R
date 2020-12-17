@@ -1,5 +1,5 @@
 #######################################################################
-#FS9 16S alpha and beta diversity - Noninfected vs Infected, additional analysis
+#FS9 16S alpha and beta diversity - NONINFnm vs INFnm, all days and days 4 and 7 only
 #Kathy Mou
 
 #NOTES: 
