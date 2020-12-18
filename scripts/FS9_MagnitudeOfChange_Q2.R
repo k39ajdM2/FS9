@@ -42,7 +42,8 @@ fecal2 <- ggplot(data=fecal, aes(x=Day, y=F.Model, group=Treatment)) +
   theme_classic(base_size = 12) +
   theme(axis.text.y = element_text(size = 14), axis.text.x = element_text(size=14), axis.title.x = element_text(size=14), axis.title.y = element_text(size=14), legend.text=element_text(size=14), legend.title=element_text(size=14)) +
   labs(color="Treatment group") +
-  scale_size(guide = 'none')
+  scale_size(guide = 'none') +
+  theme_bw()
 fecal2
 
 #Save 'fecal2' as a .tiff for publication, 500dpi

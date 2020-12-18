@@ -448,7 +448,7 @@ unique(fobar.gather.order.q1$Order) #37 unique orders
 #Day -3 Order Figure
 OrderFig_DNEG3_Q1 <- fobar.gather.order.q1 %>% filter(Day == "DNEG3") %>% 
     select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value2") %>% 
-    filter(Order %in% c("Betaproteobacteriales", "Campylobacterales", "Pasteurellales")) %>% 
+    filter(Order %in% c("Betaproteobacteriales", "Campylobacterales", "Lactobacillales", "Pasteurellales")) %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15) +

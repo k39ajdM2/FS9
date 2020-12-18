@@ -15,9 +15,7 @@ library(tidyverse)
 library(phyloseq)
 library(scales)
 library(RColorBrewer)
-install.packages('philentropy')
 library(philentropy)
-install.packages('cowplot')
 library(cowplot)
 
 #Load NMDS_ellipse function from https://github.com/Jtrachsel/funfuns
@@ -114,8 +112,7 @@ pairwise.adonis <- function(x,factors, sim.method = 'bray', p.adjust.m = 'none',
 }
 
 ###########################################################################################################
-#Load 'phyloseq.FS9.RData' into environment
-load('./data/phyloseq.FS9.doubleton.RData')
+#Run FS9_phyloseq_Q1_NONINFnm_INFnm.R or FS9_phyloseq_Q2.R to generate phyloseq.FS9 object to run in this R script.
 
 #Setting up 'phyloseq' into dataframes for NMDS calculation
 meta <- data.frame(phyloseq.FS9@sam_data) #Make 'phyloseq.FS9' sam_data into dataframe
@@ -199,7 +196,7 @@ metanmds.2$Treatment2
 nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanmds.2$MDS1, y=metanmds.2$MDS2, color='grey57', geom = 'point')+
   geom_path(data = df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment), size=1.25) + 
   geom_point(aes(color = Treatment), size = 2) + 
-  #geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY, color=Treatment), alpha=.5) + 
+  geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY, color=Treatment), alpha=.5) + 
   theme(panel.background = element_blank(),
         axis.text = element_blank(),
         axis.title = element_blank(),
