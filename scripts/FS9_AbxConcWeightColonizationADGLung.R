@@ -36,16 +36,16 @@ tis.melt$Tissue <- ifelse(tis.melt$variable == 'PlasmaOxytet', 'Plasma',
 unique(tis.melt$Treatment)
 tis.melt$Treatment <- factor(tis.melt$Treatment, levels = c('NONINFnm', 'INFnm', 'INFinject', 'INFfeed'))
 
-#Oxytetracycline concentration in two groups in all tissue samples
+#Oxytetracycline concentration in INFinject and INFfeed in all tissue samples
 fig2 <- tis.melt %>% filter(Treatment %in% c('INFinject', 'INFfeed')) %>%
   ggplot(aes(x=Day, y=value, group=DayXTreatment, fill=Treatment)) +
   geom_boxplot() +
   ylab('Concentration of Oxytetracycline (ng/mL)') + xlab('Day') + scale_y_log10(labels=scales::scientific) +
-  facet_wrap(~Tissue, scales = 'free')+
-  theme_bw() + scale_fill_manual(values = c('#E69F00', '#999999'))
+  facet_wrap(~Tissue)+
+  theme_bw() + scale_fill_manual(values = c(INFinject='#E69F00', INFfeed='#999999'))
 fig2
 ggsave(fig2,
-       filename = './figure2.jpeg',
+       filename = './Fig_OxytetLevels_LungNasalPlasma_INFfeedINFinject.jpeg',
        width = 180,
        height = 120,
        device = 'jpeg',
@@ -335,8 +335,8 @@ fig_lung
 
 stats <- lung %>% 
   group_by(lung$Treatment, Day) %>% 
-  summarise(Sum=sum(WeightedAverage), Mean=(mean(WeightedAverage)), sd = sd(WeightedAverage))
-write.csv(stats, file= "lunglesionstats.csv")
+  summarise(Sum=sum(WeightedAverage), Mean=(mean(WeightedAverage)), sd = sd(WeightedAverage), se = sd(WeightedAverage)/sqrt(n()))
+write.csv(stats, file= "FS9_LungLesionStats.csv")
 
 ggsave("LungLesionSeverity.tiff", plot=fig_lung, width = 5, height = 7, dpi = 500, units =c("in"))
 
