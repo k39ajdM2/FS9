@@ -19,6 +19,8 @@ library(wesanderson)
 
 ############################################################
 
+#Must run this section first before running the other sections!
+
 otu <- import_mothur(mothur_shared_file = './data/stability.outdoubletons.abund.opti_mcc.0.03.subsample.shared')
 taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outdoubletons.abund.opti_mcc.0.03.cons.taxonomy')
 meta <- read.table('./data/FS9_metadata.csv', header = TRUE, sep = ",")
@@ -364,7 +366,7 @@ PhylumFig_DNEG3 <- fobar.gather.phyla.q1 %>% filter(Day == 'DNEG3') %>%
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
     facet_wrap(~Phylum, scales = 'free') + 
-    ylab('Percent of Total Community') +
+    ylab('Percent of Total Community (Phylum)') +
     xlab ('') +
     theme(plot.title = element_text(hjust = 0.5)) +
     scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9')) +
@@ -384,24 +386,23 @@ D7Phylum <- fobar.gather.phyla.q1 %>%
     count(Treatment)
 #Decide which phyla to remove from plot that isn't present in all 4 treatment groups
 
-PhylumFig_D7 <- fobar.gather.phyla.q1 %>% filter(Day == 'D7') %>%
-    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
-    filter(Phylum %in% c("Verrucomicrobia")) %>% 
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap(~Phylum, scales = 'free') + 
-    ylab('Percent of Total Community') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9')) +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic")) +
-    theme_bw()
-PhylumFig_D7
-
-write.csv(fobar.gather, file = "FS9_Phylum_OutDoubletons.csv")
+#Couldn't get NONINFnm to show up with INFnm for Verrucomicrobia, so I will ignore PhylumFig_D7 plot
+#PhylumFig_D7 <- fobar.gather.phyla.q1 %>% filter(Day == 'D7') %>%
+#    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
+#    filter(Phylum %in% c("Verrucomicrobia")) %>% 
+#    ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
+#    geom_boxplot(position = 'identity') +
+#    geom_jitter(shape=21, width = .15)+
+#    facet_wrap(~Phylum, scales = 'free') + 
+#    ylab('Percent of Total Community') +
+#    xlab ('') +
+#    theme(plot.title = element_text(hjust = 0.5)) +
+#    scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9')) +
+#    theme(axis.text.x=element_text(angle=45, hjust=1),
+#          axis.title.x = element_blank(),
+#          legend.text = element_text(face = "italic")) +
+#    theme_bw()
+#PhylumFig_D7
 
 
 ###################################################### Q1 Day -3 Order NONINFnm vs INFnm #####################################################
@@ -453,7 +454,7 @@ OrderFig_DNEG3_Q1 <- fobar.gather.order.q1 %>% filter(Day == "DNEG3") %>%
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15) +
     facet_wrap("Order", scales = "free") +
-    ylab('Percent of Total Community') +
+    ylab('Percent of Total Community (Order)') +
     xlab ('') +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(strip.text = element_text(size=17),
@@ -467,11 +468,11 @@ OrderFig_DNEG3_Q1 <- fobar.gather.order.q1 %>% filter(Day == "DNEG3") %>%
     scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
 OrderFig_DNEG3_Q1
 
-#Cowplot of Q1_NONINFnm_INFnm Order and Phylum DNEG3, D7
-Fig2abc <- plot_grid(PhylumFig_DNEG3, PhylumFig_D7, OrderFig_DNEG3_Q1, labels = c('A', 'B', 'C'), label_size = 12, rel_widths = c(4 ,1.5, 1.5))
-Fig2abc
+#Cowplot of Q1_NONINFnm_INFnm DNEG3 Order and Phylum
+Fig2ab <- plot_grid(PhylumFig_DNEG3, OrderFig_DNEG3_Q1, labels = c('A', 'B'), label_size = 12, rel_widths = c(6, 5))
+Fig2ab
 
-ggsave("Q1_NONINFnm_INFnm_Phylum_Order_PercentAbundance_WithDeSeq2Data.tiff", plot=Fig2abc, width = 12, height = 8, dpi = 500, units =c("in"))
+ggsave("Q1_NONINFnm_INFnm_Phylum_Order_PercentAbundance_WithDeSeq2Data.tiff", plot=Fig2ab, width = 12, height = 8, dpi = 500, units =c("in"))
 
 
 ###################################################### Q2 Day 7 Order NONINFnm vs INFnm #####################################################
