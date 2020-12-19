@@ -36,6 +36,9 @@ tis.melt$Tissue <- ifelse(tis.melt$variable == 'PlasmaOxytet', 'Plasma',
 unique(tis.melt$Treatment)
 tis.melt$Treatment <- factor(tis.melt$Treatment, levels = c('NONINFnm', 'INFnm', 'INFinject', 'INFfeed'))
 
+######################################################################################################################################################
+#Oxytetracycline Levels
+
 #Oxytetracycline concentration in INFinject and INFfeed in all tissue samples
 fig2 <- tis.melt %>% filter(Treatment %in% c('INFinject', 'INFfeed')) %>%
   ggplot(aes(x=Day, y=value, group=DayXTreatment, fill=Treatment)) +
@@ -65,7 +68,7 @@ tis.melt %>%
   theme_bw() + scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999'))+
   scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) 
 
-#BW plot of oxytet concentration, all four groups, all tissues
+#Black and white plot of oxytet concentration, all four groups, all tissues
 tis.melt %>% 
   ggplot(aes(x=Day, y=value, group=DayXTreatment, fill=Treatment)) +
   geom_boxplot() +
@@ -100,29 +103,42 @@ tmp <- tis.melt %>% group_by(Day, Tissue, Treatment) %>% summarise(mean=mean(val
                                                                    sd=sd(value), 
                                                                    se=sd/n) %>% write_csv('./results/mean_abx_conc.csv')
 
+
+######################################################################################################################################################
+#Weight and oxytetracycline plots
+
+#Convert weight from character to numeric in order to run linear regression with Weight as x-axis
+class(tis.melt$Weight) #character
+tis.melt$Weight <- as.numeric(tis.melt$Weight)
+class(tis.melt$Weight) #numeric
+
 #Concentration of oxytetracycline relative to weight, plasma, day 4
-fig1_d4 <- tis.melt %>% 
+fig_d4_plasma <- tis.melt %>% 
   filter(Day==4) %>%
   filter(Tissue=="Plasma") %>% 
   ggplot(aes(x=Weight, y=value, color=Treatment)) +
   scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL)') + xlab("Weight (kg)")
-fig1_d4
+  geom_point() + 
+  geom_smooth(method = "lm") +
+  theme_bw() +
+  ylab('Concentration of Oxytetracycline (ng/mL) in Plasma') + 
+  xlab("Weight (kg)")
+fig_d4_plasma
 
 #Concentration of oxytetracycline relative to weight, plasma, day 7
-fig1_d7 <- tis.melt %>% 
+fig_d7 <- tis.melt %>% 
   filter(Day==7) %>%
   filter(Tissue=="Plasma") %>% 
   ggplot(aes(x=Weight, y=value, color=Treatment)) +
   scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
   geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL)') + xlab("Weight (kg)")
-fig1_d7
+fig_d7
 
 #Combine figures
-fig1_plasma <- plot_grid(fig1_d4, fig1_d7, labels = c('A', 'B'), label_size = 12)
+fig_plasma <- plot_grid(fig1_d4, fig1_d7, labels = c('A', 'B'), label_size = 12)
 
 #Save combined figure
-ggsave(fig1_plasma,
+ggsave(fig_plasma,
        filename = './results/figure1_plasma.jpeg',
        width = 180,
        height = 120,
@@ -133,30 +149,29 @@ ggsave(fig1_plasma,
 
 
 #Concentration of oxytetracycline relative to weight, lung, day 4
-fig1_d4_lung <- tis.melt %>% 
+fig_d4_lung <- tis.melt %>% 
   filter(Day==4) %>%
   filter(Tissue=="Lung") %>% 
   ggplot(aes(x=Weight, y=value, color=Treatment)) +
   scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL)') + xlab("Weight (kg)")
-fig1_d4_lung
-
-#Concentration of oxytetracycline relative to weight, lung, day 7
-fig1_d7_lung <- tis.melt %>% 
+  geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL) in Lung') + xlab("Weight (kg)")
+fig_d4_lung
+  
+#Concentration of oxytetracycline relative to weight, lung, day 7 - don't use this because no significant correlation between body weight
+#and oxytetracycline levels on day 7
+fig_d7_lung <- tis.melt %>% 
   filter(Day==7) %>%
   filter(Tissue=="Lung") %>% 
   ggplot(aes(x=Weight, y=value, color=Treatment)) +
+  geom_smooth(method = 'lm') +
+  geom_point() +
   scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL)') + xlab("Weight (kg)")
-fig1_d7_lung
+  theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL) in Lung') + xlab("Weight (kg)")
+fig_d7_lung
 
-#Combine figures
-fig1_lung <- plot_grid(fig1_d4_lung, fig1_d7_lung, labels = c('A', 'B'), label_size = 12)
-fig1_lung
-
-#Save combined figure
-ggsave(fig1_lung,
-       filename = './results/figure1_lung.jpeg',
+#Save figure for d4, oxytet levels in lung + body weight
+ggsave(fig_d4_lung,
+       filename = './Fig_OxytetLevels_Lung_BodyWeight_D4.jpeg',
        width = 180,
        height = 120,
        device = 'jpeg',
@@ -165,30 +180,35 @@ ggsave(fig1_lung,
 
 
 #Concentration of oxytetracycline relative to weight, nasal, day 4
-fig1_d4_nasal <- tis.melt %>% 
+fig_d4_nasal <- tis.melt %>% 
   filter(Day==4) %>%
   filter(Tissue=="Nasal") %>% 
   ggplot(aes(x=Weight, y=value, color=Treatment)) +
   scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
   geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL)') + xlab("Weight (kg)")
-fig1_d4_nasal
+fig_d4_nasal
 
 #Concentration of oxytetracycline relative to weight, nasal, day 7
-fig1_d7_nasal <- tis.melt %>% 
+fig_d7_nasal <- tis.melt %>% 
   filter(Day==7) %>%
   filter(Tissue=="Nasal") %>% 
   ggplot(aes(x=Weight, y=value, color=Treatment)) +
   scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
   geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL)') + xlab("Weight (kg)")
-fig1_d7_nasal
+fig_d7_nasal
 
 #Combine figures
-fig1_nasal <- plot_grid(fig1_d4_nasal, fig1_d7_nasal, labels = c('A', 'B'), label_size = 12)
-fig1_nasal
+fig_nasal <- plot_grid(fig_d4_nasal, fig_d7_nasal, labels = c('A', 'B'), label_size = 12)
+fig_nasal
+
+#Combine plasma day 4 and lung day 4 figures
+fig_plasmalung <- plot_grid(fig_d4_plasma, fig_d4_lung, labels = c('A', 'B'), label_size = 12)
+fig_plasmalung
+
 
 #Save combined figure
-ggsave(fig1_nasal,
-       filename = './results/figure1_nasal.jpeg',
+ggsave(fig_plasmalung,
+       filename = './Fig_OxytetLevels_PlasmaLung_BodyWeight_D4_All.jpeg',
        width = 180,
        height = 120,
        device = 'jpeg',
