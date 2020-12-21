@@ -1,9 +1,9 @@
 #####################################################################################################
-#FS9 DESeq2 - Infected: nm vs feed vs inject
+#FS9 DESeq2 - Infected: nm vs feed vs inject, days 4 and 7
 #Kathy Mou
 
 #Purpose: This code uses DESeq2 package to identify fecal microbial genera that were differentially 
-#abundant between the three groups on the two days sampled
+#abundant between the three groups on days 4 and 7
 
 #Load library packages
 library(DESeq2)
@@ -59,25 +59,13 @@ FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
 # This method merges species that have the same taxonomy at a certain taxanomic rank. 
 # Its approach is analogous to tip_glom, but uses categorical data instead of a tree. 
 
-######################################## PRIMARY COMPARISONS TO MAKE ############################################################
 
-# NMDS plot showed that disperion is different between days, so I subsetted by day
-# Though there were no significant differences between groups on all days sampled, I will still look at
-# taxons to see if there were consistent differences in abundance between groups across days
+##################################################################################################################################
 
-# Comparisons to make:
-
-# Day 4 
-# INFinject vs INFnm 
-# INFfeed vs INFnm 
-# INFfeed vs INFinject
-
-# Day 7
-# INFinject vs INFnm 
-# INFfeed vs INFnm 
-# INFfeed vs INFinject
+##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (ORDER LEVEL) BETWEEN TREATMENTS ###################################
 
 ##################################################### Day 4 ######################################################################
+
 
 sample_data(FS9.order)
 
@@ -350,7 +338,7 @@ final.sigtab <- rbind(sigtab.D7.oj, final.sigtab)
 #######################################################################################################
 
 #write csv
-write.csv(final.sigtab, file= "FS9_FinalDiffAbund_Order_OutDoubletons_Q2.csv")
+write.csv(final.sigtab, file= "FS9_FinalDiffAbund_Order_OutDoubletons_Q2_D4D7.csv")
 
 #######################################################################################################
 
@@ -630,6 +618,6 @@ final.sigtab.phylum <- rbind(sigtab.D7.p.oj, final.sigtab.phylum)
 #######################################################################################################
 
 #write csv
-write.csv(final.sigtab.phylum, file= "FS9_FinalDiffAbund_Phylum_OutDoubletons_Q2.csv")
+write.csv(final.sigtab.phylum, file= "FS9_FinalDiffAbund_Phylum_OutDoubletons_Q2_D4D7.csv")
 
 #######################################################################################################

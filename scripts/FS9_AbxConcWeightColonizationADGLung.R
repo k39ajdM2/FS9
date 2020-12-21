@@ -21,7 +21,7 @@ sessionInfo()
 #Import file
 tis <- read.csv('./data/FS9_WeightOxytet.csv', stringsAsFactors = FALSE)  # reads in data, already cleaned a little
 
-#Organize "tis" file
+#Must organize "tis" file in order to run the various scripts below
 tis$Day <- as.numeric(gsub('D', '', tis$Day))             # replaces the 'D' in the time column with '' (nothing)
 tis.melt <- melt(tis, id.vars = c(1:4), measure.vars = c(5:7))          # converts to long dataframe format for easy plotting
 tis.melt                                                                # just checking on the new long dataframe
@@ -202,13 +202,13 @@ fig_nasal <- plot_grid(fig_d4_nasal, fig_d7_nasal, labels = c('A', 'B'), label_s
 fig_nasal
 
 #Combine plasma day 4 and lung day 4 figures
-fig_plasmalung <- plot_grid(fig_d4_plasma, fig_d4_lung, labels = c('A', 'B'), label_size = 12)
+fig_plasmalung <- plot_grid(fig_d4_lung, fig_d4_plasma, labels = c('A', 'B'), label_size = 12)
 fig_plasmalung
 
 
 #Save combined figure
 ggsave(fig_plasmalung,
-       filename = './Fig_OxytetLevels_PlasmaLung_BodyWeight_D4_All.jpeg',
+       filename = './Fig5_OxytetLevels_LungPlasma_BodyWeight_D4_All.jpeg',
        width = 180,
        height = 120,
        device = 'jpeg',
