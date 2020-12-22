@@ -1,5 +1,5 @@
 ############################################################
-#FS9 total phyla, orders
+#FS9 percent abundance of total community - order level
 #Kathy Mou
 
 #For generating total genera found in each treatment group per day and plot as bar graphs
@@ -43,136 +43,7 @@ sample_sums(FS9) #Calculate the sum of all OTUs for each sample. All samples hav
 FS9 <- prune_taxa(taxa_sums(FS9) > 2, FS9)  #Removes OTUs that occur less than 2 times globally
 
 
-#################################################### Phylum All 4 groups #####################################################
-FS9.phylum <- tax_glom(FS9, 'Phylum')
-phyla_tab <- as.data.frame(t(FS9.phylum@otu_table)) #Transpose 'FS9.phylum' by "otu_table"
-head(phyla_tab)
-FS9.phylum@tax_table[,2] #Second column is Phylum column
-colnames(phyla_tab) <- FS9.phylum@tax_table[,2] #Replace column names in phyla_tab from Otuxxxx with Phylum names
-phyla_tab2 <- phyla_tab/rowSums(phyla_tab) #Calculate the proportion of specific phyla per phyla column in 'phyla_tab'
-head(phyla_tab2)
-phyla_tab3 <- phyla_tab2[,colSums(phyla_tab2)>0.1] #Keep the columns that have greater than 0.1 value
-phyla_tab3$group <- rownames(phyla_tab3) #Rename rownames as "group"
-head(phyla_tab3)
-fobar <- merge(meta, phyla_tab3, by = 'group')
-head(fobar)
-fobar.gather <- fobar %>% gather(Phylum, value, -(group:All))  #Combines all phyla into one column and their respective % abundance values in "value" column
-#It added columns "group" through "All" before "Phylum" and "value"
-head(fobar.gather)
 
-#Reorder days in 'fobar.gather' plot
-levels(sample_data(fobar.gather)$Day) #"D0"    "D4"    "D7"    "DNEG3"
-fobar.gather$Day <- factor(fobar.gather$Day, levels=c("DNEG3", "D0", "D4","D7"))
-levels(sample_data(fobar.gather)$Day) #"DNEG3" "D0"    "D4"    "D7" 
-
-#Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of phylum
-fobar.gather %>% summarise_each(funs(n_distinct)) #13 total unique phyla
-fobar.gather <- fobar.gather %>% 
-    group_by(All) %>% 
-    mutate(value2=(value/(length(All)/13))*100) %>% #13 refers to number of Phyla
-    mutate(forplot=if_else(value2>0, "keep", "toss")) %>% 
-    group_by(All) %>% 
-    filter(forplot=='keep') %>% 
-    mutate_if(is.numeric, round, digits = 4)%>% 
-    arrange(desc(value2)) %>% 
-    ungroup()
-
-#Phylum Figures
-
-#Day -3 Phylum
-DNEG3Phylum <- fobar.gather %>% 
-    subset(Day == "DNEG3") %>% 
-    group_by(Phylum) %>% 
-    select(Phylum, All) %>% 
-    count(All)
-#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
-
-PhylumFig_DNEG3 <- fobar.gather %>% filter(Day == 'DNEG3' & forplot == "keep") %>%
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap(~Phylum, scales = 'free') + 
-    ylab('Percent of Total Community') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day -3") +
-    scale_fill_igv(name = "Phylum") +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_text(size=5),
-          legend.text = element_text(face = "italic"))
-PhylumFig_DNEG3
-
-#Day 0 Phylum
-D0Phylum <- fobar.gather %>% 
-    subset(Day == "D0") %>% 
-    group_by(Phylum) %>% 
-    select(Phylum, Treatment) %>% 
-    count(Treatment)
-#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
-
-PhylumFig_D0 <- fobar.gather %>% filter(Day == 'D0'  & forplot == "keep") %>%
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap(~Phylum, scales = 'free') + 
-    ylab('Percent of Total Community') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day 0") +
-    scale_fill_igv(name = "Phylum") +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic"))
-PhylumFig_D0
-
-#Day 4 Phylum
-D4Phylum <- fobar.gather %>% 
-    subset(Day == "D4") %>% 
-    group_by(Phylum) %>% 
-    select(Phylum, Treatment) %>% 
-    count(Treatment)
-#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
-
-PhylumFig_D4 <- fobar.gather %>% filter(Day == 'D4' & forplot == "keep") %>%
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap(~Phylum, scales = 'free') + 
-    ylab('Percent of Total Community') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day 4") +
-    scale_fill_igv(name = "Phylum") +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic"))
-PhylumFig_D4
-
-#Day 7 Phylum
-D7Phylum <- fobar.gather %>% 
-    subset(Day == "D7") %>% 
-    group_by(Phylum) %>% 
-    select(Phylum, Treatment) %>% 
-    count(Treatment)
-#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
-
-PhylumFig_D7 <- fobar.gather %>% filter(Day == 'D7' & forplot == "keep") %>%
-    filter(Phylum != "Verrucomicrobia") %>% 
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap(~Phylum, scales = 'free') + 
-    ylab('Percent of Total Community') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day 7") +
-    scale_fill_igv(name = "Phylum") +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic"))
-PhylumFig_D7
-
-write.csv(fobar.gather, file = "FS9_Phylum_OutDoubletons.csv")
 
 ###################################################### Order All 4 groups #####################################################
 FS9.order <- tax_glom(FS9, 'Order')
@@ -286,11 +157,6 @@ D7Order <- fobar.gather.order %>%
 #Decide which order to remove from plot that isn't present in all 4 treatment groups
 
 OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
-#    filter(Order!= "Actinomycetales" & Order!="Bacillales" & Order!="Bacteroidetes_unclassified" & Order!="Betaproteobacteriales" &
-#               Order!= "Clostridia_unclassified" & Order!="Deltaproteobacteria_unclassified" & Order!="Elusimicrobiales" &
-#               Order!="Fibrobacterales" & Order!="Fusobacteriales" & Order!="Gammaproteobacteria_unclassified" & Order!="Pasteurellales" & Order!="Pyrinomonadales" & 
-#               Order!="Subgroup_6_or" & Order!="Synergistales" &
-#               Order!="Verrucomicrobiales" & Order!="WCHB1-41") %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -307,102 +173,6 @@ OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
 OrderFig_D7
 
 write.csv(fobar.gather.order, file = "FS9_Order_OutDoubletons.csv")
-
-
-#################################################### Q1 Days -3 and 7 Phylum NONINFnm vs INFnm #####################################################
-FS9.phylum <- tax_glom(FS9, 'Phylum')
-phyla_tab <- as.data.frame(t(FS9.phylum@otu_table)) #Transpose 'FS9.phylum' by "otu_table"
-head(phyla_tab)
-FS9.phylum@tax_table[,2] #Second column is Phylum column
-colnames(phyla_tab) <- FS9.phylum@tax_table[,2] #Replace column names in phyla_tab from Otuxxxx with Phylum names
-phyla_tab2 <- phyla_tab/rowSums(phyla_tab) #Calculate the proportion of specific phyla per phyla column in 'phyla_tab'
-head(phyla_tab2)
-phyla_tab3 <- phyla_tab2[,colSums(phyla_tab2)>0.1] #Keep the columns that have greater than 0.1 value
-phyla_tab3$group <- rownames(phyla_tab3) #Rename rownames as "group"
-head(phyla_tab3)
-fobar <- merge(meta, phyla_tab3, by = 'group')
-head(fobar)
-fobar.gather <- fobar %>% gather(Phylum, value, -(group:All))  #Combines all phyla into one column and their respective % abundance values in "value" column
-#It added columns "group" through "All" before "Phylum" and "value"
-head(fobar.gather)
-
-#Reorder days in 'fobar.gather' plot
-levels(sample_data(fobar.gather)$Day) #"D0"    "D4"    "D7"    "DNEG3"
-fobar.gather$Day <- factor(fobar.gather$Day, levels=c("DNEG3", "D0", "D4","D7"))
-levels(sample_data(fobar.gather)$Day) #"DNEG3" "D0"    "D4"    "D7" 
-
-#Remove INFinject, INFfeed
-fobar.gather.phyla.q1 <- fobar.gather %>% 
-    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value") %>% 
-    filter(Treatment != "INFfeed") %>% 
-    filter(Treatment != "INFinject")
-
-unique(fobar.gather.phyla.q1$Treatment) #"NONINFnm" "INFnm"
-
-#Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of phylum
-fobar.gather.phyla.q1 %>% summarise(n_distinct(fobar.gather.phyla.q1$Phylum)) #13 total unique phyla
-fobar.gather.phyla.q1 <- fobar.gather.phyla.q1 %>% 
-    group_by(All) %>% 
-    mutate(value2=(value/(length(All)/13))*100) %>% #13 refers to number of Phyla
-    arrange((desc(value2))) %>% 
-    filter(value2 > 0.01) %>% 
-    mutate_if(is.numeric, round, digits = 4)%>% 
-    arrange(desc(value2)) %>% 
-    ungroup()
-
-#Phylum Figures
-#Day -3 Phylum
-DNEG3Phylum <- fobar.gather.phyla.q1 %>% 
-    subset(Day == "DNEG3") %>% 
-    group_by(Phylum) %>% 
-    select(Phylum, All) %>% 
-    count(All)
-#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
-
-PhylumFig_DNEG3 <- fobar.gather.phyla.q1 %>% filter(Day == 'DNEG3') %>%
-    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
-    filter(Phylum %in% c("Actinobacteria", "Cyanobacteria", "Epsilonbacteraeota", "Firmicutes", "Spirochaetes")) %>% 
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap(~Phylum, scales = 'free') + 
-    ylab('Percent of Total Community (Phylum)') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9')) +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_text(size=5),
-          legend.text = element_text(face = "italic")) +
-    theme_bw()
-PhylumFig_DNEG3
-
-ggsave("Q1_NONINFnm_INFnm_Phylum_PercentAbundance_WithDeSeq2Data.tiff", plot=PhylumFig_DNEG3, width = 10, height = 6, dpi = 500, units =c("in"))
-
-#Day 7 Phylum
-D7Phylum <- fobar.gather.phyla.q1 %>% 
-    subset(Day == "D7") %>% 
-    group_by(Phylum) %>% 
-    select(Phylum, Treatment) %>% 
-    count(Treatment)
-#Decide which phyla to remove from plot that isn't present in all 4 treatment groups
-
-#Couldn't get NONINFnm to show up with INFnm for Verrucomicrobia, so I will ignore PhylumFig_D7 plot
-#PhylumFig_D7 <- fobar.gather.phyla.q1 %>% filter(Day == 'D7') %>%
-#    select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
-#    filter(Phylum %in% c("Verrucomicrobia")) %>% 
-#    ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
-#    geom_boxplot(position = 'identity') +
-#    geom_jitter(shape=21, width = .15)+
-#    facet_wrap(~Phylum, scales = 'free') + 
-#    ylab('Percent of Total Community') +
-#    xlab ('') +
-#    theme(plot.title = element_text(hjust = 0.5)) +
-#    scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9')) +
-#    theme(axis.text.x=element_text(angle=45, hjust=1),
-#          axis.title.x = element_blank(),
-#          legend.text = element_text(face = "italic")) +
-#    theme_bw()
-#PhylumFig_D7
 
 
 ###################################################### Q1 Day -3 Order NONINFnm vs INFnm #####################################################
@@ -439,17 +209,17 @@ fobar.gather.order.q1 <- fobar.gather.order.q1 %>%
     group_by(All) %>% 
     mutate(value2=(value/(length(All)/48))*100) %>% #48 refers to number of order
     arrange((desc(value2))) %>% 
-    filter(value2 > 0.01) %>% 
+    filter(value2 > 0) %>% 
     mutate_if(is.numeric, round, digits = 4)%>% 
     arrange(desc(value2)) %>% 
     ungroup()
 
-unique(fobar.gather.order.q1$Order) #37 unique orders
+unique(fobar.gather.order.q1$Order) #43 unique orders
 
 #Day -3 Order Figure
 OrderFig_DNEG3_Q1 <- fobar.gather.order.q1 %>% filter(Day == "DNEG3") %>% 
     select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value2") %>% 
-    filter(Order %in% c("Betaproteobacteriales", "Campylobacterales", "Lactobacillales", "Pasteurellales")) %>% 
+    filter(Order %in% c("Betaproteobacteriales", "Campylobacterales", "Gastranaerophilales", "Lactobacillales", "Pasteurellales")) %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15) +
@@ -468,12 +238,7 @@ OrderFig_DNEG3_Q1 <- fobar.gather.order.q1 %>% filter(Day == "DNEG3") %>%
     scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
 OrderFig_DNEG3_Q1
 
-#Cowplot of Q1_NONINFnm_INFnm DNEG3 Order and Phylum
-Fig2ab <- plot_grid(PhylumFig_DNEG3, OrderFig_DNEG3_Q1, labels = c('A', 'B'), label_size = 12, rel_widths = c(6, 5))
-Fig2ab
-
-ggsave("Q1_NONINFnm_INFnm_Phylum_Order_PercentAbundance_WithDeSeq2Data.tiff", plot=Fig2ab, width = 12, height = 8, dpi = 500, units =c("in"))
-
+ggsave("Q1_NONINFnm_INFnm_Order_DNEG3_PercentAbundance_WithDeSeq2Data.tiff", plot=OrderFig_DNEG3_Q1, width = 9, height = 6, dpi = 500, units =c("in"))
 
 ###################################################### Q2 Day 7 Order NONINFnm vs INFnm #####################################################
 
@@ -515,10 +280,12 @@ fobar.gather.order.2 <- fobar.gather.order.2 %>% group_by(All) %>% mutate(value2
 
 unique(fobar.gather.order.2$Order) #33 unique orders
 
-#Day 7 Order Figure
+#Day 7 Order Figure: only Coriobacteriales, Mollicutes_RF39, and Verrucomicrobiales have % total community figures that match with DESeq2 data.
+#Therefore, I will make a DESeq2-only figure that highlights all orders for Q2 D4, D7 that pass the log2-fold change > 0.25.
+#Make figure that shows enriched in "INFfeed", "INFinject" or depleted in "INFfeed", "INFinject"
 OrderFig_D7_2 <- fobar.gather.order.2 %>% filter(Day == "D7") %>% 
     select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value2") %>% 
-    filter(Order %in% c("Mollicutes_RF39", "Verrucomicrobiales", "Coriobacteriales")) %>% 
+    #filter(Order %in% c("Mollicutes_RF39", "Verrucomicrobiales", "Coriobacteriales")) %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -533,5 +300,3 @@ OrderFig_D7_2 <- fobar.gather.order.2 %>% filter(Day == "D7") %>%
     scale_fill_manual(values = c(INFnm='#CC0066', INFfeed='#999999', INFinject='#E69F00')) +
     theme_bw()
 OrderFig_D7_2
-
-ggsave("Q2_INFnm_INFinject_INFfeed_Order_D7_PercentAbundance_WithDeSeq2Data.tiff", plot=OrderFig_D7_2, width = 10, height = 6, dpi = 500, units =c("in"))

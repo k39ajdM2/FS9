@@ -1,9 +1,9 @@
 #####################################################################################################
-#FS9 DESeq2 - Noninfected (NONINFnm) vs Infected (INFnm), additional analysis
+#FS9 DESeq2 - Noninfected (NONINFnm) vs Infected (INFnm) only on all days, or days 4 and 7
 #Kathy Mou
 
 #Purpose: This code uses DESeq2 package to identify fecal microbial genera that were differentially 
-#abundant between the two groups NONINFnm and INFnm on all days and only days 4 and 7 at the phylum and order level
+#abundant between the two groups NONINFnm and INFnm on all days and only days 4 and 7 at the order level
 
 #Load library packages
 library(DESeq2)
@@ -55,7 +55,6 @@ tax_table(FS9) [1:5, 1:6] #see what's in tax_table first 5 rows, first 6 columns
 
 #Grouping OTUs by desired taxonomic level using the tax_glom function 
 FS9.order <- tax_glom(FS9, taxrank = "Order")
-FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
 # This method merges species that have the same taxonomy at a certain taxanomic rank. 
 # Its approach is analogous to tip_glom, but uses categorical data instead of a tree. 
 
@@ -255,7 +254,7 @@ FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
 #based on the Negative Binomial (a.k.a. Gamma-Poisson) distribution
 FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
 
-######### Day 7 INF vs NONINF ###################
+######### Day 7 INFnm vs NONINFnm ###################
 
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
@@ -306,248 +305,6 @@ final.sigtab <- rbind(final.sigtab, sigtab.D7)
 #write csv that includes all differentially abundant OTUs regardless of log2-fold values
 write.csv(final.sigtab, file= "FS9_FinalDiffAbund_Order_OutDoubletons_Q1_AllDays.csv")
 
-#######################################################################################################
-
-
-
-
-
-
-##################################################################################################################################
-
-##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (PHYLUM LEVEL) BETWEEN TREATMENTS ###################################
-
-##################################### Day -3, 0, 4, 7 ##########################################################################
-
-######################################################### Day -3 #########################################################
-
-sample_data(FS9.phylum)
-
-FS9.DNEG3.p <- subset_samples(FS9.phylum, Day == 'DNEG3')
-sample_sums(FS9.DNEG3.p)
-colnames(otu_table(FS9.DNEG3.p)) #check on all the sample names
-FS9.DNEG3.p <- prune_taxa(taxa_sums(FS9.DNEG3.p) > 1, FS9.DNEG3.p)
-#if taxa_sums is >1, then it will print that out in FS9.DNEG3.p object and not include anything with <1.
-rowSums(FS9.DNEG3.p@otu_table)
-
-#Look at what Set is
-sample_data(FS9.DNEG3.p)
-
-######### Day -3 INFnm vs NONINFnm ###################
-
-meta$Set
-#Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "DNEG3_INFnm")
-#20
-sum(meta$Set == "DNEG3_NONINFnm")
-#20
-
-#re-level your factor and re-run DESeq2
-sample_data(FS9.DNEG3.p)$Set <- factor(sample_data(FS9.DNEG3.p)$Set,
-                                     levels =c('DNEG3_NONINFnm',"DNEG3_INFnm"))
-FS9.DNEG3.p.De <- phyloseq_to_deseq2(FS9.DNEG3.p, ~ Set)
-FS9.DNEG3.p.De <- DESeq(FS9.DNEG3.p.De, test = "Wald", fitType = "parametric")
-FS9.DNEG3.p.De$Set
-resultsNames(FS9.DNEG3.p.De)
-#[1] "Intercept"                   "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm"  
-res.DNEG3.p = lfcShrink(FS9.DNEG3.p.De, coef = "Set_DNEG3_INFnm_vs_DNEG3_NONINFnm", type = 'apeglm')
-# positive log2foldchanges are associated with the first group from this line (DNEG3_INF)
-# negative log2foldchanges are associated with the second group from this line (DNEG3_NONINF)
-sigtab.DNEG3.p = res.DNEG3.p[which(res.DNEG3.p$padj < .05), ]
-sigtab.DNEG3.p = cbind(as(sigtab.DNEG3.p, "data.frame"), as(tax_table(FS9.DNEG3.p)[rownames(sigtab.DNEG3.p), ], "matrix"))
-sigtab.DNEG3.p$newp <- format(round(sigtab.DNEG3.p$padj, digits = 3), scientific = TRUE)
-sigtab.DNEG3.p$Treatment <- ifelse(sigtab.DNEG3.p$log2FoldChange >=0, "INFnm", "NONINFnm")
-head(sigtab.DNEG3.p)
-
-deseq.DNEG3.p <- 
-  ggplot(sigtab.DNEG3.p, aes(x=reorder(rownames(sigtab.DNEG3.p), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.DNEG3.p), y=0, label = paste(Phylum)), size=5, fontface = 'italic')+ labs(x="Phylum")+
-  theme(axis.text.x=element_text(color = 'black', size = 13),
-        axis.text.y=element_text(color = 'black', size=13), 
-        axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFnm Group Relative to NONINFnm\n in Fecal Microbiota on Day -3')+ coord_flip() +
-  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
-deseq.DNEG3.p
-
-#Add OTU and comparisons columns
-sigtab.DNEG3.p
-sigtab.DNEG3.p$OTU <- rownames(sigtab.DNEG3.p)
-sigtab.DNEG3.p
-sigtab.DNEG3.p$comp <- 'DNEG3_INFnm_vs_NONINFnm'
-
-#Create final significant comparisons table
-final.sigtab.phylum <- sigtab.DNEG3.p
-
-
-
-##################################################### Day 0 ######################################################################
-
-FS9.D0.p <- subset_samples(FS9.phylum, Day == 'D0')
-sample_sums(FS9.D0.p)
-colnames(otu_table(FS9.D0.p)) #check on all the sample names
-FS9.D0.p <- prune_taxa(taxa_sums(FS9.D0.p) > 1, FS9.D0.p)
-#if taxa_sums is >1, then it will print that out in FS9.D0 object and not include anything with <1.
-rowSums(FS9.D0.p@otu_table)
-
-#Look at what Set is
-unique(sample_data(FS9.D0.p)$Set)
-
-######### Day 0 INFinject vs INFnm ###################
-
-meta$Set
-#Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "D0_INFnm")
-#8
-sum(meta$Set == "D0_NONINFnm")
-#9
-
-sample_data(FS9.D0.p)$Set <- factor(sample_data(FS9.D0.p)$Set,
-                                  levels =c('D0_NONINFnm',"D0_INFnm"))
-FS9.D0.p.De <- phyloseq_to_deseq2(FS9.D0.p, ~ Set)
-FS9.D0.p.De <- DESeq(FS9.D0.p.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.D0.p.De)
-#[1] "Intercept"      "Set_D0_INFnm_vs_D0_NONINFnm"
-res.D0.p = lfcShrink(FS9.D0.p.De, coef = "Set_D0_INFnm_vs_D0_NONINFnm", type = 'apeglm')
-sigtab.D0.p = res.D0.p[which(res.D0.p$padj < .05), ]
-sigtab.D0.p = cbind(as(sigtab.D0.p, "data.frame"), as(tax_table(FS9.D0.p)[rownames(sigtab.D0.p), ], "matrix"))
-sigtab.D0.p$newp <- format(round(sigtab.D0.p$padj, digits = 3), scientific = TRUE)
-sigtab.D0.p$Treatment <- ifelse(sigtab.D0.p$log2FoldChange >=0, "INFnm", "NONINFnm")
-head(sigtab.D0.p) 
-
-deseq.D0.p <- 
-  ggplot(sigtab.D0.p, aes(x=reorder(rownames(sigtab.D0.p), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D0.p), y=0, label = paste(Phylum)), size=5, fontface = 'italic')+ labs(x="Phylum")+
-  theme(axis.text.x=element_text(color = 'black', size = 13),
-        axis.text.y=element_text(color = 'black', size=13), 
-        axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFnm Group Relative to NONINFnm\n in Fecal Microbiota on Day 0')+ coord_flip() +
-  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
-deseq.D0.p
-
-#Add OTU and comparisons columns
-sigtab.D0.p
-sigtab.D0.p$OTU <- rownames(sigtab.D0.p)
-sigtab.D0.p
-sigtab.D0.p$comp <- 'D0_INFnm_vs_NONINFnm'
-
-#Create final significant comparisons table
-final.sigtab.phylum <- rbind(final.sigtab.phylum, sigtab.D0.p)
-
-
-
-
-##################################################### Day 4 ######################################################################
-
-FS9.D4.p <- subset_samples(FS9.phylum, Day == 'D4')
-sample_sums(FS9.D4.p)
-colnames(otu_table(FS9.D4.p)) #check on all the sample names
-FS9.D4.p <- prune_taxa(taxa_sums(FS9.D4.p) > 1, FS9.D4.p)
-#if taxa_sums is >1, then it will print that out in FS9.D4 object and not include anything with <1.
-rowSums(FS9.D4.p@otu_table)
-
-#Look at what Set is
-unique(sample_data(FS9.D4.p)$Set)
-
-######### Day 4 INFinject vs INFnm ###################
-
-meta$Set
-#Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "D4_INFnm")
-#6
-sum(meta$Set == "D4_NONINFnm")
-#5
-
-sample_data(FS9.D4.p)$Set <- factor(sample_data(FS9.D4.p)$Set,
-                                    levels =c('D4_NONINFnm',"D4_INFnm"))
-FS9.D4.p.De <- phyloseq_to_deseq2(FS9.D4.p, ~ Set)
-FS9.D4.p.De <- DESeq(FS9.D4.p.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.D4.p.De)
-#[1] "Intercept"      "Set_D4_INFnm_vs_D4_NONINFnm"
-res.D4.p = lfcShrink(FS9.D4.p.De, coef = "Set_D4_INFnm_vs_D4_NONINFnm", type = 'apeglm')
-sigtab.D4.p = res.D4.p[which(res.D4.p$padj < .05), ]
-sigtab.D4.p = cbind(as(sigtab.D4.p, "data.frame"), as(tax_table(FS9.D4.p)[rownames(sigtab.D4.p), ], "matrix"))
-sigtab.D4.p$newp <- format(round(sigtab.D4.p$padj, digits = 3), scientific = TRUE)
-sigtab.D4.p$Treatment <- ifelse(sigtab.D4.p$log2FoldChange >=0, "INFnm", "NONINFnm")
-head(sigtab.D4.p) 
-#DataFrame with 0 rows and 7 columns. Will skip to next data set.
-
-
-
-
-##################################################### Day 7 ######################################################################
-
-FS9.D7.p <- subset_samples(FS9.phylum, Day == 'D7')
-sample_sums(FS9.D7.p)
-colnames(otu_table(FS9.D7.p)) #check on all the sample names
-FS9.D7.p <- prune_taxa(taxa_sums(FS9.D7.p) > 1, FS9.D7.p)
-#if taxa_sums is >1, then it will print that out in FS9.D7 object and not include anything with <1.
-rowSums(FS9.D7.p@otu_table)
-
-#Look at what Set is
-unique(sample_data(FS9.D7.p)$Set)
-
-######### Day 7 INFinject vs INFnm ###################
-
-meta$Set
-#Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "D7_INFnm")
-#14
-sum(meta$Set == "D7_NONINFnm")
-#12
-
-sample_data(FS9.D7.p)$Set <- factor(sample_data(FS9.D7.p)$Set,
-                                    levels =c('D7_NONINFnm',"D7_INFnm"))
-FS9.D7.p.De <- phyloseq_to_deseq2(FS9.D7.p, ~ Set)
-FS9.D7.p.De <- DESeq(FS9.D7.p.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.D7.p.De)
-#[1] "Intercept"      "Set_D7_INFnm_vs_D7_NONINFnm"
-res.D7.p = lfcShrink(FS9.D7.p.De, coef = "Set_D7_INFnm_vs_D7_NONINFnm", type = 'apeglm')
-sigtab.D7.p = res.D7.p[which(res.D7.p$padj < .05), ]
-sigtab.D7.p = cbind(as(sigtab.D7.p, "data.frame"), as(tax_table(FS9.D7.p)[rownames(sigtab.D7.p), ], "matrix"))
-sigtab.D7.p$newp <- format(round(sigtab.D7.p$padj, digits = 3), scientific = TRUE)
-sigtab.D7.p$Treatment <- ifelse(sigtab.D7.p$log2FoldChange >=0, "INFnm", "NONINFnm")
-head(sigtab.D7.p) 
-
-deseq.D7.p <- 
-  ggplot(sigtab.D7.p, aes(x=reorder(rownames(sigtab.D7.p), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p), y=0, label = paste(Phylum)), size=5, fontface = 'italic')+ labs(x="Phylum")+
-  theme(axis.text.x=element_text(color = 'black', size = 13),
-        axis.text.y=element_text(color = 'black', size=13), 
-        axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFnm Group Relative to NONINFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
-  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
-deseq.D7.p
-
-#Add OTU and comparisons columns
-sigtab.D7.p
-sigtab.D7.p$OTU <- rownames(sigtab.D7.p)
-sigtab.D7.p
-sigtab.D7.p$comp <- 'D7_INFnm_vs_NONINFnm'
-
-#Create final significant comparisons table
-final.sigtab.phylum <- rbind(final.sigtab.phylum, sigtab.D7.p)
-
-
-
-#######################################################################################################
-
-#write csv
-write.csv(final.sigtab.phylum, file= "FS9_FinalDiffAbund_Phylum_OutDoubletons_Q1_alldays.csv")
-
-#######################################################################################################
-
-
-
-
-
-
-
-
-
-
 
 
 ##################################################################################################################################
@@ -591,7 +348,6 @@ tax_table(FS9) [1:5, 1:6] #see what's in tax_table first 5 rows, first 6 columns
 
 #Grouping OTUs by desired taxonomic level using the tax_glom function 
 FS9.order <- tax_glom(FS9, taxrank = "Order")
-FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
 # This method merges species that have the same taxonomy at a certain taxanomic rank. 
 # Its approach is analogous to tip_glom, but uses categorical data instead of a tree. 
 
@@ -694,119 +450,5 @@ final.sigtab <- sigtab.D7
 
 #write csv that includes all differentially abundant OTUs regardless of log2-fold values
 write.csv(final.sigtab, file= "FS9_FinalDiffAbund_Order_OutDoubletons_Q1_D4D7.csv")
-
-#######################################################################################################
-
-
-
-
-
-
-##################################################################################################################################
-
-##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (PHYLUM LEVEL) BETWEEN TREATMENTS ###################################
-
-##################################### Days 4 and 7 ##########################################################################
-
-######################################################### Day 4 #########################################################
-
-sample_data(FS9.phylum)
-
-FS9.D4.p <- subset_samples(FS9.phylum, Day == 'D4')
-sample_sums(FS9.D4.p)
-colnames(otu_table(FS9.D4.p)) #check on all the sample names
-FS9.D4.p <- prune_taxa(taxa_sums(FS9.D4.p) > 1, FS9.D4.p)
-#if taxa_sums is >1, then it will print that out in FS9.D4.p object and not include anything with <1.
-rowSums(FS9.D4.p@otu_table)
-
-#Look at what Set is
-sample_data(FS9.D4.p)
-
-######### Day 4 INFnm vs NONINFnm ###################
-
-#Number of pigs per group (using meta2 dataframe): 
-sum(meta2$Set == "D4_INFnm")
-#6
-sum(meta2$Set == "D4_NONINFnm")
-#5
-
-#re-level your factor and re-run DESeq2
-sample_data(FS9.D4.p)$Set <- factor(sample_data(FS9.D4.p)$Set,
-                                       levels =c('D4_NONINFnm',"D4_INFnm"))
-FS9.D4.p.De <- phyloseq_to_deseq2(FS9.D4.p, ~ Set)
-FS9.D4.p.De <- DESeq(FS9.D4.p.De, test = "Wald", fitType = "parametric")
-FS9.D4.p.De$Set
-resultsNames(FS9.D4.p.De)
-#[1] "Intercept"                   "Set_D4_INFnm_vs_D4_NONINFnm"  
-res.D4.p = lfcShrink(FS9.D4.p.De, coef = "Set_D4_INFnm_vs_D4_NONINFnm", type = 'apeglm')
-# positive log2foldchanges are associated with the first group from this line (D4_INF)
-# negative log2foldchanges are associated with the second group from this line (D4_NONINF)
-sigtab.D4.p = res.D4.p[which(res.D4.p$padj < .05), ]
-sigtab.D4.p = cbind(as(sigtab.D4.p, "data.frame"), as(tax_table(FS9.D4.p)[rownames(sigtab.D4.p), ], "matrix"))
-sigtab.D4.p$newp <- format(round(sigtab.D4.p$padj, digits = 3), scientific = TRUE)
-sigtab.D4.p$Treatment <- ifelse(sigtab.D4.p$log2FoldChange >=0, "INFnm", "NONINFnm")
-head(sigtab.D4.p)
-#DataFrame with 0 rows and 7 columns. Skip to next dataset.
-
-
-
-##################################################### Day 7 ######################################################################
-
-FS9.D7.p <- subset_samples(FS9.phylum, Day == 'D7')
-sample_sums(FS9.D7.p)
-colnames(otu_table(FS9.D7.p)) #check on all the sample names
-FS9.D7.p <- prune_taxa(taxa_sums(FS9.D7.p) > 1, FS9.D7.p)
-#if taxa_sums is >1, then it will print that out in FS9.D7 object and not include anything with <1.
-rowSums(FS9.D7.p@otu_table)
-
-#Look at what Set is
-unique(sample_data(FS9.D7.p)$Set)
-
-######### Day 7 INFnm vs NONINFnm ###################
-
-#Number of pigs per group (using meta2 dataframe): 
-sum(meta2$Set == "D7_INFnm")
-#14
-sum(meta2$Set == "D7_NONINFnm")
-#12
-
-sample_data(FS9.D7.p)$Set <- factor(sample_data(FS9.D7.p)$Set,
-                                    levels =c('D7_NONINFnm',"D7_INFnm"))
-FS9.D7.p.De <- phyloseq_to_deseq2(FS9.D7.p, ~ Set)
-FS9.D7.p.De <- DESeq(FS9.D7.p.De, test = "Wald", fitType = "parametric")
-resultsNames(FS9.D7.p.De)
-#[1] "Intercept"     "Set_D7_INFnm_vs_D7_NONINFnm"
-res.D7.p = lfcShrink(FS9.D7.p.De, coef = "Set_D7_INFnm_vs_D7_NONINFnm", type = 'apeglm')
-sigtab.D7.p = res.D7.p[which(res.D7.p$padj < .05), ]
-sigtab.D7.p = cbind(as(sigtab.D7.p, "data.frame"), as(tax_table(FS9.D7.p)[rownames(sigtab.D7.p), ], "matrix"))
-sigtab.D7.p$newp <- format(round(sigtab.D7.p$padj, digits = 3), scientific = TRUE)
-sigtab.D7.p$Treatment <- ifelse(sigtab.D7.p$log2FoldChange >=0, "INFnm", "NONINFnm")
-head(sigtab.D7.p) 
-
-deseq.D7.p <- 
-  ggplot(sigtab.D7.p, aes(x=reorder(rownames(sigtab.D7.p), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.p), y=0, label = paste(Phylum)), size=5, fontface = 'italic')+ labs(x="Phylum")+
-  theme(axis.text.x=element_text(color = 'black', size = 13),
-        axis.text.y=element_text(color = 'black', size=13), 
-        axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFnm Group Relative to NONINFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
-  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INFnm='#CC0066', NONINFnm='#56B4E9'))
-deseq.D7.p
-
-#Add OTU and comparisons columns
-sigtab.D7.p
-sigtab.D7.p$OTU <- rownames(sigtab.D7.p)
-sigtab.D7.p
-sigtab.D7.p$comp <- 'D7_INFnm_vs_NONINFnm'
-
-#Create final significant comparisons table
-final.sigtab.phylum <- sigtab.D7.p
-
-
-#######################################################################################################
-
-#write csv
-write.csv(final.sigtab.phylum, file= "FS9_FinalDiffAbund_Phylum_OutDoubletons_Q1_D4D7.csv")
 
 #######################################################################################################
