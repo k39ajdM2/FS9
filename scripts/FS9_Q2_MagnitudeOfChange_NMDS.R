@@ -1,5 +1,5 @@
 #####################################################################################################
-#FS9 Magnitude of Change and NMDS plots combined into one figure for Q2 daus 4 and 7 - Infected: nm vs feed or inject
+#FS9 Magnitude of Change and NMDS plots combined into one figure for Q2 days 4 and 7 - Infected: nm vs feed or inject
 #Kathy Mou
 
 #Purpose: Combine NMDS figure and PERMANOVA F magnitude of change figure for Q2 day 4 and 7 into one using cowplot package
@@ -13,6 +13,8 @@ library(tidyverse)
 library(phyloseq)
 library(philentropy)
 library(cowplot)
+library(ggplot2)
+library(ggrepel)
 
 #NMDS function
 NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
@@ -135,17 +137,35 @@ nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanm
   geom_point(aes(color = Treatment), size = 2) + 
   geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY, color=Treatment), alpha=.5) + 
   theme(panel.background = element_blank(),
-        axis.text = element_blank(),
+        strip.text.x = element_text(size=20),
+        axis.text.x=element_text(color = 'black', size = 14),
+        axis.text.y=element_text(color = 'black', size=14),
         axis.title = element_blank(),
         axis.ticks = element_blank(), 
         panel.border = element_rect(fill = NA, color = 'grey57'),
-        axis.line = element_blank()) + facet_wrap(~Day) +
+        axis.line = element_blank()) + 
+  facet_wrap(~Day) +
   theme_bw() +
-  scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
-  labs(caption = 'Ordination stress = 0.178', color="Treatment group")
+  scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999'))
+  #labs(caption = 'Ordination stress = 0.178', color="Treatment group")
 nmdsplot_treatment2
 
 #Make magnitude of change plot
+
+#Purpose: This code plots the F-statistic from PERMANOVA pairwise comparisons of INFnm to 
+#either INFinject or INFfeed groups, over time (displays the magnitude of change in the fecal bacterial community structure 
+#of the two antibiotic treatment groups relative to infected control)
+
+#Files needed:
+#FS9_Q2_MagnitudeOfChange.csv
+
+#The F-values were obtained from FS9.WithinDayPairwiseComparisons.Q2.doubletons.txt data generated in the "Beta diversity" section
+#FS9_Q2_MagnitudeOfChange.csv was created from FS9.WithinDayPairwiseComparisons.Q2.doubletons.txt data that was rearranged
+#To make the FS9_Q2_MagnitudeOfChange.csv file, open FS9.WithinDayPairwiseComparisons.Q2.doubletons.txt file 
+#(created from FS9_alpha_beta_diversity_Q2.R) in excel, 
+#copy columns "F. Model" through "p.adjusted2" and paste in a separate spreadsheet. 
+#Add "Day" and "Treatment" columns and save as "FS9_Q2_MagnitudeOfChange.csv".
+
 fecal <- read.csv("data/FS9_Q2_MagnitudeOfChange.csv")
 class(fecal)
 fecal$Day <- factor(fecal$Day) #Encode "Day" as a factor
@@ -153,12 +173,12 @@ fecal$p.adjusted <- round(fecal$p.adjusted, 3)
 fecal2 <- ggplot(data=fecal, aes(x=Day, y=F.Model, group=Treatment)) +
   #geom_line(aes(color=Treatment)) + 
   geom_point(aes(color=Treatment, size = 10)) +
-  ylab("PERMANOVA F vs INFnm \n(difference relative to INFnm)") +
+  ylab("PERMANOVA F vs INFnm") +
   scale_fill_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
   scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
   geom_label_repel(aes(label=p.adjusted), box.padding = 0.35, point.padding=0.5,segment.color = 'grey50', size = 5) +
   theme_classic(base_size = 12) +
-  theme(axis.text.y = element_text(size = 14), axis.text.x = element_text(size=14), axis.title.x = element_text(size=14), axis.title.y = element_text(size=14), legend.text=element_text(size=14), legend.title=element_text(size=14)) +
+  theme(axis.text.y = element_text(size = 16), axis.text.x = element_text(size=16), axis.title.x = element_text(size=20), axis.title.y = element_text(size=20), legend.text=element_text(size=16), legend.title=element_text(size=16)) +
   labs(color="Treatment group") +
   scale_size(guide = 'none') +
   theme_bw()
