@@ -300,3 +300,136 @@ OrderFig_D7_2 <- fobar.gather.order.2 %>% filter(Day == "D7") %>%
     scale_fill_manual(values = c(INFnm='#CC0066', INFfeed='#999999', INFinject='#E69F00')) +
     theme_bw()
 OrderFig_D7_2
+
+
+###################################################### Phylum 3 Infected groups #####################################################
+FS9.phylum <- tax_glom(FS9, 'Phylum')
+phylum_tab <- as.data.frame(t(FS9.phylum@otu_table)) #Transpose 'FS9.phylum' by "otu_table"
+head(phylum_tab)
+FS9.phylum@tax_table[,2] #Second column is Phylum column
+colnames(phylum_tab) <- FS9.phylum@tax_table[,2] #Replace column names in phylum_tab from Otuxxxx with Phylum names
+phylum_tab2 <- phylum_tab/rowSums(phylum_tab) #Calculate the proportion of specific Phylum per Phylum column in 'phylum_tab'
+head(phylum_tab2)
+phylum_tab2$group <- rownames(phylum_tab2) #Create new column called "group" in 'phylum_tab2' containing rownames
+head(phylum_tab2)
+fobar.phylum <- merge(meta, phylum_tab2, by = 'group')
+head(fobar.phylum)
+fobar.gather.phylum <- fobar.phylum %>% gather(Phylum, value, -(group:All))
+head(fobar.gather.phylum)
+
+#Reorder days -3 to 7 in 'fobar.gather' plot
+fobar.gather.phylum$Day <- factor(fobar.gather.phylum$Day, levels=c("DNEG3", "D0", "D4", "D7"))
+levels(sample_data(fobar.gather.phylum)$Day) #"DNEG3" "D0"    "D4"    "D7"  
+
+#Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of order
+fobar.gather.phylum %>% summarise(n_distinct(fobar.gather.phylum$Phylum)) #19 total unique order
+fobar.gather.phylum <- fobar.gather.phylum %>% group_by(All) %>% mutate(value2=(value/(length(All)/19))*100) %>% 
+    arrange((desc(value2))) %>% 
+    filter(value2 > 0) %>% 
+    mutate_if(is.numeric, round, digits = 4)%>% 
+    arrange(desc(value2)) %>% 
+    ungroup()
+#19 refers to number of Phylum 
+
+#Phylum Figures
+
+#Day 4 Phylum
+D4Phylum <- fobar.gather.phylum %>% 
+    subset(Day == "D4") %>% 
+    group_by(Phylum) %>% 
+    select(Phylum, Treatment) %>% 
+    count(Treatment)
+#Decide which Phylum to remove from plot that isn't present in all 4 treatment groups
+
+PhylumFig_D4 <- fobar.gather.phylum %>% filter(Day == 'D4') %>%
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
+    geom_boxplot(position = 'identity') +
+    geom_jitter(shape=21, width = .15)+
+    facet_wrap(~Phylum, scales = 'free') + 
+    ylab('Percent of Total Community') +
+    xlab ('') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    ggtitle("Day 4") +
+    scale_fill_igv(name = "Phylum") +
+    theme(axis.text.x=element_text(angle=45, hjust=1),
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic")) +
+    guides(fill= guide_legend(ncol = 2))
+PhylumFig_D4
+
+#Day 7 Phylum
+D7Phylum <- fobar.gather.phylum %>% 
+    subset(Day == "D7") %>% 
+    group_by(Phylum) %>% 
+    select(Phylum, Treatment) %>% 
+    count(Treatment)
+#Decide which Phylum to remove from plot that isn't present in all 4 treatment groups
+
+PhylumFig_D7 <- fobar.gather.phylum %>% filter(Day == 'D7' & value2 > 0) %>%
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
+    geom_boxplot(position = 'identity') +
+    geom_jitter(shape=21, width = .15)+
+    facet_wrap(~Phylum, scales = 'free') + 
+    ylab('Percent of Total Community') +
+    xlab ('') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    ggtitle("Day 7") +
+    scale_fill_igv(name = "Phylum") +
+    theme(axis.text.x=element_text(angle=45, hjust=1),
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic")) +
+    guides(fill= guide_legend(ncol = 1))
+PhylumFig_D7
+
+
+PhylumFig_Bacteroidetes <- fobar.gather.phylum %>% select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
+    filter(Day %in% c('D4', 'D7') & Phylum == "Bacteroidetes" & Treatment != "NONINFnm") %>% 
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
+    geom_boxplot(position = 'identity', show.legend = FALSE) +
+    geom_jitter(shape=21, width = .15, show.legend = FALSE) +
+    facet_wrap(~Day, scales = 'fixed') + 
+    ylab('Percent of Total Community') +
+    scale_y_continuous(breaks=c(1, 2, 3, 4, 5, 6, 7, 8)) +
+    xlab ('') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    ggtitle("Bacteroidetes") +
+    theme(axis.text.x=element_text(angle=45, hjust=1),
+          axis.title.x = element_blank(),
+          plot.title = element_text(face="italic"))
+PhylumFig_Bacteroidetes
+
+PhylumFig_Firmicutes <- fobar.gather.phylum %>% select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
+    filter(Day %in% c('D4', 'D7') & Phylum == "Firmicutes" & Treatment != "NONINFnm") %>% 
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
+    geom_boxplot(position = 'identity', fill = "lightblue", show.legend = FALSE) +
+    geom_jitter(shape=21, width = .15, fill="lightblue", show.legend = FALSE) +
+    facet_wrap(~Day, scales = 'fixed') + 
+    ylab('Percent of Total Community') +
+    scale_y_continuous(breaks=c(5, 7.5, 10, 12.5, 15, 17.5, 20)) +
+    xlab ('') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    ggtitle("Firmicutes") +
+    theme(axis.text.x=element_text(angle=45, hjust=1),
+          axis.title.x = element_blank(),
+          plot.title = element_text(face="italic"))
+PhylumFig_Firmicutes
+
+PhylumFig_BF <- fobar.gather.phylum %>% select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Phylum", "value2") %>% 
+    filter(Day %in% c('D4', 'D7') & Treatment != "NONINFnm") %>% 
+    filter(Phylum %in% c('Bacteroidetes', 'Firmicutes')) %>% 
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Phylum)) +
+    geom_boxplot(position = 'identity') +
+    geom_jitter(shape=21, width = .15) +
+    facet_wrap(Phylum~Day, scales = 'fixed') + 
+    ylab('Percent of Total Community') +
+    scale_y_continuous(breaks=c(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)) +
+    xlab ('') +
+    theme(axis.text.x=element_text(angle=45, hjust=1),
+          axis.title.x = element_blank(),
+          strip.text = element_text(face="italic"),
+          legend.text = element_text(face="italic"))
+PhylumFig_BF
+
+ggsave("Q2_INFnm_feed_inject_Bacteroidetes_PercentAbundance.tiff", plot=PhylumFig_Bacteroidetes, width = 6, height = 4, dpi = 500, units =c("in"))
+ggsave("Q2_INFnm_feed_inject_Firmicutes_PercentAbundance.tiff", plot=PhylumFig_Firmicutes, width = 6, height = 4, dpi = 500, units =c("in"))
+ggsave("Q2_INFnm_feed_inject_Bacteroidetes_Firmicutes_PercentAbundance.tiff", plot=PhylumFig_BF, width = 5, height = 6, dpi = 500, units =c("in"))

@@ -742,21 +742,21 @@ sum(meta$Set == "D7_INFinject")
 #19
 
 sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
-                                  levels =c("D7_INFinject", 'D7_INFnm', "D7_INFfeed"))
+                                  levels =c('D7_INFnm', "D7_INFinject", "D7_INFfeed"))
 FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
 FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
 resultsNames(FS9.D7.De)
-#[1]  "Intercept"        "Set_D7_INFnm_vs_D7_INFinject"   "Set_D7_INFfeed_vs_D7_INFinject" 
-res.D7.ji = lfcShrink(FS9.D7.De, coef = "Set_D7_INFnm_vs_D7_INFinject", type = 'apeglm')
+#[1]  "Intercept"        "Set_D7_INFinject_vs_D7_INFnm" "Set_D7_INFfeed_vs_D7_INFnm"  
+res.D7.ji = lfcShrink(FS9.D7.De, coef = "Set_D7_INFinject_vs_D7_INFnm", type = 'apeglm')
 sigtab.D7.ji = res.D7.ji[which(res.D7.ji$padj < .05), ]
 sigtab.D7.ji = cbind(as(sigtab.D7.ji, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.ji), ], "matrix"))
 sigtab.D7.ji$newp <- format(round(sigtab.D7.ji$padj, digits = 3), scientific = TRUE)
-sigtab.D7.ji$Treatment <- ifelse(sigtab.D7.ji$log2FoldChange >=0, "Depleted in INFinject", "Enriched in INFinject")
+sigtab.D7.ji$Treatment <- ifelse(sigtab.D7.ji$log2FoldChange >=0, "INFinject", "INFnm")
 head(sigtab.D7.ji)
 
 deseq.D7.ji <- 
   ggplot(sigtab.D7.ji, aes(x=reorder(rownames(sigtab.D7.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.ji), y=3, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.ji), y=3, label = paste(Order,Genus, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Order Genus")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -769,10 +769,10 @@ deseq.D7.ji
 sigtab.D7.ji
 sigtab.D7.ji$OTU <- rownames(sigtab.D7.ji)
 sigtab.D7.ji
-sigtab.D7.ji$comp <- 'D7_INFnm_vs_INFinject'
+sigtab.D7.ji$comp <- 'D7_INFinject_vs_INFnm'
 
 #Create final significant comparisons table
-final.sigtab <- sigtab.D7.ji
+final.sigtab <- rbind(final.sigtab, sigtab.D7.ji)
 
 
 
@@ -791,25 +791,22 @@ sum(meta$Set == "D7_INFfeed")
 
 #Extract results from a DESeq analysis, organize table
 sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
-                                  levels =c("D7_INFfeed", 'D7_INFnm', 'D7_INFinject'))
+                                  levels =c( 'D7_INFnm', "D7_INFfeed",'D7_INFinject'))
 FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
 FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
 resultsNames(FS9.D7.De)
-#[1] "Intercept"               "Set_D7_INFnm_vs_D7_INFfeed"     "Set_D7_INFinject_vs_D7_INFfeed"   
-res.D7.oi = lfcShrink(FS9.D7.De, coef = "Set_D7_INFnm_vs_D7_INFfeed", type = 'apeglm')
+#[1] "Intercept"               "Set_D7_INFfeed_vs_D7_INFnm"   "Set_D7_INFinject_vs_D7_INFnm"   
+res.D7.oi = lfcShrink(FS9.D7.De, coef = "Set_D7_INFfeed_vs_D7_INFnm", type = 'apeglm')
 sigtab.D7.oi = res.D7.oi[which(res.D7.oi$padj < .05), ]
 sigtab.D7.oi = cbind(as(sigtab.D7.oi, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.oi), ], "matrix"))
 format(sigtab.D7.oi$padj, scientific = TRUE)
 sigtab.D7.oi$newp <- format(round(sigtab.D7.oi$padj, digits = 3), scientific = TRUE)
-sigtab.D7.oi$Treatment <- ifelse(sigtab.D7.oi$log2FoldChange >=0, "Depleted in INFfeed", "Enriched in INFfeed")
-
-#Summarize sigtab.D7.oi
-sum.sigtab.D7.oi <- summary(sigtab.D7.oi)
-sum.sigtab.D7.oi
+sigtab.D7.oi$Treatment <- ifelse(sigtab.D7.oi$log2FoldChange >=0, "INFfeed", "INFnm")
+head(sigtab.D7.oi)
 
 #ggplot
 deseq.D7.oi <- ggplot(sigtab.D7.oi, aes(x=reorder(rownames(sigtab.D7.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oi), y=3, label = paste(Phylum,Order, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum Order")+
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oi), y=3, label = paste(Order, Genus, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Order Genus")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
@@ -826,3 +823,49 @@ sigtab.D7.oi$comp <- 'D7_INFfeed_vs_INFnm'
 
 #Create final significant comparisons table
 final.sigtab <- rbind(sigtab.D7.oi, final.sigtab)
+
+write.csv(final.sigtab, file = "FS9_FinalDiffAbund_Genus_OutDoubletons_Q2_D4D7.csv")
+
+
+##################################### Q2: SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (PHYLUM LEVEL) BETWEEN TREATMENTS ###################################
+
+
+#Import files
+otu <- import_mothur(mothur_shared_file = './data/stability.outdoubletons.abund.opti_mcc.shared') #use unrarified data
+taxo <- import_mothur(mothur_constaxonomy_file = './data/stability.outdoubletons.abund.opti_mcc.0.03.cons.taxonomy')
+meta <- read.table(file = './data/FS9_metadata_INF_InjectFeedNM.csv', sep = ',', header = TRUE)
+
+#Organize meta file
+rownames(meta) <- meta$Sample
+meta <- meta[,-1] #remove Sample column
+meta$Set <- paste(meta$Day, meta$Treatment, sep = '_') #Make a set column
+
+#Make phyloseq object SRD129 (combine taxonomy, OTU, and metadata)
+phy_meta <- sample_data(meta) 
+FS9 <- phyloseq(otu, taxo)
+FS9 <- merge_phyloseq(FS9, phy_meta)   # combines the metadata with this phyloseq object
+colnames(tax_table(FS9))
+colnames(tax_table(FS9)) <- c('Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus')
+
+FS9
+#phyloseq-class experiment-level object
+#otu_table()   OTU Table:         [ 2039 taxa and 47 samples ]
+#sample_data() Sample Data:       [ 47 samples by 5 sample variables ]
+#tax_table()   Taxonomy Table:    [ 2039 taxa by 6 taxonomic ranks ]
+
+#Prune
+FS9 <- prune_samples(sample_sums(FS9) > 1300, FS9)  # This removes samples that have fewer than 1300 sequences associated with them.
+#Jules used 1000. You used 1300 because Day 0 Treatment group 2 (room 2) only has 5 samples and subsampling at 2000 would take out 
+#one of the samples.
+FS9 <- prune_taxa(taxa_sums(FS9) > 10, FS9)        # removes OTUs that occur less than 10 times globally
+tax_table(FS9) [1:5, 1:6] #see what's in tax_table first 5 rows, first 6 columns
+
+# If you want to group OTUs uncomment the tax_glom() line and select your desired taxrank
+# right now all these analysis are done at the OTU level.
+
+#Grouping OTUs by desired taxonomic level using the tax_glom function 
+FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
+# This method merges species that have the same taxonomy at a certain taxanomic rank. 
+# Its approach is analogous to tip_glom, but uses categorical data instead of a tree. 
+
+##################################### Day 4, 7 ##########################################################################
