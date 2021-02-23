@@ -113,8 +113,8 @@ ggsave(fig8,
        units = 'mm')
 
 ########################################################################################################
-#Purpose: This code calculates AUC of days 0, 4, 7 for gene abundances of tetW, tet32, and aph2 for INFinject, INFfeed, INFnm
-#from qPCR studies
+#Purpose: This code calculates AULC of days 0, 4, 7 for gene abundances of tetW, tet32, and aph2 for 
+#INFinject, INFfeed, INFnm from qPCR studies
 
 library(tidyverse)
 library(pracma)
@@ -127,6 +127,7 @@ sum_tet32 <- tet32 %>%
   group_by(Pig) %>%
   summarise(AULC=trapz(Day, log10tet32),
             treatment=unique(Treatment))
+write.csv(sum_tet32, file = "aulc_tet32.csv", col.names = TRUE)
 
 #tetW
 tetw$Day <- as.numeric(tetw$Day)
@@ -136,9 +137,129 @@ sum_tetw <- tetw %>%
   group_by(Pig) %>%
   summarise(AULC=trapz(Day, log10tetW),
             treatment=unique(Treatment))
+write.csv(sum_tetw, file = "aulc_tetw.csv", col.names = TRUE)
 
-## graph AULC data, run one-way ANOVA
+### Run one-way ANOVA
+# One-way ANOVA test and multiple pairwise-comparisons test in R reference: 
+# http://www.sthda.com/english/wiki/one-way-anova-test-in-r
 
+# one-way ANOVA for tetW
+colnames(sum_tetw)
+tetw_anova <- aov(AULC~treatment, data=sum_tetw)
+anova(tetw_anova)
+# Results:
+# Response: AULC
+#           Df  Sum Sq  Mean Sq F value   Pr(>F)   
+# treatment  2   14.878  7.4389  5.5632    0.009745 **
+# Residuals 26   34.766  1.3372                    
+# There is a significant difference in AULC between the treatment groups (group means are different). Which pairs of groups are different?
+
+# Tukey multiple pairwise-comparisons
+TukeyHSD(tetw_anova)
+# Results:
+# Tukey multiple comparisons of means
+# 95% family-wise confidence level
+# Fit: aov(formula = AULC ~ treatment, data = sum_tetw)
+# $treatment
+#                     diff          lwr         upr         p adj
+# INFinject-INFfeed   -1.51570154   -2.8359527  -0.1954504  0.0220943
+# INFnm-INFfeed       -0.01680115   -1.3370523  1.3034500   0.9994489
+# INFnm-INFinject     1.49890039    0.2138623   2.7839385   0.0198859
+
+# Key for diff, lwr, upr, p adj:
+# diff: difference between means of the two groups
+# lwr, upr: the lower and the upper end point of the confidence interval at 95% (default)
+# p adj: p-value after adjustment for the multiple comparisons.
+
+# Pairwise t-test with corrections for multiple testing
+pairwise.t.test(sum_tetw$AULC, sum_tetw$treatment, p.adjust.method = "BH")
+# Pairwise comparisons using t tests with pooled SD 
+# data:  sum_tetw$AULC and sum_tetw$treatment 
+#           INFfeed INFinject
+# INFinject 0.013   -        
+# INFnm     0.975   0.013 
+
+# Conclusion for tetW:
+# Both Tukey's HSD and pairwise t-test agree that INFinject v INFfeed, and INFnm v INFinject have significantly different AULC
+
+# one-way ANOVA for tet32
+colnames(sum_tet32)
+tet32_anova <- aov(AULC~treatment, data=sum_tet32)
+anova(tet32_anova)
+# Results:
+# Response: AULC
+#           Df  Sum Sq  Mean Sq F value   Pr(>F)   
+# treatment  2  7.2275  3.6137  3.0171 0.06633 .
+# Residuals 26  31.1421 1.1978                    
+# The difference in AULC between the treatment groups approaches significant difference. Which pairs of groups are approaching significant difference?
+
+# Tukey multiple pairwise-comparisons
+TukeyHSD(tet32_anova)
+# Results:
+# Tukey multiple comparisons of means
+# 95% family-wise confidence level
+# Fit: aov(formula = AULC ~ treatment, data = sum_tetw)
+# $treatment
+#                     diff        lwr         upr       p adj
+# INFinject-INFfeed -1.09687068   -2.3464129  0.1526715 0.0933921
+# INFnm-INFfeed     -0.09429518   -1.3438374  1.1552470 0.9808157
+# INFnm-INFinject    1.00257550   -0.2136396  2.2187906 0.1207593
+
+# Pairwise t-test with corrections for multiple testing
+pairwise.t.test(sum_tet32$AULC, sum_tet32$treatment, p.adjust.method = "BH")
+# Pairwise comparisons using t tests with pooled SD 
+# data:  sum_tet32$AULC and sum_tet32$treatment 
+#           INFfeed INFinject
+# INFinject 0.076   -        
+# INFnm     0.853   0.076 
+
+# Conclusion for tet32:
+# Both Tukey's HSD and pairwise t-test agree that there were no significant differences in AULC for tet32 gene abundance
+# among the three treatment groups
+
+# Graph b&w plot of AULC
+#tetW
+fig_tetw_aulc <- sum_tetw %>%ggplot(aes(x=treatment, y=AULC, color=treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00',
+                                INFnm='#CC0066',
+                                INFfeed='#999999')) +
+  geom_boxplot() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
+  labs(y= 'AULC of relative tetW gene abundance', x= NULL) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12),
+        axis.title.y = element_text(size=12)) +
+  theme_bw()
+fig_tetw_aulc
+
+#tet32
+fig_tet32_aulc <- sum_tet32 %>%ggplot(aes(x=treatment, y=AULC, color=treatment)) +
+  scale_color_manual(values = c(INFinject='#E69F00',
+                                INFnm='#CC0066',
+                                INFfeed='#999999')) +
+  geom_boxplot() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
+  labs(y= 'AULC of relative tet32 gene abundance', x= NULL) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12),
+        axis.title.y = element_text(size=12)) +
+  theme_bw()
+fig_tet32_aulc
+
+#both tetW and tet32
+fig_aulc <- plot_grid(fig_tet32_aulc, fig_tetw_aulc, labels = c('A', 'B'), label_size = 12)
+fig_aulc
+ggsave(fig_aulc,
+       filename = './Fig8b_tet32tetW_AULC_INFfeedINFinjectINFnm.jpeg',
+       width = 180,
+       height = 120,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
 
 ### Jules ###
 sum_sal <- sal_data %>%
