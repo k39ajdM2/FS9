@@ -19,6 +19,10 @@ sessionInfo()
 
 tet32 <- read.csv('./data/FS9_tet32_qPCR_results.csv', stringsAsFactors = FALSE)
 tetw <- read.csv('./data/FS9_tetW_qPCR_results.csv', stringsAsFactors = FALSE)
+tet32$Day <- factor(tet32$Day, levels=c("7", "11", "14"))
+tetw$Day <- factor(tetw$Day, levels=c("7", "11", "14"))
+levels(tetw$Day) #"7"  "11" "14"
+levels(tet32$Day) #"7"  "11" "14"
 
 str(tet32) #see 
 
@@ -76,24 +80,26 @@ tetWstats <- tetw %>% group_by(Day,Treatment) %>% summarise(mean=mean(log10tetW)
                                                             se=sd/n) %>% write_csv('./results/tetW_qPCR_mean.csv')
 
 tet32fig <- tet32 %>% 
-  ggplot(aes(x=Day, y=log10tet32, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999')) +
+  ggplot(aes(x=Treatment, y=log10tet32, color=Day)) +
+  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 14),
         axis.text.y=element_text(color = 'black', size=14)) + 
   ylab('log10-fold change of tet32 gene abundance') +
   theme_bw()
+tet32fig
 
 tetWfig <- tetw %>% 
-  ggplot(aes(x=Day, y=log10tetW, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', INFfeed='#999999')) +
+  ggplot(aes(x=Treatment, y=log10tetW, color=Day)) +
+  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 14),
         axis.text.y=element_text(color = 'black', size=14)) + 
   ylab('log10-fold change of tetW gene abundance') +
   theme_bw()
+tetWfig
 
 #Combine tet32 and tetW graphs and save combined figure
 fig8 <- plot_grid(tet32fig, tetWfig, labels = c('A', 'B'), label_size = 12)
@@ -105,3 +111,38 @@ ggsave(fig8,
        device = 'jpeg',
        dpi = 300,
        units = 'mm')
+
+########################################################################################################
+#Purpose: This code calculates AUC of days 0, 4, 7 for gene abundances of tetW, tet32, and aph2 for INFinject, INFfeed, INFnm
+#from qPCR studies
+
+library(tidyverse)
+library(pracma)
+
+#tet32
+tet32$Day <- as.numeric(tet32$Day)
+sapply(tet32,class) #make sure Day is numeric
+sum_tet32 <- tet32 %>%
+  arrange(Day)  %>%
+  group_by(Pig) %>%
+  summarise(AULC=trapz(Day, log10tet32),
+            treatment=unique(Treatment))
+
+#tetW
+tetw$Day <- as.numeric(tetw$Day)
+sapply(tetw,class) #make sure Day is numeric
+sum_tetw <- tetw %>%
+  arrange(Day)  %>%
+  group_by(Pig) %>%
+  summarise(AULC=trapz(Day, log10tetW),
+            treatment=unique(Treatment))
+
+## graph AULC data, run one-way ANOVA
+
+
+### Jules ###
+sum_sal <- sal_data %>%
+  arrange(time_point)  %>%
+  group_by(pignum) %>%
+  summarise(AULC=trapz(time_point, log_sal),
+            treatment=unique(treatment))
