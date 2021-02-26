@@ -12,6 +12,7 @@ library(reshape2)
 library(ggplot2)
 library(cowplot)
 library(dplyr)
+#library("ggsignif")
 
 sessionInfo()
 #R version 4.0.2 (2020-06-22)
@@ -292,8 +293,8 @@ pm2 %>% filter(Sample == 'Tonsil') %>%
 #Import file
 adg <- read.csv('./data/FS9_AverageDailyGain.csv', stringsAsFactors = FALSE)
 colnames(adg)
-adg1 <- pivot_longer(adg, cols=c("DNEG8", "D4", "D7"), names_to="Day", values_to="Weight_kg")
-adg2 <- pivot_longer(adg1, cols=c("D4_ADG", "D7_ADG"), names_to="Day_ADG", values_to="ADG")
+adg1 <- pivot_longer(adg, cols=c("D0", "D11", "D14"), names_to="Day", values_to="Weight_kg")
+adg2 <- pivot_longer(adg1, cols=c("D11_ADG", "D14_ADG"), names_to="Day_ADG", values_to="ADG")
 adg2$Day_ADG <- as.character((adg2$Day_ADG))
 adg2$Day <- as.character((adg2$Day))
 
@@ -302,12 +303,13 @@ stats <- adg2 %>%
   summarise(Sum=sum(ADG, na.rm = TRUE), Mean=(mean(ADG, na.rm = TRUE)), sd = sd(ADG, na.rm = TRUE))
 write.csv(stats, file= "ADGstats.csv")
 
+#Old figure 1
 fig_adg <- adg2 %>% 
   ggplot(aes(x=Day_ADG, y=ADG, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00',
-                                INFnm='#CC0066',
-                                INFfeed='#999999',
-                                NONINFnm="#56B4E9" )) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF',
+                                NONINFnm="#C77CFF")) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
   labs(y= 'Average Daily Gain (pounds)', x= NULL) +
@@ -321,10 +323,65 @@ fig_adg <- adg2 %>%
   theme_bw()
 fig_adg
 
-ggsave("ADG.tiff", plot=fig_adg, width = 5, height = 7, dpi = 500, units =c("in"))
+#Figure 2a
+fig_day0adg <- adg %>% 
+  ggplot(aes(x=Treatment, y=D0, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF',
+                                NONINFnm="#C77CFF")) +
+  geom_boxplot() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
+  labs(y= 'Weight (pounds) on day 0', x= NULL) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        axis.title.y = element_text(size=12)) +
+  theme_bw() + 
+  theme(legend.position = "none")
+fig_day0adg
+
+#Figure 2b
+fig_day11adg <- adg %>% 
+  ggplot(aes(x=Treatment, y=D11_ADG, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF',
+                                NONINFnm="#C77CFF")) +
+  geom_boxplot() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
+  labs(y= 'Average daily gain from day 0 to day 11', x= NULL) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        axis.title.y = element_text(size=12)) +
+  theme_bw() +
+  theme(legend.position = "none")
+fig_day11adg
+
+#Figure 2c
+fig_day14adg <- adg %>% 
+  ggplot(aes(x=Treatment, y=D14_ADG, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF',
+                                NONINFnm="#C77CFF")) +
+  geom_boxplot() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
+  labs(y= 'Average daily gain from day 0 to day 14', x= NULL) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12),
+        axis.title.y = element_text(size=12)) +
+  theme_bw()
+fig_day14adg
+
+#Combined Weight + ADG figures
+fig_adg3plots <- plot_grid(fig_day0adg, fig_day11adg, fig_day14adg, labels = c('A', 'B', 'C'), label_size = 12, nrow = 1, rel_widths = c(1, 1, 1.2))
+fig_adg3plots
+ggsave("Fig2_ADG_abc.tiff", plot=fig_adg3plots, width = 15, height = 5, dpi = 500, units =c("in"))
 
 #ggsave(fig_adg,
-#        filename = './figure_ADG.jpeg',
+#        filename = './Fig2_ADG_All.jpeg',
 #       width = 160,
 #       height = 200,
 #       device = 'jpeg',
@@ -338,12 +395,12 @@ lung <- read.csv('./data/FS9_LungLesionScores.csv', stringsAsFactors = FALSE)
 colnames(lung)
 fig_lung <- lung %>% 
   ggplot(aes(x=Day, y=WeightedAverage, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00',
-                                INFnm='#CC0066',
-                                INFfeed='#999999',
-                                NONINFnm="#56B4E9" )) +
+  scale_color_manual(values = c(NONINFnm="#C77CFF",
+                                INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF')) +
   geom_boxplot() + 
-  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
+  geom_jitter(aes(color= Treatment), position=position_jitterdodge(jitter.width = .20))+
   labs(y= 'Lung Lesion Weighted Average Score', x= NULL) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
@@ -353,12 +410,18 @@ fig_lung <- lung %>%
   theme_bw()
 fig_lung
 
+#Attempting to add significance bar with geom_signif package, but the line and asterisk 
+#keeps coming out as blue color. Not sure how to make it a different color.
+#fig_lung + geom_signif(
+#  y_position = c(7.5), xmin = c(2.1), xmax = c(2.4),
+#  annotation = c("*"), tip_length = 0, textsize = 5)
+
 stats <- lung %>% 
   group_by(lung$Treatment, Day) %>% 
   summarise(Sum=sum(WeightedAverage), Mean=(mean(WeightedAverage)), sd = sd(WeightedAverage), se = sd(WeightedAverage)/sqrt(n()))
 write.csv(stats, file= "FS9_LungLesionStats.csv")
 
-ggsave("LungLesionSeverity.tiff", plot=fig_lung, width = 5, height = 7, dpi = 500, units =c("in"))
+ggsave("SuppFig1_LungLesionSeverity.tiff", plot=fig_lung, width = 5, height = 7, dpi = 500, units =c("in"))
 
 #ggsave(fig_lung,
 #       filename = './figure_lung.jpeg',
