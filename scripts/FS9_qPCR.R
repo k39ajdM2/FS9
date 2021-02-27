@@ -220,9 +220,9 @@ pairwise.t.test(sum_tet32$AULC, sum_tet32$treatment, p.adjust.method = "BH")
 # Graph b&w plot of AULC
 #tetW
 fig_tetw_aulc <- sum_tetw %>%ggplot(aes(x=treatment, y=AULC, color=treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00',
-                                INFnm='#CC0066',
-                                INFfeed='#999999')) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF')) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
   labs(y= 'AULC of relative tetW gene abundance', x= NULL) +
@@ -236,9 +236,9 @@ fig_tetw_aulc
 
 #tet32
 fig_tet32_aulc <- sum_tet32 %>%ggplot(aes(x=treatment, y=AULC, color=treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00',
-                                INFnm='#CC0066',
-                                INFfeed='#999999')) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF')) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
   labs(y= 'AULC of relative tet32 gene abundance', x= NULL) +

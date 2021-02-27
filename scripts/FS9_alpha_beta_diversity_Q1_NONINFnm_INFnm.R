@@ -231,6 +231,7 @@ adon.good$p.adjusted <- p.adjust(adon.good$p.value, method = 'fdr') #"p.adjust" 
 adon.good$p.adjusted2 <- round(adon.good$p.adjusted, 3) #Round p-values to 3 decimal points and list in new "p.adjusted2" column
 adon.good$p.adjusted2[adon.good$p.adjusted2 > 0.05] <- NA #For all p-values greater than 0.05, replace with "NA"
 write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.Q1.doubletons.alldays.txt', row.names=TRUE)
+#No differences on all days tested
 
 #Alpha diversity
 #Calculating alpha diversity metrics: Shannon, Inverse Simpson
@@ -427,6 +428,7 @@ adon.good$p.adjusted <- p.adjust(adon.good$p.value, method = 'fdr') #"p.adjust" 
 adon.good$p.adjusted2 <- round(adon.good$p.adjusted, 3) #Round p-values to 3 decimal points and list in new "p.adjusted2" column
 adon.good$p.adjusted2[adon.good$p.adjusted2 > 0.05] <- NA #For all p-values greater than 0.05, replace with "NA"
 write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.Q1.doubletons.D4D7.txt', row.names=TRUE)
+#No differences on days 4 and 7
 
 #Alpha diversity
 #Calculating alpha diversity metrics: Shannon, Inverse Simpson

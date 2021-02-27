@@ -1,8 +1,8 @@
 #####################################################################################################
-#FS9 Magnitude of Change and NMDS plots combined into one figure for Q2 days 4 and 7 - Infected: nm vs feed or inject
+#FS9 Magnitude of Change and NMDS plots combined into one figure for Q2 days 7, 11, 14 - Infected: nm vs feed or inject
 #Kathy Mou
 
-#Purpose: Combine NMDS figure and PERMANOVA F magnitude of change figure for Q2 day 4 and 7 into one using cowplot package
+#Purpose: Combine NMDS figure and PERMANOVA F magnitude of change figure for Q2 day 7, 11, 14 into one using cowplot package
 
 #File needed:
 #FS9_Q2_MagnitudeOfChange.csv
@@ -89,6 +89,7 @@ NMDS_ellipse <- function(metadata, OTU_table, grouping_set,
 ################################################
 #Run FS9_phyloseq_Q2.R to generate phyloseq.FS9 object to run the R script below.
 
+#Setting up 'phyloseq' into dataframes for NMDS calculation
 meta <- data.frame(phyloseq.FS9@sam_data) #Make 'phyloseq.FS9' sam_data into dataframe
 otu <- data.frame((phyloseq.FS9@otu_table)) #Make 'phyloseq.FS9' otu_table into dataframe
 class(meta) #data.frame
@@ -98,10 +99,10 @@ head(meta)
 
 #NMDS calculation (aka beta diversity)
 otu[1:10,1:10]
-dim(otu) #47 866 (doubletons removed)
+dim(otu) #72 1042 (doubletons removed)
 NMDS <- NMDS_ellipse(meta, otu, grouping_set = 'All')
 #Output:
-#[1] "Ordination stress: 0.178187987127504"
+#[1] "Ordination stress: 0.181970397207524"
 
 #Separate meta data and ellipse data to two lists to make NMDS plot
 head(NMDS)
@@ -117,13 +118,14 @@ df_ell <- df_ell %>% separate(group, into=c("Day","Treatment"), sep="_", remove=
 View(df_ell)
 
 #Restructure level order for 'metanmds' and 'df_ell'
-unique(metanmds$Day) #D4 D7
-unique(df_ell$Day) #D4 D7
-metanmds$Day = factor(metanmds$Day, levels = c("D4", "D7"))
-df_ell$Day = factor(df_ell$Day, levels = c("D4", "D7"))
-levels(df_ell$Day) #"D4" "D7" 
-levels(metanmds$Day) #"D4" "D7"
+unique(metanmds$Day) #"D11" "D7"  "D14"
+unique(df_ell$Day) #"D11" "D7"  "D14"
+metanmds$Day = factor(metanmds$Day, levels = c("D7", "D11", "D14"))
+df_ell$Day = factor(df_ell$Day, levels = c("D7", "D11", "D14"))
+levels(df_ell$Day) #"D7"  "D11" "D14"
+levels(metanmds$Day) #"D7"  "D11" "D14"
 
+#All points, all days, all treatments, samples that aren't relevant are grayed out on plot
 #All points, all days, all treatments, samples that aren't relevant are grayed out on plot
 #Plotting with gridlines and axes, gray points for All days
 metanmds.2 <- metanmds
@@ -131,23 +133,22 @@ metanmds.2$Treatment2 = metanmds.2$Treatment
 metanmds.2$Treatment2 <- as.character(metanmds.2$Treatment2)
 metanmds.2$Treatment2
 
-#Make NMDS plot
+#All days and treatments faceted by day (gridlines)
 nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanmds.2$MDS1, y=metanmds.2$MDS2, color='grey57', geom = 'point')+
   geom_path(data = df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment), size=1.25) + 
   geom_point(aes(color = Treatment), size = 2) + 
   geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY, color=Treatment), alpha=.5) + 
   theme(panel.background = element_blank(),
-        strip.text.x = element_text(size=20),
-        axis.text.x=element_text(color = 'black', size = 14),
-        axis.text.y=element_text(color = 'black', size=14),
+        axis.text = element_blank(),
         axis.title = element_blank(),
         axis.ticks = element_blank(), 
         panel.border = element_rect(fill = NA, color = 'grey57'),
-        axis.line = element_blank()) + 
-  facet_wrap(~Day) +
+        axis.line = element_blank()) + facet_wrap(~Day) +
   theme_bw() +
-  scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999'))
-  #labs(caption = 'Ordination stress = 0.178', color="Treatment group")
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF')) +
+  labs(caption = 'Ordination stress = 0.182', color="Treatment group")
 nmdsplot_treatment2
 
 #Make magnitude of change plot
@@ -166,7 +167,7 @@ nmdsplot_treatment2
 #copy columns "F. Model" through "p.adjusted2" and paste in a separate spreadsheet. 
 #Add "Day" and "Treatment" columns and save as "FS9_Q2_MagnitudeOfChange.csv".
 
-fecal <- read.csv("data/FS9_Q2_MagnitudeOfChange.csv")
+fecal <- read.csv("./data/FS9_Q2_MagnitudeOfChange.csv")
 class(fecal)
 fecal$Day <- factor(fecal$Day) #Encode "Day" as a factor
 fecal$p.adjusted <- round(fecal$p.adjusted, 3)
@@ -174,8 +175,12 @@ fecal2 <- ggplot(data=fecal, aes(x=Day, y=F.Model, group=Treatment)) +
   #geom_line(aes(color=Treatment)) + 
   geom_point(aes(color=Treatment, size = 10)) +
   ylab("PERMANOVA F vs INFnm") +
-  scale_fill_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
-  scale_color_manual(values = c(INFnm='#CC0066', INFinject='#E69F00', INFfeed='#999999')) +
+  scale_fill_manual(values = c(INFinject='#00BA38',
+                               INFnm='#F8766D',
+                               INFfeed='#619CFF')) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF')) +
   geom_label_repel(aes(label=p.adjusted), box.padding = 0.35, point.padding=0.5,segment.color = 'grey50', size = 5) +
   theme_classic(base_size = 12) +
   theme(axis.text.y = element_text(size = 16), axis.text.x = element_text(size=16), axis.title.x = element_text(size=20), axis.title.y = element_text(size=20), legend.text=element_text(size=16), legend.title=element_text(size=16)) +
