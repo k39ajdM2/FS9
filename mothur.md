@@ -3,7 +3,7 @@
 ## **Notes**
 Used Silva release version 132 taxonomy and fasta files.
 * silva.nr_v132.tax
-* silva.v4.fasta
+* silva.nr_v132.pcr.align (renamed as silva.v4.fasta)
 
 ## Commands used for mothur (version 1.40.1)
 ```
