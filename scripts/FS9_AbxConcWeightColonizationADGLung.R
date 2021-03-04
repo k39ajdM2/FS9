@@ -38,15 +38,16 @@ unique(tis.melt$Treatment)
 tis.melt$Treatment <- factor(tis.melt$Treatment, levels = c('NONINFnm', 'INFnm', 'INFinject', 'INFfeed'))
 
 ######################################################################################################################################################
-#Oxytetracycline Levels
+#Oxytetracycline Levels, Weight
 
 #Oxytetracycline concentration in INFinject and INFfeed in all tissue samples
 fig2 <- tis.melt %>% filter(Treatment %in% c('INFinject', 'INFfeed')) %>%
-  ggplot(aes(x=Day, y=value, group=DayXTreatment, fill=Treatment)) +
+  ggplot(aes(x=Day, y=value, group=DayXTreatment, color=Treatment)) +
   geom_boxplot() +
   ylab('Concentration of Oxytetracycline (ng/mL)') + xlab('Day') + scale_y_log10(labels=scales::scientific) +
   facet_wrap(~Tissue)+
-  theme_bw() + scale_fill_manual(values = c(INFinject='#E69F00', INFfeed='#999999'))
+  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
+  theme_bw() + scale_color_manual(values = c(INFinject='#00BA38', INFfeed='#619CFF'))
 fig2
 ggsave(fig2,
        filename = './Fig_OxytetLevels_LungNasalPlasma_INFfeedINFinject.jpeg',
@@ -66,8 +67,14 @@ tis.melt %>%
   geom_point(shape=21, alpha=.5) + geom_smooth() +
   ylab('concentration ng/mL') + scale_y_log10() +
   facet_wrap(~Tissue, scales = 'free')+
-  theme_bw() + scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999'))+
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) 
+  theme_bw() + scale_fill_manual(values = c(INFinject='#00BA38',
+                                            INFnm='#F8766D',
+                                            INFfeed='#619CFF',
+                                            NONINFnm="#C77CFF"))+
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF',
+                                NONINFnm="#C77CFF")) 
 
 #Black and white plot of oxytet concentration, all four groups, all tissues
 tis.melt %>% 
@@ -75,28 +82,46 @@ tis.melt %>%
   geom_boxplot() +
   ylab('concentration ng/mL') +
   facet_wrap(~Tissue, scales = 'free')+
-  scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
+  scale_fill_manual(values = c(INFinject='#00BA38',
+                               INFnm='#F8766D',
+                               INFfeed='#619CFF',
+                               NONINFnm="#C77CFF")) +
   theme_bw()
 
 #Plasma oxytetracycline only
-tis.melt %>% filter(Tissue == 'Plasma') %>%
-  ggplot(aes(x=Day, y=value, group=DayXTreatment, fill=Treatment)) +
-  scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  geom_boxplot() + ylab('concentration ng/mL') + ggtitle('Oxytet concentrations: Plasma')
+plasmaoxytet <- tis.melt %>% filter(Tissue == 'Plasma') %>% filter(Treatment %in% c('INFinject', "INFfeed")) %>% 
+  ggplot(aes(x=Day, y=value, group=DayXTreatment, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                               INFfeed='#619CFF')) +
+  geom_boxplot() + 
+  ylab('Concentration of Oxytet \n (ng/mL plasma)') + 
+  theme_bw() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = 1))
+plasmaoxytet
 
 #Lung oxytetracycline only
-tis.melt %>% filter(Tissue == 'Lung') %>%
-  ggplot(aes(x=Day, y=value, group=DayXTreatment, fill=Treatment)) +
-  scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  geom_boxplot() + ylab('concentration ng/mL') + ggtitle('Oxytet concentrations: Lung')
+lungoxytet <- tis.melt %>% filter(Tissue == 'Lung') %>% filter(Treatment %in% c('INFinject', "INFfeed")) %>% 
+  ggplot(aes(x=Day, y=value, group=DayXTreatment, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                               INFfeed='#619CFF')) +
+  geom_boxplot() + 
+  geom_jitter(position = position_jitterdodge(jitter.width = 1)) +
+  ylab('Concentration of Oxytet \n (ng/2g lung tissue)') + 
+  theme_bw()
+lungoxytet
 
 #Nasal oxytetracycline only
-tis.melt %>% filter(Tissue == 'Nasal') %>%
-  ggplot(aes(x=Day, y=value, group=DayXTreatment, fill=Treatment)) +
-  scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  geom_boxplot() + ylab('concentration ng/mL') + ggtitle('Oxytet concentrations: Nasal')
+nasaloxytet <- tis.melt %>% filter(Tissue == 'Nasal') %>% filter(Treatment %in% c('INFinject', 'INFfeed')) %>% 
+  ggplot(aes(x=Day, y=value, group=DayXTreatment, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                               INFfeed='#619CFF')) +
+  geom_boxplot() + 
+  geom_jitter(position = position_jitterdodge(jitter.width = 1)) +
+  ylab('Concentration of Oxytet \n (ng/mL nasal wash)') +
+  theme_bw()
+nasaloxytet
 
-
+#Oxytet stats
 tis.melt$group <- paste(tis.melt$Pig, tis.melt$Day, tis.melt$Tissue, sep = '_')
 Lung.abx <- tis.melt %>% filter(Tissue == 'Lung') #subset lung data
 tmp <- tis.melt %>% group_by(Day, Tissue, Treatment) %>% summarise(mean=mean(value), 
@@ -104,8 +129,6 @@ tmp <- tis.melt %>% group_by(Day, Tissue, Treatment) %>% summarise(mean=mean(val
                                                                    sd=sd(value), 
                                                                    se=sd/n) %>% write_csv('./results/mean_abx_conc.csv')
 
-
-######################################################################################################################################################
 #Weight and oxytetracycline plots
 
 #Convert weight from character to numeric in order to run linear regression with Weight as x-axis
@@ -113,108 +136,65 @@ class(tis.melt$Weight) #character
 tis.melt$Weight <- as.numeric(tis.melt$Weight)
 class(tis.melt$Weight) #numeric
 
-#Concentration of oxytetracycline relative to weight, plasma, day 4
-fig_d4_plasma <- tis.melt %>% 
-  filter(Day==4) %>%
+#Concentration of oxytetracycline relative to weight, plasma, days 11 and 14
+plasmaweight <- tis.melt %>% 
   filter(Tissue=="Plasma") %>% 
   ggplot(aes(x=Weight, y=value, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF',
+                                NONINFnm="#C77CFF")) +
+  geom_smooth(method = 'lm') + 
   geom_point() + 
-  geom_smooth(method = "lm") +
   theme_bw() +
-  ylab('Concentration of Oxytetracycline (ng/mL) in Plasma') + 
-  xlab("Weight (kg)")
-fig_d4_plasma
+  ylab('Concentration of Oxytet \n (ng/mL plasma)') + 
+  xlab("Weight (lbs)") +
+  facet_wrap(vars(Day), scales = "free")
+plasmaweight
 
-#Concentration of oxytetracycline relative to weight, plasma, day 7
-fig_d7 <- tis.melt %>% 
-  filter(Day==7) %>%
-  filter(Tissue=="Plasma") %>% 
-  ggplot(aes(x=Weight, y=value, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL)') + xlab("Weight (kg)")
-fig_d7
-
-#Combine figures
-fig_plasma <- plot_grid(fig1_d4, fig1_d7, labels = c('A', 'B'), label_size = 12)
-
-#Save combined figure
-ggsave(fig_plasma,
-       filename = './results/figure1_plasma.jpeg',
-       width = 180,
-       height = 120,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
-
-
-
-#Concentration of oxytetracycline relative to weight, lung, day 4
-fig_d4_lung <- tis.melt %>% 
-  filter(Day==4) %>%
+#Concentration of oxytetracycline relative to weight, lung, days 11 and 14
+lungweight <- tis.melt %>% 
   filter(Tissue=="Lung") %>% 
   ggplot(aes(x=Weight, y=value, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL) in Lung') + xlab("Weight (kg)")
-fig_d4_lung
-  
-#Concentration of oxytetracycline relative to weight, lung, day 7 - don't use this because no significant correlation between body weight
-#and oxytetracycline levels on day 7
-fig_d7_lung <- tis.melt %>% 
-  filter(Day==7) %>%
-  filter(Tissue=="Lung") %>% 
-  ggplot(aes(x=Weight, y=value, color=Treatment)) +
-  geom_smooth(method = 'lm') +
-  geom_point() +
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL) in Lung') + xlab("Weight (kg)")
-fig_d7_lung
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF',
+                                NONINFnm="#C77CFF")) +
+  geom_smooth(method = 'lm') + 
+  geom_point() + 
+  theme_bw() +
+  ylab('Concentration of Oxytet \n (ng/2g lung tissue)') + 
+  xlab("Weight (lbs)") +
+  facet_wrap(vars(Day), scales = "free")
+lungweight
 
-#Save figure for d4, oxytet levels in lung + body weight
-ggsave(fig_d4_lung,
-       filename = './Fig_OxytetLevels_Lung_BodyWeight_D4.jpeg',
-       width = 180,
-       height = 120,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
-
-
-#Concentration of oxytetracycline relative to weight, nasal, day 4
-fig_d4_nasal <- tis.melt %>% 
-  filter(Day==4) %>%
+#Concentration of oxytetracycline relative to weight, nasal, days 11 and 14
+nasalweight <- tis.melt %>% 
   filter(Tissue=="Nasal") %>% 
   ggplot(aes(x=Weight, y=value, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL)') + xlab("Weight (kg)")
-fig_d4_nasal
-
-#Concentration of oxytetracycline relative to weight, nasal, day 7
-fig_d7_nasal <- tis.melt %>% 
-  filter(Day==7) %>%
-  filter(Tissue=="Nasal") %>% 
-  ggplot(aes(x=Weight, y=value, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#E69F00', INFnm='#CC0066', NONINFnm='#56B4E9', INFfeed='#999999')) +
-  geom_smooth(method = 'lm') + geom_point() + theme_bw() +ylab('Concentration of Oxytetracycline (ng/mL)') + xlab("Weight (kg)")
-fig_d7_nasal
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF',
+                                NONINFnm="#C77CFF")) +
+  geom_smooth(method = 'lm') + 
+  geom_point() + 
+  theme_bw() +
+  ylab('Concentration of Oxytet \n (ng/mL nasal wash)') + 
+  xlab("Weight (lbs)") +
+  theme(axis.title.y = element_text(size=10)) +
+  facet_wrap(vars(Day), scales = "free")
+nasalweight
 
 #Combine figures
-fig_nasal <- plot_grid(fig_d4_nasal, fig_d7_nasal, labels = c('A', 'B'), label_size = 12)
-fig_nasal
+fig_3 <- plot_grid(lungoxytet, lungweight, nasaloxytet, nasalweight, plasmaoxytet, plasmaweight, 
+                   labels = c('A', 'B', "C", "D", "E", "F"), 
+                   label_size = 12, 
+                   ncol = 2,
+                   vjust = 1.4,
+                   rel_widths = c(1, 1.5))
+fig_3
 
-#Combine plasma day 4 and lung day 4 figures
-fig_plasmalung <- plot_grid(fig_d4_lung, fig_d4_plasma, labels = c('A', 'B'), label_size = 12)
-fig_plasmalung
-
-
-#Save combined figure
-ggsave(fig_plasmalung,
-       filename = './Fig5_OxytetLevels_LungPlasma_BodyWeight_D4_All.jpeg',
-       width = 180,
-       height = 120,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
+ggsave("Fig3_OxytetLevelsWeight.tiff", plot=fig_3, width = 10, height = 15, dpi = 200, units =c("in"))
 
 ########################################################################################################
 #Colonization
@@ -307,6 +287,13 @@ pm2 %>% filter(Sample == 'Tonsil') %>%
                                 INFfeed='#619CFF')) +
   geom_boxplot() + ylab('Pasteurella multocida log10CFU per gram in tonsil') + md_theme_linedraw()
 
+stats2 <- pm2 %>% 
+  group_by(Treatment, Day, Sample) %>% 
+  summarise(Sum=sum(log10CFU, na.rm = TRUE), Mean=(mean(log10CFU, na.rm = TRUE)), sd = sd(log10CFU, na.rm = TRUE))
+stats2$sd <- round(stats2$sd, 3)
+stats2$Mean <- round(stats2$Mean, 3)
+stats2$meanSD <- with(stats2, paste0(Mean, sep=" + ", sd)) 
+write.csv(stats2, file= "FS9_Q2_Pasteurella_colonizationstats.csv")
 
 ########################################################################################################
 #ADG
@@ -314,15 +301,15 @@ pm2 %>% filter(Sample == 'Tonsil') %>%
 #Import file
 adg <- read.csv('./data/FS9_AverageDailyGain.csv', stringsAsFactors = FALSE)
 colnames(adg)
-adg1 <- pivot_longer(adg, cols=c("D0", "D11", "D14"), names_to="Day", values_to="Weight_kg")
+adg1 <- pivot_longer(adg, cols=c("D0", "D11", "D14"), names_to="Day", values_to="Weight_lbs")
 adg2 <- pivot_longer(adg1, cols=c("D11_ADG", "D14_ADG"), names_to="Day_ADG", values_to="ADG")
 adg2$Day_ADG <- as.character((adg2$Day_ADG))
 adg2$Day <- as.character((adg2$Day))
 
 stats <- adg2 %>% 
-  group_by(adg2$Treatment, Day_ADG) %>% 
+  group_by(Treatment, Day_ADG) %>% 
   summarise(Sum=sum(ADG, na.rm = TRUE), Mean=(mean(ADG, na.rm = TRUE)), sd = sd(ADG, na.rm = TRUE))
-write.csv(stats, file= "ADGstats.csv")
+write.csv(stats, file= "FS9_ADGstats.csv")
 
 #Old figure 1
 fig_adg <- adg2 %>% 
@@ -353,7 +340,7 @@ fig_day0adg <- adg %>%
                                 NONINFnm="#C77CFF")) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'Weight (pounds) on day 0', x= NULL) +
+  labs(y= 'Weight (lbs) on day 0', x= NULL) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         axis.title.y = element_text(size=12)) +
@@ -370,7 +357,7 @@ fig_day11adg <- adg %>%
                                 NONINFnm="#C77CFF")) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'Average daily gain from day 0 to day 11', x= NULL) +
+  labs(y= 'Average daily gain (lbs) from day 0 to day 11', x= NULL) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         axis.title.y = element_text(size=12)) +
@@ -387,7 +374,7 @@ fig_day14adg <- adg %>%
                                 NONINFnm="#C77CFF")) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'Average daily gain from day 0 to day 14', x= NULL) +
+  labs(y= 'Average daily gain (lbs) from day 0 to day 14', x= NULL) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         legend.text = element_text(size=12),
