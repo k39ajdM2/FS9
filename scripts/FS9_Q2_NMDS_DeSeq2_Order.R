@@ -1,5 +1,5 @@
 #####################################################################################################
-#FS9 Magnitude of Change and NMDS plots combined into one figure for Q2 days 7, 11, 14 - Infected: nm vs feed or inject
+#FS9NMDS plot and DeSeq2 Order plot combined into one figure for Q2 days 7, 11, 14 - Infected: nm vs feed or inject.
 #Kathy Mou
 
 #Purpose: Combine NMDS figure and PERMANOVA F magnitude of change figure for Q2 day 7, 11, 14 into one using cowplot package
