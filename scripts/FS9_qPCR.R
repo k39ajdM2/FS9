@@ -86,7 +86,7 @@ tet32fig <- tet32 %>%
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 14),
         axis.text.y=element_text(color = 'black', size=14)) + 
-  ylab('log10-fold change of tet32 gene abundance') +
+  ylab('log10 relative abundance of tet32 gene') +
   theme_bw()
 tet32fig
 
@@ -97,7 +97,7 @@ tetWfig <- tetw %>%
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 14),
         axis.text.y=element_text(color = 'black', size=14)) + 
-  ylab('log10-fold change of tetW gene abundance') +
+  ylab('log10 relative abundance of tetW gene') +
   theme_bw()
 tetWfig
 
