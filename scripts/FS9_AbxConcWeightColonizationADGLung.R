@@ -58,35 +58,8 @@ ggsave(fig2,
        units = 'mm')
 
 class(tis.melt$Day)
-tis.melt$Day <- as.numeric(as.character(tis.melt$Day))
-tis.melt$Weight <- as.numeric(as.character(tis.melt$Weight))
-
-#Oxytet concentration in all four groups, all tissues
-tis.melt %>% 
-  ggplot(aes(x=Day, y=value, fill=Treatment, color=Treatment)) +
-  geom_point(shape=21, alpha=.5) + geom_smooth() +
-  ylab('concentration ng/mL') + scale_y_log10() +
-  facet_wrap(~Tissue, scales = 'free')+
-  theme_bw() + scale_fill_manual(values = c(INFinject='#00BA38',
-                                            INFnm='#F8766D',
-                                            INFfeed='#619CFF',
-                                            NONINFnm="#C77CFF"))+
-  scale_color_manual(values = c(INFinject='#00BA38',
-                                INFnm='#F8766D',
-                                INFfeed='#619CFF',
-                                NONINFnm="#C77CFF")) 
-
-#Black and white plot of oxytet concentration, all four groups, all tissues
-tis.melt %>% 
-  ggplot(aes(x=Day, y=value, group=DayXTreatment, fill=Treatment)) +
-  geom_boxplot() +
-  ylab('concentration ng/mL') +
-  facet_wrap(~Tissue, scales = 'free')+
-  scale_fill_manual(values = c(INFinject='#00BA38',
-                               INFnm='#F8766D',
-                               INFfeed='#619CFF',
-                               NONINFnm="#C77CFF")) +
-  theme_bw()
+#tis.melt$Day <- as.numeric(as.character(tis.melt$Day))
+#tis.melt$Weight <- as.numeric(as.character(tis.melt$Weight))
 
 #Plasma oxytetracycline only
 plasmaoxytet <- tis.melt %>% filter(Tissue == 'Plasma') %>% filter(Treatment %in% c('INFinject', "INFfeed")) %>% 
@@ -149,7 +122,8 @@ plasmaweight <- tis.melt %>%
   theme_bw() +
   ylab('Concentration of Oxytet \n (ng/mL plasma)') + 
   xlab("Weight (lbs)") +
-  facet_wrap(vars(Day), scales = "free")
+  facet_wrap(vars(Day), scales = "free") +
+  xlim(13,34)
 plasmaweight
 
 #Concentration of oxytetracycline relative to weight, lung, days 11 and 14
@@ -165,7 +139,8 @@ lungweight <- tis.melt %>%
   theme_bw() +
   ylab('Concentration of Oxytet \n (ng/2g lung tissue)') + 
   xlab("Weight (lbs)") +
-  facet_wrap(vars(Day), scales = "free")
+  facet_wrap(vars(Day), scales = "free") +
+  xlim(13,34)
 lungweight
 
 #Concentration of oxytetracycline relative to weight, nasal, days 11 and 14
@@ -182,7 +157,8 @@ nasalweight <- tis.melt %>%
   ylab('Concentration of Oxytet \n (ng/mL nasal wash)') + 
   xlab("Weight (lbs)") +
   theme(axis.title.y = element_text(size=10)) +
-  facet_wrap(vars(Day), scales = "free")
+  facet_wrap(vars(Day), scales = "free") +
+  xlim(13,34)
 nasalweight
 
 #Combine figures
@@ -194,7 +170,7 @@ fig_3 <- plot_grid(lungoxytet, lungweight, nasaloxytet, nasalweight, plasmaoxyte
                    rel_widths = c(1, 1.5))
 fig_3
 
-ggsave("Fig3_OxytetLevelsWeight.tiff", plot=fig_3, width = 10, height = 15, dpi = 200, units =c("in"))
+ggsave("Fig3_OxytetLevelsWeight.tiff", plot=fig_3, width = 10, height = 8, dpi = 200, units =c("in"))
 
 ########################################################################################################
 #Colonization
