@@ -72,13 +72,96 @@ TukeyHSD(tetWaov, which = "Treatment:Day")
 tet32stats <- tet32 %>% group_by(Day,Treatment) %>% summarise(mean=mean(log10tet32), 
                                                                    n=n(), 
                                                                    sd=sd(log10tet32), 
-                                                                   se=sd/n) %>% write_csv('./results/tet32_qPCR_mean.csv')
+                                                                   se=sd/n) #%>% write_csv('./results/tet32_qPCR_mean.csv')
 
 tetWstats <- tetw %>% group_by(Day,Treatment) %>% summarise(mean=mean(log10tetW),
                                                             n=n(),
                                                             sd=sd(log10tetW),
-                                                            se=sd/n) %>% write_csv('./results/tetW_qPCR_mean.csv')
+                                                            se=sd/n) #%>% write_csv('./results/tetW_qPCR_mean.csv')
 
+#Mean line plot figures
+pd = position_dodge(0.05)
+pdsd = position_dodge(0.25)
+(tet32line <- ggplot(data=tet32stats, aes(x=Day, y=mean, group=Treatment)) + 
+  geom_line(aes(color=Treatment), position=pd) +
+  geom_point(aes(color=Treatment), position=pd, size=3, shape=21, fill="white") +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF')) +
+  ylab('Mean log10 relative abundance of tet32 gene') +
+  ylim(0,5.5) +
+  theme_bw() +
+  theme(legend.position = "none"))
+(tet32linese <- ggplot(data=tet32stats, aes(x=Day, y=mean, group=Treatment)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.3, position=pdsd) +
+    geom_line(aes(color=Treatment), position=pdsd) +
+    geom_point(aes(color=Treatment), position=pdsd, size=1, shape=21, fill="white") +
+    scale_color_manual(values = c(INFinject='#00BA38',
+                                  INFnm='#F8766D',
+                                  INFfeed='#619CFF')) +
+    ylab('Mean log10 relative abundance of tet32 gene') +
+    ylim(0,5.5) +
+    theme_bw() +
+    theme(legend.position = "none"))
+(tet32linesd <- ggplot(data=tet32stats, aes(x=Day, y=mean, group=Treatment)) + 
+    geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.1, position=pdsd) +
+    geom_line(aes(color=Treatment), position=pdsd) +
+    geom_point(aes(color=Treatment), position=pdsd, size=3, shape=21, fill="white") +
+    scale_color_manual(values = c(INFinject='#00BA38',
+                                  INFnm='#F8766D',
+                                  INFfeed='#619CFF')) +
+    ylab('Mean log10 relative abundance of tet32 gene') +
+    ylim(0,5.5) +
+    theme_bw() +
+    theme(legend.position = "none"))
+
+
+
+(tetwline <- ggplot(data=tetWstats, aes(x=Day, y=mean, group=Treatment)) + 
+    geom_line(aes(color=Treatment), position=pd) +
+    geom_point(aes(color=Treatment), position=pd, size=3, shape=21, fill="white") +
+    scale_color_manual(values = c(INFinject='#00BA38',
+                                  INFnm='#F8766D',
+                                  INFfeed='#619CFF')) +
+    ylab('Mean log10 relative abundance of tetW gene') +
+    ylim(0,5.5) +
+    theme_bw())
+(tetwlinese <- ggplot(data=tetWstats, aes(x=Day, y=mean, group=Treatment)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.3, position=pdsd) +
+    geom_line(aes(color=Treatment), position=pdsd) +
+    geom_point(aes(color=Treatment), position=pdsd, size=1, shape=21, fill="white") +
+    scale_color_manual(values = c(INFinject='#00BA38',
+                                  INFnm='#F8766D',
+                                  INFfeed='#619CFF')) +
+    ylab('Mean log10 relative abundance of tetW gene') +
+    ylim(0,5.5) +
+    theme_bw())
+(tetwlinesd <- ggplot(data=tetWstats, aes(x=Day, y=mean, group=Treatment)) + 
+    geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.1, position=pdsd) +
+    geom_line(aes(color=Treatment), position=pdsd) +
+    geom_point(aes(color=Treatment), position=pdsd, size=3, shape=21, fill="white") +
+    scale_color_manual(values = c(INFinject='#00BA38',
+                                  INFnm='#F8766D',
+                                  INFfeed='#619CFF')) +
+    ylab('Mean log10 relative abundance of tetW gene') +
+    ylim(0,5.5) +
+    theme_bw())
+
+
+
+#Combine tet32 and tetW line graphs and save combined figure
+(fig5 <- plot_grid(tet32line, tetwline, labels = c('A', 'B'), label_size = 12, vjust=1.1, rel_widths = c(1,1.4))) #Mean only
+(fig5 <- plot_grid(tet32linese, tetwlinese, labels = c('A', 'B'), label_size = 12, vjust=1.1, rel_widths = c(1,1.4))) #Mean+SEM
+(fig5 <- plot_grid(tet32linesd, tetwlinesd, labels = c('A', 'B'), label_size = 12, vjust=1.1, rel_widths = c(1,1.4))) #Mean+SD
+ggsave(fig5,
+       filename = './Fig5_tet32tetW_qPCR_lineplot_INFfeedINFinjectINFnm.jpeg',
+       width = 180,
+       height = 120,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
+
+#Box plot figures
 tet32fig <- tet32 %>% 
   ggplot(aes(x=Treatment, y=log10tet32, color=Day)) +
   scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
@@ -101,7 +184,7 @@ tetWfig <- tetw %>%
   theme_bw()
 tetWfig
 
-#Combine tet32 and tetW graphs and save combined figure
+#Combine tet32 and tetW B&W plots and save combined figure
 fig8 <- plot_grid(tet32fig, tetWfig, labels = c('A', 'B'), label_size = 12)
 fig8
 ggsave(fig8,
@@ -113,7 +196,7 @@ ggsave(fig8,
        units = 'mm')
 
 ########################################################################################################
-#Purpose: This code calculates AULC of days 0, 4, 7 for gene abundances of tetW, tet32, and aph2 for 
+#Purpose: This code calculates AULC of days 7, 11, 14 for gene abundances of tetW, tet32, and aph2 for 
 #INFinject, INFfeed, INFnm from qPCR studies
 
 library(tidyverse)
@@ -219,42 +302,42 @@ pairwise.t.test(sum_tet32$AULC, sum_tet32$treatment, p.adjust.method = "BH")
 
 # Graph b&w plot of AULC
 #tetW
-fig_tetw_aulc <- sum_tetw %>%ggplot(aes(x=treatment, y=AULC, color=treatment)) +
+(fig_tetw_aulc <- sum_tetw %>%ggplot(aes(x=treatment, y=AULC, color=treatment)) +
   scale_color_manual(values = c(INFinject='#00BA38',
                                 INFnm='#F8766D',
-                                INFfeed='#619CFF')) +
+                                INFfeed='#619CFF'),
+                     name="Treatment") +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'AULC of relative tetW gene abundance', x= NULL) +
+  labs(y= "AULC of tetW gene's relative abundance", x= NULL) +
+  theme_bw() +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         legend.text = element_text(size=12),
         legend.title = element_text(size=12),
         axis.title.y = element_text(size=12)) +
-  theme_bw()
-fig_tetw_aulc
+    ylim(5,10))
 
 #tet32
-fig_tet32_aulc <- sum_tet32 %>%ggplot(aes(x=treatment, y=AULC, color=treatment)) +
+(fig_tet32_aulc <- sum_tet32 %>%ggplot(aes(x=treatment, y=AULC, color=treatment)) +
   scale_color_manual(values = c(INFinject='#00BA38',
                                 INFnm='#F8766D',
                                 INFfeed='#619CFF')) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'AULC of relative tet32 gene abundance', x= NULL) +
+  labs(y= "AULC of tet32 gene's relative abundance", x= NULL) +
+  theme_bw() +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
-        legend.text = element_text(size=12),
-        legend.title = element_text(size=12),
-        axis.title.y = element_text(size=12)) +
-  theme_bw()
-fig_tet32_aulc
+        axis.title.y = element_text(size=12),
+        legend.position = "none") +
+    ylim(5,10))
 
 #both tetW and tet32
-fig_aulc <- plot_grid(fig_tet32_aulc, fig_tetw_aulc, labels = c('A', 'B'), label_size = 12)
+fig_aulc <- plot_grid(fig_tet32_aulc, fig_tetw_aulc, labels = c('A', 'B'), label_size = 12, rel_widths = c(0.9, 1.3))
 fig_aulc
 ggsave(fig_aulc,
-       filename = './Fig8b_tet32tetW_AULC_INFfeedINFinjectINFnm.jpeg',
+       filename = './Fig6_tet32tetW_AULC_INFfeedINFinjectINFnm.jpeg',
        width = 180,
        height = 120,
        device = 'jpeg',
