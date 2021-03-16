@@ -40,27 +40,6 @@ tis.melt$Treatment <- factor(tis.melt$Treatment, levels = c('NONINFnm', 'INFnm',
 ######################################################################################################################################################
 #Oxytetracycline Levels, Weight
 
-#Oxytetracycline concentration in INFinject and INFfeed in all tissue samples
-fig2 <- tis.melt %>% filter(Treatment %in% c('INFinject', 'INFfeed')) %>%
-  ggplot(aes(x=Day, y=value, group=DayXTreatment, color=Treatment)) +
-  geom_boxplot() +
-  ylab('Concentration of Oxytetracycline (ng/mL)') + xlab('Day') + scale_y_log10(labels=scales::scientific) +
-  facet_wrap(~Tissue)+
-  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  theme_bw() + scale_color_manual(values = c(INFinject='#00BA38', INFfeed='#619CFF'))
-fig2
-ggsave(fig2,
-       filename = './Fig_OxytetLevels_LungNasalPlasma_INFfeedINFinject.jpeg',
-       width = 180,
-       height = 120,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
-
-class(tis.melt$Day)
-#tis.melt$Day <- as.numeric(as.character(tis.melt$Day))
-#tis.melt$Weight <- as.numeric(as.character(tis.melt$Weight))
-
 #Plasma oxytetracycline only
 plasmaoxytet <- tis.melt %>% filter(Tissue == 'Plasma') %>% filter(Treatment %in% c('INFinject', "INFfeed")) %>% 
   ggplot(aes(x=Day, y=value, group=DayXTreatment, color=Treatment)) +
@@ -287,26 +266,6 @@ stats <- adg2 %>%
   summarise(Sum=sum(ADG, na.rm = TRUE), Mean=(mean(ADG, na.rm = TRUE)), sd = sd(ADG, na.rm = TRUE))
 write.csv(stats, file= "FS9_ADGstats.csv")
 
-#Old figure 1
-fig_adg <- adg2 %>% 
-  ggplot(aes(x=Day_ADG, y=ADG, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#00BA38',
-                                INFnm='#F8766D',
-                                INFfeed='#619CFF',
-                                NONINFnm="#C77CFF")) +
-  geom_boxplot() + 
-  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'Average Daily Gain (pounds)', x= NULL) +
-  theme(axis.text.x = element_text(size=12),
-        axis.text.y = element_text(size=12),
-        legend.text = element_text(size=12),
-        legend.title = element_text(size=12),
-        axis.title.y = element_text(size=12)) +
-  scale_x_discrete(breaks=c("D4_ADG", "D7_ADG"),
-                   labels=c("D4", "D7")) +
-  theme_bw()
-fig_adg
-
 #Figure 2a
 fig_day0adg <- adg %>% 
   ggplot(aes(x=Treatment, y=D0, color=Treatment)) +
@@ -338,7 +297,8 @@ fig_day11adg <- adg %>%
         axis.text.y = element_text(size=12),
         axis.title.y = element_text(size=12)) +
   theme_bw() +
-  theme(legend.position = "none")
+  theme(legend.position = "none") +
+  ylim(0,1.2)
 fig_day11adg
 
 #Figure 2c
@@ -356,21 +316,14 @@ fig_day14adg <- adg %>%
         legend.text = element_text(size=12),
         legend.title = element_text(size=12),
         axis.title.y = element_text(size=12)) +
-  theme_bw()
+  theme_bw() + 
+  ylim(0,1.2)
 fig_day14adg
 
 #Combined Weight + ADG figures
 fig_adg3plots <- plot_grid(fig_day0adg, fig_day11adg, fig_day14adg, labels = c('A', 'B', 'C'), label_size = 12, nrow = 1, rel_widths = c(1, 1, 1.2))
 fig_adg3plots
 ggsave("Fig2_ADG_abc.tiff", plot=fig_adg3plots, width = 15, height = 5, dpi = 500, units =c("in"))
-
-#ggsave(fig_adg,
-#        filename = './Fig2_ADG_All.jpeg',
-#       width = 160,
-#       height = 200,
-#       device = 'jpeg',
-#       dpi = 300,
-#       units = 'mm')
 
 ########################################################################################################
 #Lung Lesion

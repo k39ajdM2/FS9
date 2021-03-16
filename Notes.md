@@ -20,3 +20,27 @@ If you have any questions or concerns regarding your SRA submission please donâ€
 Svetlana Iazvovskaia
 The NCBI SRA database submission staff
 ```
+
+Follow-up response from Svetlana when I was still unclear what I could and couldn't do with the SRA submission (needed clarity):
+```
+Hi Kathy,
+
+You cannot submit same SRA data again - i.e. you cannot withdraw SRA from one submission and then, submit them again in another.
+If you want to keep SRA data but do not like how samples look, please create new samples and relink your SRA data to new samples and let me know when you done I will withdraw old samples (that will be unlinked from SRA).
+
+If you want to withdraw SRA data (permanently - not to ever submit them again) - please let me know SRRs, if you'd like to withdraw the linked samples as well - please let me know.
+
+If you want to add new SRA and new samples - please create new SRA submission.
+
+Please let me know what you'd like to do.
+
+Not knowing nature of your samples' modifications I would avoid editing old samples and prefer to withdraw them and for you to create new ones.  Samples are objects. Minor change  to an object is ok but converting one object to completely different object is not.
+
+Hope it helps.
+
+Please let me know what you want to withdraw - runs (SRR) and samples (SAMNs) - when you are ready.
+
+Best regards,
+
+Svetlana
+```

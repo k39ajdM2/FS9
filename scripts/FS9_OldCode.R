@@ -1,5 +1,93 @@
 #Old code that I deleted from various R files
 
+######################################################################################################################################################
+#Oxytetracycline Levels, Weight
+
+#Import file
+tis <- read.csv('./data/FS9_WeightOxytet.csv', stringsAsFactors = FALSE)  # reads in data, already cleaned a little
+
+#Must organize "tis" file in order to run the various scripts below
+tis$Day <- as.numeric(gsub('D', '', tis$Day))             # replaces the 'D' in the time column with '' (nothing)
+tis.melt <- melt(tis, id.vars = c(1:4), measure.vars = c(5:7))          # converts to long dataframe format for easy plotting
+tis.melt                                                                # just checking on the new long dataframe
+tis.melt$value <- gsub('NF', 0, tis.melt$value)         # replaces 'NF' with 0
+tis.melt$value <- as.numeric(tis.melt$value)            # forces the value column to be numeric 
+tis.melt <- na.exclude(tis.melt)                                        # removes NAs which were introduced in the previous line
+tis.melt$DayXTreatment <- paste(tis.melt$Day, tis.melt$Treatment, sep = '_') # creates a 'DayXTreatment column', it's just the 'Day' and 'Treatment' columns pasted together
+tis.melt$Day <- factor(tis.melt$Day)                                     # makes the 'Day' column a factor (this means it is categorical data, not continuous data)
+tis.melt$Tissue <- ifelse(tis.melt$variable == 'PlasmaOxytet', 'Plasma', 
+                          ifelse(tis.melt$variable == 'LungOyxtet', 'Lung',
+                                 ifelse(tis.melt$variable == 'NasalOxytet', 'Nasal', NA)))   #Replace original names in 'variable' column with with new names
+unique(tis.melt$Treatment)
+tis.melt$Treatment <- factor(tis.melt$Treatment, levels = c('NONINFnm', 'INFnm', 'INFinject', 'INFfeed'))
+
+#Oxytetracycline concentration in INFinject and INFfeed in all tissue samples
+fig2 <- tis.melt %>% filter(Treatment %in% c('INFinject', 'INFfeed')) %>%
+  ggplot(aes(x=Day, y=value, group=DayXTreatment, color=Treatment)) +
+  geom_boxplot() +
+  ylab('Concentration of Oxytetracycline (ng/mL)') + xlab('Day') + scale_y_log10(labels=scales::scientific) +
+  facet_wrap(~Tissue)+
+  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
+  theme_bw() + scale_color_manual(values = c(INFinject='#00BA38', INFfeed='#619CFF'))
+fig2
+ggsave(fig2,
+       filename = './Fig_OxytetLevels_LungNasalPlasma_INFfeedINFinject.jpeg',
+       width = 180,
+       height = 120,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
+
+class(tis.melt$Day)
+#tis.melt$Day <- as.numeric(as.character(tis.melt$Day))
+#tis.melt$Weight <- as.numeric(as.character(tis.melt$Weight))
+
+########################################################################################################
+
+#ADG
+
+#Load library packages
+library(tidyverse)
+library(reshape2)
+library(ggplot2)
+library(cowplot)
+library(dplyr)
+
+#Import file
+adg <- read.csv('./data/FS9_AverageDailyGain.csv', stringsAsFactors = FALSE)
+colnames(adg)
+adg1 <- pivot_longer(adg, cols=c("D0", "D11", "D14"), names_to="Day", values_to="Weight_lbs")
+adg2 <- pivot_longer(adg1, cols=c("D11_ADG", "D14_ADG"), names_to="Day_ADG", values_to="ADG")
+adg2$Day_ADG <- as.character((adg2$Day_ADG))
+adg2$Day <- as.character((adg2$Day))
+
+#Old figure 1
+fig_adg <- adg2 %>% 
+  ggplot(aes(x=Day_ADG, y=ADG, color=Treatment)) +
+  scale_color_manual(values = c(INFinject='#00BA38',
+                                INFnm='#F8766D',
+                                INFfeed='#619CFF',
+                                NONINFnm="#C77CFF")) +
+  geom_boxplot() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = .20))+
+  labs(y= 'Average Daily Gain (pounds)', x= NULL) +
+  theme(axis.text.x = element_text(size=12),
+        axis.text.y = element_text(size=12),
+        legend.text = element_text(size=12),
+        legend.title = element_text(size=12),
+        axis.title.y = element_text(size=12)) +
+  scale_x_discrete(breaks=c("D4_ADG", "D7_ADG"),
+                   labels=c("D4", "D7")) +
+  theme_bw()
+fig_adg
+
+#ggsave(fig_adg,
+#        filename = './Fig2_ADG_All.jpeg',
+#       width = 160,
+#       height = 200,
+#       device = 'jpeg',
+#       dpi = 300,
+#       units = 'mm')
 
 ############################################################
 
