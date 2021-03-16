@@ -48,7 +48,8 @@ plasmaoxytet <- tis.melt %>% filter(Tissue == 'Plasma') %>% filter(Treatment %in
   geom_boxplot() + 
   ylab('Concentration of Oxytet \n (ng/mL plasma)') + 
   theme_bw() + 
-  geom_jitter(position=position_jitterdodge(jitter.width = 1))
+  geom_jitter(position=position_jitterdodge(jitter.width = 1)) +
+  ylim(0,800)
 plasmaoxytet
 
 #Lung oxytetracycline only
@@ -59,7 +60,8 @@ lungoxytet <- tis.melt %>% filter(Tissue == 'Lung') %>% filter(Treatment %in% c(
   geom_boxplot() + 
   geom_jitter(position = position_jitterdodge(jitter.width = 1)) +
   ylab('Concentration of Oxytet \n (ng/2g lung tissue)') + 
-  theme_bw()
+  theme_bw() +
+  ylim(0,450)
 lungoxytet
 
 #Nasal oxytetracycline only
@@ -70,7 +72,8 @@ nasaloxytet <- tis.melt %>% filter(Tissue == 'Nasal') %>% filter(Treatment %in% 
   geom_boxplot() + 
   geom_jitter(position = position_jitterdodge(jitter.width = 1)) +
   ylab('Concentration of Oxytet \n (ng/mL nasal wash)') +
-  theme_bw()
+  theme_bw() +
+  ylim(0,550)
 nasaloxytet
 
 #Oxytet stats
@@ -102,7 +105,8 @@ plasmaweight <- tis.melt %>%
   ylab('Concentration of Oxytet \n (ng/mL plasma)') + 
   xlab("Weight (lbs)") +
   facet_wrap(vars(Day), scales = "free") +
-  xlim(13,34)
+  xlim(13,34) +
+  ylim(0,800)
 plasmaweight
 
 #Concentration of oxytetracycline relative to weight, lung, days 11 and 14
@@ -119,7 +123,8 @@ lungweight <- tis.melt %>%
   ylab('Concentration of Oxytet \n (ng/2g lung tissue)') + 
   xlab("Weight (lbs)") +
   facet_wrap(vars(Day), scales = "free") +
-  xlim(13,34)
+  xlim(13,34) +
+  ylim(0,450)
 lungweight
 
 #Concentration of oxytetracycline relative to weight, nasal, days 11 and 14
@@ -137,7 +142,8 @@ nasalweight <- tis.melt %>%
   xlab("Weight (lbs)") +
   theme(axis.title.y = element_text(size=10)) +
   facet_wrap(vars(Day), scales = "free") +
-  xlim(13,34)
+  xlim(13,34) +
+  ylim(0,550)
 nasalweight
 
 #Combine figures
