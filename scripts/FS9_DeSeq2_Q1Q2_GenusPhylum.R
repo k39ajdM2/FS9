@@ -868,72 +868,7 @@ FS9.phylum <- tax_glom(FS9, taxrank = "Phylum")
 # This method merges species that have the same taxonomy at a certain taxanomic rank. 
 # Its approach is analogous to tip_glom, but uses categorical data instead of a tree. 
 
-##################################### Day 4, 7 ##########################################################################
-
-######################################################### Day 4 #########################################################
-
-sample_data(FS9.phylum)
-
-FS9.D4 <- subset_samples(FS9.phylum, Day == 'D4')
-sample_sums(FS9.D4)
-colnames(otu_table(FS9.D4)) #check on all the sample names
-FS9.D4 <- prune_taxa(taxa_sums(FS9.D4) > 1, FS9.D4)
-#if taxa_sums is >1, then it will print that out in FS9.D4 object and not include anything with <1.
-rowSums(FS9.D4@otu_table)
-
-######### 1. Day 4 INFinject vs INFnm ###################
-
-#INFnm = I
-#INFinject= J
-#INFfeed = O
-
-meta$Set
-#Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "D4_INFnm")
-#6
-sum(meta$Set == "D4_INFinject")
-#7
-
-sample_data(FS9.D4)$Set <- factor(sample_data(FS9.D4)$Set,
-                                  levels =c('D4_INFnm', "D4_INFinject", "D4_INFfeed"))
-FS9.D4.De <- phyloseq_to_deseq2(FS9.D4, ~ Set)
-FS9.D4.De <- DESeq(FS9.D4.De, test = "Wald", fitType = "parametric")
-FS9.D4.De$Set
-resultsNames(FS9.D4.De)
-#[1] "Intercept"        "Set_D4_INFinject_vs_D4_INFnm" "Set_D4_INFfeed_vs_D4_INFnm" 
-res.D4.ji = lfcShrink(FS9.D4.De, coef = "Set_D4_INFinject_vs_D4_INFnm", type = 'apeglm')
-sigtab.D4.ji = res.D4.ji[which(res.D4.ji$padj < .05), ]
-sigtab.D4.ji = cbind(as(sigtab.D4.ji, "data.frame"), as(tax_table(FS9.D4)[rownames(sigtab.D4.ji), ], "matrix"))
-sigtab.D4.ji$newp <- format(round(sigtab.D4.ji$padj, digits = 3), scientific = TRUE)
-sigtab.D4.ji$Treatment <- ifelse(sigtab.D4.ji$log2FoldChange >=0, "INFinject", "INFnm")
-head(sigtab.D4.ji) #DataFrame with 0 rows and 7 columns, meaning there were no orders that were significantly different
-#in abundance between the two groups, so I will skip to the next comparison
-
-######### 2. Day 4 INFfeed vs INFnm ###################
-
-#INFnm = I
-#INFinject= J
-#INFfeed = O
-
-meta$Set
-#Number of pigs per group (using meta2 dataframe): 
-sum(meta$Set == "D4_INFnm")
-#6
-sum(meta$Set == "D4_INFfeed")
-#4
-
-#Extract results from a DESeq analysis, organize table
-FS9.D4.De$Set
-resultsNames(FS9.D4.De)
-#[1] "Intercept"         "Set_D4_INFinject_vs_D4_INFnm" "Set_D4_INFfeed_vs_D4_INFnm" 
-res.D4.oi = lfcShrink(FS9.D4.De, coef = "Set_D4_INFfeed_vs_D4_INFnm", type = 'apeglm')
-sigtab.D4.oi = res.D4.oi[which(res.D4.oi$padj < .05), ]
-sigtab.D4.oi = cbind(as(sigtab.D4.oi, "data.frame"), as(tax_table(FS9.D4)[rownames(sigtab.D4.oi), ], "matrix"))
-format(sigtab.D4.oi$padj, scientific = TRUE)
-sigtab.D4.oi$newp <- format(round(sigtab.D4.oi$padj, digits = 3), scientific = TRUE)
-sigtab.D4.oi$Treatment <- ifelse(sigtab.D4.oi$log2FoldChange >=0, "INFfeed", "INFnm")
-head(sigtab.D4.oi)  #DataFrame with 0 rows and 7 columns, meaning there were no orders that were significantly different
-#in abundance between the two groups, so I will skip to the next comparison
+##################################### Day 7, 11, 14 ##########################################################################
 
 ##################################################### Day 7 ######################################################################
 
@@ -957,9 +892,9 @@ sample_data(FS9.D7)
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
 sum(meta$Set == "D7_INFnm")
-#14
+#8
 sum(meta$Set == "D7_INFinject")
-#19
+#13
 
 sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
                                   levels =c('D7_INFnm', "D7_INFinject", "D7_INFfeed"))
@@ -972,29 +907,7 @@ sigtab.D7.ji = res.D7.ji[which(res.D7.ji$padj < .05), ]
 sigtab.D7.ji = cbind(as(sigtab.D7.ji, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.ji), ], "matrix"))
 sigtab.D7.ji$newp <- format(round(sigtab.D7.ji$padj, digits = 3), scientific = TRUE)
 sigtab.D7.ji$Treatment <- ifelse(sigtab.D7.ji$log2FoldChange >=0, "INFinject", "INFnm")
-head(sigtab.D7.ji)
-
-deseq.D7.ji <- 
-  ggplot(sigtab.D7.ji, aes(x=reorder(rownames(sigtab.D7.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.ji), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
-  theme(axis.text.x=element_text(color = 'black', size = 13),
-        axis.text.y=element_text(color = 'black', size=13), 
-        axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFinject Group Relative to INFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
-  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INFinject='#E69F00', INFnm='#CC0066'))
-deseq.D7.ji
-
-#Add OTU and comparisons columns
-sigtab.D7.ji
-sigtab.D7.ji$OTU <- rownames(sigtab.D7.ji)
-sigtab.D7.ji
-sigtab.D7.ji$comp <- 'D7_INFinject_vs_INFnm'
-
-#Create final significant comparisons table
-final.sigtab <- sigtab.D7.ji
-
-
+head(sigtab.D7.ji) #DataFrame with 0 rows and 7 columns
 
 ######### 2. Day 7 INFfeed vs INFnm ###################
 
@@ -1005,9 +918,9 @@ final.sigtab <- sigtab.D7.ji
 meta$Set
 #Number of pigs per group (using meta2 dataframe): 
 sum(meta$Set == "D7_INFnm")
-#14
+#8
 sum(meta$Set == "D7_INFfeed")
-#13
+#5
 
 #Extract results from a DESeq analysis, organize table
 sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
@@ -1022,26 +935,285 @@ sigtab.D7.oi = cbind(as(sigtab.D7.oi, "data.frame"), as(tax_table(FS9.D7)[rownam
 format(sigtab.D7.oi$padj, scientific = TRUE)
 sigtab.D7.oi$newp <- format(round(sigtab.D7.oi$padj, digits = 3), scientific = TRUE)
 sigtab.D7.oi$Treatment <- ifelse(sigtab.D7.oi$log2FoldChange >=0, "INFfeed", "INFnm")
-head(sigtab.D7.oi)
+head(sigtab.D7.oi) #DataFrame with 0 rows and 7 columns
+
+######### 3. Day 7 INFfeed vs INFinject ###################
+
+#INFnm = I
+#INFinject= J
+#INFfeed = O
+
+meta$Set
+#Number of pigs per group (using meta2 dataframe): 
+sum(meta$Set == "D7_INFinject")
+#13
+sum(meta$Set == "D7_INFfeed")
+#5
+
+#Extract results from a DESeq analysis, organize table
+sample_data(FS9.D7)$Set <- factor(sample_data(FS9.D7)$Set,
+                                  levels =c("D7_INFfeed",'D7_INFinject', 'D7_INFnm'))
+FS9.D7.De <- phyloseq_to_deseq2(FS9.D7, ~ Set)
+FS9.D7.De <- DESeq(FS9.D7.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D7.De)
+#[1] "Intercept"               "Set_D7_INFinject_vs_D7_INFfeed" "Set_D7_INFnm_vs_D7_INFfeed"   
+res.D7.io = lfcShrink(FS9.D7.De, coef = "Set_D7_INFinject_vs_D7_INFfeed", type = 'apeglm')
+sigtab.D7.io = res.D7.io[which(res.D7.io$padj < .05), ]
+sigtab.D7.io = cbind(as(sigtab.D7.io, "data.frame"), as(tax_table(FS9.D7)[rownames(sigtab.D7.io), ], "matrix"))
+format(sigtab.D7.io$padj, scientific = TRUE)
+sigtab.D7.io$newp <- format(round(sigtab.D7.io$padj, digits = 3), scientific = TRUE)
+sigtab.D7.io$Treatment <- ifelse(sigtab.D7.io$log2FoldChange >=0, "INFfeed", "INFnm")
+head(sigtab.D7.io) #DataFrame with 0 rows and 7 columns
+
+
+######################################################### Day 11 #########################################################
+
+sample_data(FS9.phylum)
+
+FS9.D11 <- subset_samples(FS9.phylum, Day == 'D11')
+sample_sums(FS9.D11)
+colnames(otu_table(FS9.D11)) #check on all the sample names
+FS9.D11 <- prune_taxa(taxa_sums(FS9.D11) > 1, FS9.D11)
+#if taxa_sums is >1, then it will print that out in FS9.D11 object and not include anything with <1.
+rowSums(FS9.D11@otu_table)
+
+######### 1. Day 11 INFinject vs INFnm ###################
+
+#INFnm = I
+#INFinject= J
+#INFfeed = O
+
+meta$Set
+#Number of pigs per group (using meta2 dataframe): 
+sum(meta$Set == "D11_INFnm")
+#6
+sum(meta$Set == "D11_INFinject")
+#7
+
+sample_data(FS9.D11)$Set <- factor(sample_data(FS9.D11)$Set,
+                                  levels =c('D11_INFnm', "D11_INFinject", "D11_INFfeed"))
+FS9.D11.De <- phyloseq_to_deseq2(FS9.D11, ~ Set)
+FS9.D11.De <- DESeq(FS9.D11.De, test = "Wald", fitType = "parametric")
+FS9.D11.De$Set
+resultsNames(FS9.D11.De)
+#[1] "Intercept"        "Set_D11_INFinject_vs_D11_INFnm" "Set_D11_INFfeed_vs_D11_INFnm" 
+res.D11.ji = lfcShrink(FS9.D11.De, coef = "Set_D11_INFinject_vs_D11_INFnm", type = 'apeglm')
+sigtab.D11.ji = res.D11.ji[which(res.D11.ji$padj < .05), ]
+sigtab.D11.ji = cbind(as(sigtab.D11.ji, "data.frame"), as(tax_table(FS9.D11)[rownames(sigtab.D11.ji), ], "matrix"))
+sigtab.D11.ji$newp <- format(round(sigtab.D11.ji$padj, digits = 3), scientific = TRUE)
+sigtab.D11.ji$Treatment <- ifelse(sigtab.D11.ji$log2FoldChange >=0, "INFinject", "INFnm")
+head(sigtab.D11.ji) #DataFrame with 0 rows and 7 columns, meaning there were no orders that were significantly different
+#in abundance between the two groups, so I will skip to the next comparison
+
+
+######### 2. Day 11 INFfeed vs INFnm ###################
+
+#INFnm = I
+#INFinject= J
+#INFfeed = O
+
+meta$Set
+#Number of pigs per group (using meta2 dataframe): 
+sum(meta$Set == "D11_INFnm")
+#6
+sum(meta$Set == "D11_INFfeed")
+#4
+
+#Extract results from a DESeq analysis, organize table
+FS9.D11.De$Set
+resultsNames(FS9.D11.De)
+#[1] "Intercept"         "Set_D11_INFinject_vs_D11_INFnm" "Set_D11_INFfeed_vs_D11_INFnm" 
+res.D11.oi = lfcShrink(FS9.D11.De, coef = "Set_D11_INFfeed_vs_D11_INFnm", type = 'apeglm')
+sigtab.D11.oi = res.D11.oi[which(res.D11.oi$padj < .05), ]
+sigtab.D11.oi = cbind(as(sigtab.D11.oi, "data.frame"), as(tax_table(FS9.D11)[rownames(sigtab.D11.oi), ], "matrix"))
+format(sigtab.D11.oi$padj, scientific = TRUE)
+sigtab.D11.oi$newp <- format(round(sigtab.D11.oi$padj, digits = 3), scientific = TRUE)
+sigtab.D11.oi$Treatment <- ifelse(sigtab.D11.oi$log2FoldChange >=0, "INFfeed", "INFnm")
+head(sigtab.D11.oi)  #DataFrame with 0 rows and 7 columns, meaning there were no orders that were significantly different
+#in abundance between the two groups, so I will skip to the next comparison
+
+######### 3. Day 11 INFfeed vs INFinject ###################
+
+#INFnm = I
+#INFinject= J
+#INFfeed = O
+
+meta$Set
+#Number of pigs per group (using meta2 dataframe): 
+sum(meta$Set == "D11_INFinject")
+#7
+sum(meta$Set == "D11_INFfeed")
+#4
+
+#Extract results from a DESeq analysis, organize table
+sample_data(FS9.D11)$Set <- factor(sample_data(FS9.D11)$Set,
+                                  levels =c("D11_INFfeed",'D11_INFinject', 'D11_INFnm'))
+FS9.D11.De <- phyloseq_to_deseq2(FS9.D11, ~ Set)
+FS9.D11.De <- DESeq(FS9.D11.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D11.De)
+#[1] "Intercept"               "Set_D11_INFinject_vs_D11_INFfeed" "Set_D11_INFnm_vs_D11_INFfeed"   
+res.D11.io = lfcShrink(FS9.D11.De, coef = "Set_D11_INFinject_vs_D11_INFfeed", type = 'apeglm')
+sigtab.D11.io = res.D11.io[which(res.D11.io$padj < .05), ]
+sigtab.D11.io = cbind(as(sigtab.D11.io, "data.frame"), as(tax_table(FS9.D11)[rownames(sigtab.D11.io), ], "matrix"))
+format(sigtab.D11.io$padj, scientific = TRUE)
+sigtab.D11.io$newp <- format(round(sigtab.D11.io$padj, digits = 3), scientific = TRUE)
+sigtab.D11.io$Treatment <- ifelse(sigtab.D11.io$log2FoldChange >=0, "INFfeed", "INFnm")
+head(sigtab.D11.io) #DataFrame with 0 rows and 7 columns
+
+
+
+
+
+######################################################### Day 14 #########################################################
+
+sample_data(FS9.phylum)
+
+FS9.D14 <- subset_samples(FS9.phylum, Day == 'D14')
+sample_sums(FS9.D14)
+colnames(otu_table(FS9.D14)) #check on all the sample names
+FS9.D14 <- prune_taxa(taxa_sums(FS9.D14) > 1, FS9.D14)
+#if taxa_sums is >1, then it will print that out in FS9.D14 object and not include anything with <1.
+rowSums(FS9.D14@otu_table)
+
+######### 1. Day 14 INFinject vs INFnm ###################
+
+#INFnm = I
+#INFinject= J
+#INFfeed = O
+
+meta$Set
+#Number of pigs per group (using meta2 dataframe): 
+sum(meta$Set == "D14_INFnm")
+#14
+sum(meta$Set == "D14_INFinject")
+#19
+
+sample_data(FS9.D14)$Set <- factor(sample_data(FS9.D14)$Set,
+                                  levels =c('D14_INFnm', "D14_INFinject", "D14_INFfeed"))
+FS9.D14.De <- phyloseq_to_deseq2(FS9.D14, ~ Set)
+FS9.D14.De <- DESeq(FS9.D14.De, test = "Wald", fitType = "parametric")
+FS9.D14.De$Set
+resultsNames(FS9.D14.De)
+#[1] "Intercept"        "Set_D14_INFinject_vs_D14_INFnm" "Set_D14_INFfeed_vs_D14_INFnm" 
+res.D14.ji = lfcShrink(FS9.D14.De, coef = "Set_D14_INFinject_vs_D14_INFnm", type = 'apeglm')
+sigtab.D14.ji = res.D14.ji[which(res.D14.ji$padj < .05), ]
+sigtab.D14.ji = cbind(as(sigtab.D14.ji, "data.frame"), as(tax_table(FS9.D14)[rownames(sigtab.D14.ji), ], "matrix"))
+sigtab.D14.ji$newp <- format(round(sigtab.D14.ji$padj, digits = 3), scientific = TRUE)
+sigtab.D14.ji$Treatment <- ifelse(sigtab.D14.ji$log2FoldChange >=0, "Enriched in INFinject", "Depleted in INFinject")
+head(sigtab.D14.ji) 
 
 #ggplot
-deseq.D7.oi <- ggplot(sigtab.D7.oi, aes(x=reorder(rownames(sigtab.D7.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
-  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D7.oi), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+deseq.D14.ji <- ggplot(sigtab.D14.ji, aes(x=reorder(rownames(sigtab.D14.ji), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D14.ji), y=-1e-06, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
   theme(axis.text.x=element_text(color = 'black', size = 13),
         axis.text.y=element_text(color = 'black', size=13), 
         axis.title.x=element_text(size = 12),
-        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFfeed Group Relative to INFnm\n in Fecal Microbiota on Day 7')+ coord_flip() +
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFinject Group Relative to INFnm\n in Fecal Microbiota on Day 14')+ coord_flip() +
   theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
-  scale_fill_manual(values = c(INFfeed='#999999', INFnm='#CC0066'))
-deseq.D7.oi
+  scale_fill_manual(values = c("Enriched in INFinject"='#00BA38', "Depleted in INFinject"='#F8766D'))
+deseq.D14.ji
 
 #Add OTU and comparisons columns
-sigtab.D7.oi
-sigtab.D7.oi$OTU <- rownames(sigtab.D7.oi)
-sigtab.D7.oi
-sigtab.D7.oi$comp <- 'D7_INFfeed_vs_INFnm'
+sigtab.D14.ji
+sigtab.D14.ji$OTU <- rownames(sigtab.D14.ji)
+sigtab.D14.ji
+sigtab.D14.ji$comp <- 'D14_INFinject_vs_INFnm'
 
 #Create final significant comparisons table
-final.sigtab <- rbind(sigtab.D7.oi, final.sigtab)
+final.sigtab <- sigtab.D14.ji
 
-write.csv(final.sigtab, file = "FS9_FinalDiffAbund_Phylum_OutDoubletons_Q2_D4D7.csv")
+######### 2. Day 14 INFfeed vs INFnm ###################
+
+#INFnm = I
+#INFinject= J
+#INFfeed = O
+
+meta$Set
+#Number of pigs per group (using meta2 dataframe): 
+sum(meta$Set == "D14_INFnm")
+#14
+sum(meta$Set == "D14_INFfeed")
+#13
+
+#Extract results from a DESeq analysis, organize table
+FS9.D14.De$Set
+resultsNames(FS9.D14.De)
+#[1] "Intercept"         "Set_D14_INFinject_vs_D14_INFnm" "Set_D14_INFfeed_vs_D14_INFnm" 
+res.D14.oi = lfcShrink(FS9.D14.De, coef = "Set_D14_INFfeed_vs_D14_INFnm", type = 'apeglm')
+sigtab.D14.oi = res.D14.oi[which(res.D14.oi$padj < .05), ]
+sigtab.D14.oi = cbind(as(sigtab.D14.oi, "data.frame"), as(tax_table(FS9.D14)[rownames(sigtab.D14.oi), ], "matrix"))
+format(sigtab.D14.oi$padj, scientific = TRUE)
+sigtab.D14.oi$newp <- format(round(sigtab.D14.oi$padj, digits = 3), scientific = TRUE)
+sigtab.D14.oi$Treatment <- ifelse(sigtab.D14.oi$log2FoldChange >=0, "Enriched in INFfeed", "Depleted in INFfeed")
+head(sigtab.D14.oi) 
+
+#ggplot
+deseq.D14.oi <- ggplot(sigtab.D14.oi, aes(x=reorder(rownames(sigtab.D14.oi), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D14.oi), y=0, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFfeed Group Relative to INFnm\n in Fecal Microbiota on Day 14')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c("Enriched in INFfeed"='#619CFF', "Depleted in INFfeed"='#F8766D'))
+deseq.D14.oi
+
+#Add OTU and comparisons columns
+sigtab.D14.oi
+sigtab.D14.oi$OTU <- rownames(sigtab.D14.oi)
+sigtab.D14.oi
+sigtab.D14.oi$comp <- 'D14_INFfeed_vs_INFnm'
+
+#Create final significant comparisons table
+final.sigtab <- rbind(final.sigtab, sigtab.D14.oi)
+
+
+######### 3. Day 14 INFfeed vs INFinject ###################
+
+#INFnm = I
+#INFinject= J
+#INFfeed = O
+
+meta$Set
+#Number of pigs per group (using meta2 dataframe): 
+sum(meta$Set == "D14_INFinject")
+#19
+sum(meta$Set == "D14_INFfeed")
+#13
+
+#Extract results from a DESeq analysis, organize table
+sample_data(FS9.D14)$Set <- factor(sample_data(FS9.D14)$Set,
+                                   levels =c("D14_INFfeed",'D14_INFinject', 'D14_INFnm'))
+FS9.D14.De <- phyloseq_to_deseq2(FS9.D14, ~ Set)
+FS9.D14.De <- DESeq(FS9.D14.De, test = "Wald", fitType = "parametric")
+resultsNames(FS9.D14.De)
+#[1] "Intercept"               "Set_D14_INFinject_vs_D14_INFfeed" "Set_D14_INFnm_vs_D14_INFfeed"   
+res.D14.io = lfcShrink(FS9.D14.De, coef = "Set_D14_INFinject_vs_D14_INFfeed", type = 'apeglm')
+sigtab.D14.io = res.D14.io[which(res.D14.io$padj < .05), ]
+sigtab.D14.io = cbind(as(sigtab.D14.io, "data.frame"), as(tax_table(FS9.D14)[rownames(sigtab.D14.io), ], "matrix"))
+format(sigtab.D14.io$padj, scientific = TRUE)
+sigtab.D14.io$newp <- format(round(sigtab.D14.io$padj, digits = 3), scientific = TRUE)
+sigtab.D14.io$Treatment <- ifelse(sigtab.D14.io$log2FoldChange >=0, "Enriched in INFinject", "Enriched in INFfeed")
+head(sigtab.D14.io)
+
+#ggplot
+deseq.D14.oi <- ggplot(sigtab.D14.io, aes(x=reorder(rownames(sigtab.D14.io), log2FoldChange), y=log2FoldChange, fill = Treatment)) +
+  geom_bar(stat='identity') + geom_text(aes(x=rownames(sigtab.D14.io), y=0.5, label = paste(Phylum, sep = ' ')), size=5, fontface = 'italic')+ labs(x="Phylum")+
+  theme(axis.text.x=element_text(color = 'black', size = 13),
+        axis.text.y=element_text(color = 'black', size=13), 
+        axis.title.x=element_text(size = 12),
+        axis.title.y=element_text(size = 12))+ ggtitle('Differentially Abundant Phylum\n in INFinject Group Relative to INFfeed\n in Fecal Microbiota on Day 14')+ coord_flip() +
+  theme(plot.title = element_text(size = 14, hjust=0.5), legend.text = element_text(size=12), legend.title = element_text(size=13)) +
+  scale_fill_manual(values = c("Enriched in INFinject"='#00BA38', "Enriched in INFfeed"='#619CFF'))
+deseq.D14.oi
+
+#Add OTU and comparisons columns
+sigtab.D14.io
+sigtab.D14.io$OTU <- rownames(sigtab.D14.io)
+sigtab.D14.io
+sigtab.D14.io$comp <- 'D14_INFinject_vs_INFfeed'
+
+#Create final significant comparisons table
+final.sigtab <- rbind(final.sigtab, sigtab.D14.io)
+
+write.csv(final.sigtab, file = "FS9_FinalDiffAbund_Phylum_OutDoubletons_Q2_D7D11D14.csv")

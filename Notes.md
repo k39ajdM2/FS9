@@ -1,8 +1,20 @@
 # **Notes**
 
-To-do:
-1. Edit manuscript
-2. Modify submission SUB8884056 for BioProject PRJNA693865 (remove DNEG3 samples, add mock fastq file and mock metadata file)
+## To-do:
+1. Edit discussion
+2. Make new SRA submission for BioProject PRJNA693865 adding mock + NTC fastq files and associated metadata.
+3. Prepare public version of FS9 repo saving only the relevant code (all old code - save in a separate repo?)
+
+## BioProject PRJNA693865 SRA submission modification
+
+### 25Jan2021: Submitted SRA submission SUB8884056
+
+### 1Mar2021
+* Realized I included DNEG3 samples in SRA submission SUB8884056.
+* Emailed NLM Support how to make changes, including:
+  * BioSample attributes file (FS9_Model.organism.animal.1.0.xlsx)
+  * Metadata file (FS9_SRA_metadata.xlsx)
+  * Removal (DNEG3) and addition (mock, NTC) of several fastq files.
 
 ```
 Dear Kathy ,
@@ -21,6 +33,7 @@ Svetlana Iazvovskaia
 The NCBI SRA database submission staff
 ```
 
+### 9Mar2021
 Follow-up response from Svetlana when I was still unclear what I could and couldn't do with the SRA submission (needed clarity):
 ```
 Hi Kathy,
@@ -39,6 +52,20 @@ Not knowing nature of your samples' modifications I would avoid editing old samp
 Hope it helps.
 
 Please let me know what you want to withdraw - runs (SRR) and samples (SAMNs) - when you are ready.
+
+Best regards,
+
+Svetlana
+```
+
+### 17Mar2021
+Received this message. Afterwards, submitted modified BioSample attributes file `Copy of biosamples.195.2021-03-01T14-41-30.xlsx` with corrections to days. Need to upload new SRA submission of mock and NTC samples.
+```
+Hi Kathy,
+
+I had withdrawn samples and SRA in the list.
+Please send me list of samples with the modified attribute.
+Please find spreadsheet for remaining samples in the attachment..
 
 Best regards,
 
