@@ -1,6 +1,59 @@
 #Old code that I deleted from various R files
 
 ######################################################################################################################################################
+# tet32, tetW oxytet gene abundance (qPCR)
+
+tet32 <- read.csv('./data/FS9_tet32_qPCR_results.csv', stringsAsFactors = FALSE)
+tetw <- read.csv('./data/FS9_tetW_qPCR_results.csv', stringsAsFactors = FALSE)
+tet32$Day <- factor(tet32$Day, levels=c("7", "11", "14"))
+tetw$Day <- factor(tetw$Day, levels=c("7", "11", "14"))
+levels(tetw$Day) #"7"  "11" "14"
+levels(tet32$Day) #"7"  "11" "14"
+
+#Box plot figures
+tet32fig <- tet32 %>% 
+  ggplot(aes(x=Treatment, y=log10tet32, color=Day)) +
+  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
+  geom_boxplot() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+  theme(axis.text.x=element_text(color = 'black', size = 14),
+        axis.text.y=element_text(color = 'black', size=14)) + 
+  ylab('log10 relative abundance of tet32 gene') +
+  theme_bw()
+tet32fig
+
+tetWfig <- tetw %>% 
+  ggplot(aes(x=Treatment, y=log10tetW, color=Day)) +
+  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
+  geom_boxplot() + 
+  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+  theme(axis.text.x=element_text(color = 'black', size = 14),
+        axis.text.y=element_text(color = 'black', size=14)) + 
+  ylab('log10 relative abundance of tetW gene') +
+  theme_bw()
+tetWfig
+
+#Combine tet32 and tetW B&W plots and save combined figure
+fig8 <- plot_grid(tet32fig, tetWfig, labels = c('A', 'B'), label_size = 12)
+fig8
+ggsave(fig8,
+       filename = './Fig8_tet32tetW_qPCR_INFfeedINFinjectINFnm.jpeg',
+       width = 180,
+       height = 120,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
+
+#### AULC function from Jules ####
+sum_sal <- sal_data %>%
+  arrange(time_point)  %>%
+  group_by(pignum) %>%
+  summarise(AULC=trapz(time_point, log_sal),
+            treatment=unique(treatment))
+
+
+######################################################################################################################################################
+
 #Oxytetracycline Levels, Weight
 
 #Import file
