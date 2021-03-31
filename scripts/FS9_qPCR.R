@@ -19,10 +19,13 @@ sessionInfo()
 
 tet32 <- read.csv('./data/FS9_tet32_qPCR_results.csv', stringsAsFactors = FALSE)
 tetw <- read.csv('./data/FS9_tetW_qPCR_results.csv', stringsAsFactors = FALSE)
+aph2 <- read.csv('./data/FS9_aph2_qPCR_results_Amali.csv', stringsAsFactors = FALSE)
 tet32$Day <- factor(tet32$Day, levels=c("7", "11", "14"))
 tetw$Day <- factor(tetw$Day, levels=c("7", "11", "14"))
+aph2$Day <- factor(aph2$Day, levels=c("7", "11", "14"))
 levels(tetw$Day) #"7"  "11" "14"
 levels(tet32$Day) #"7"  "11" "14"
+levels(aph2$Day) #"7"  "11" "14"
 
 str(tet32) #see 
 
@@ -60,6 +63,9 @@ summary(tetWaov)
 #In addition, the interaction between Day and Treatment indicates that the relationship between mean log10tet32 abundances
 #and Day depend on the type of Treatment administered.
 
+aph2aov <- aov(log10aph2 ~ Treatment * Day, data=aph2)
+summary(aph2aov)
+
 #Tukey multiple pairwise-comparisons
 TukeyHSD(tet32aov, which = "Treatment:Day")
 #can't save as csv so I copied the results in console to 
@@ -67,6 +73,9 @@ TukeyHSD(tet32aov, which = "Treatment:Day")
 TukeyHSD(tetWaov, which = "Treatment:Day")
 #can't save as csv so I copied the results in console to
 #tetW_qPCR_summarystats_Tukey.xlsx
+TukeyHSD(aph2aov, which = "Treatment:Day")
+
+
 
 #Summary stats
 tet32stats <- tet32 %>% group_by(Day,Treatment) %>% summarise(mean=mean(log10tet32), 
@@ -78,20 +87,14 @@ tetWstats <- tetw %>% group_by(Day,Treatment) %>% summarise(mean=mean(log10tetW)
                                                             n=n(),
                                                             sd=sd(log10tetW),
                                                             se=sd/n) #%>% write_csv('./results/tetW_qPCR_mean.csv')
-
+aph2stats <- aph2 %>% group_by(Day,Treatment) %>% summarise(mean=mean(log10aph2), 
+                                                              n=n(), 
+                                                              sd=sd(log10aph2), 
+                                                              se=sd/n) #%>% write_csv('./results/aph2_qPCR_mean.csv')
 #Mean line plot figures
 pd = position_dodge(0.05)
 pdsd = position_dodge(0.25)
-(tet32line <- ggplot(data=tet32stats, aes(x=Day, y=mean, group=Treatment)) + 
-  geom_line(aes(color=Treatment), position=pd) +
-  geom_point(aes(color=Treatment), position=pd, size=3, shape=21, fill="white") +
-  scale_color_manual(values = c(INFinject='#00BA38',
-                                INFnm='#F8766D',
-                                INFfeed='#619CFF')) +
-  ylab('Mean log10 relative abundance of tet32 gene') +
-  ylim(0,5.5) +
-  theme_bw() +
-  theme(legend.position = "none"))
+
 (tet32linese <- ggplot(data=tet32stats, aes(x=Day, y=mean, group=Treatment)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.3, position=pdsd) +
     geom_line(aes(color=Treatment), position=pdsd) +
@@ -103,29 +106,11 @@ pdsd = position_dodge(0.25)
     ylim(0,5.5) +
     theme_bw() +
     theme(legend.position = "none"))
-(tet32linesd <- ggplot(data=tet32stats, aes(x=Day, y=mean, group=Treatment)) + 
-    geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.1, position=pdsd) +
-    geom_line(aes(color=Treatment), position=pdsd) +
-    geom_point(aes(color=Treatment), position=pdsd, size=3, shape=21, fill="white") +
-    scale_color_manual(values = c(INFinject='#00BA38',
-                                  INFnm='#F8766D',
-                                  INFfeed='#619CFF')) +
-    ylab('Mean log10 relative abundance of tet32 gene') +
-    ylim(0,5.5) +
-    theme_bw() +
-    theme(legend.position = "none"))
 
 
 
-(tetwline <- ggplot(data=tetWstats, aes(x=Day, y=mean, group=Treatment)) + 
-    geom_line(aes(color=Treatment), position=pd) +
-    geom_point(aes(color=Treatment), position=pd, size=3, shape=21, fill="white") +
-    scale_color_manual(values = c(INFinject='#00BA38',
-                                  INFnm='#F8766D',
-                                  INFfeed='#619CFF')) +
-    ylab('Mean log10 relative abundance of tetW gene') +
-    ylim(0,5.5) +
-    theme_bw())
+
+
 (tetwlinese <- ggplot(data=tetWstats, aes(x=Day, y=mean, group=Treatment)) + 
     geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.3, position=pdsd) +
     geom_line(aes(color=Treatment), position=pdsd) +
@@ -135,24 +120,28 @@ pdsd = position_dodge(0.25)
                                   INFfeed='#619CFF')) +
     ylab('Mean log10 relative abundance of tetW gene') +
     ylim(0,5.5) +
-    theme_bw())
-(tetwlinesd <- ggplot(data=tetWstats, aes(x=Day, y=mean, group=Treatment)) + 
-    geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.1, position=pdsd) +
+    theme_bw()
+      +theme(legend.position = 'none'))
+
+
+##aph2 with Amali
+
+
+
+(aph2linese <- ggplot(data=aph2stats, aes(x=Day, y=mean, group=Treatment)) + 
+    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.3, position=pdsd) +
     geom_line(aes(color=Treatment), position=pdsd) +
-    geom_point(aes(color=Treatment), position=pdsd, size=3, shape=21, fill="white") +
+    geom_point(aes(color=Treatment), position=pdsd, size=1, shape=21, fill="white") +
     scale_color_manual(values = c(INFinject='#00BA38',
                                   INFnm='#F8766D',
                                   INFfeed='#619CFF')) +
-    ylab('Mean log10 relative abundance of tetW gene') +
+    ylab('Mean log10 relative abundance of aph2 gene') +
     ylim(0,5.5) +
     theme_bw())
 
-
-
 #Combine tet32 and tetW line graphs and save combined figure
-(fig5 <- plot_grid(tet32line, tetwline, labels = c('A', 'B'), label_size = 12, vjust=1.1, rel_widths = c(1,1.4))) #Mean only
-(fig5 <- plot_grid(tet32linese, tetwlinese, labels = c('A', 'B'), label_size = 12, vjust=1.1, rel_widths = c(1,1.4))) #Mean+SEM
-(fig5 <- plot_grid(tet32linesd, tetwlinesd, labels = c('A', 'B'), label_size = 12, vjust=1.1, rel_widths = c(1,1.4))) #Mean+SD
+(fig5 <- plot_grid(tet32linese, tetwlinese, aph2linese, labels = c('A', 'B', 'C'), label_size = 12, vjust=1.1, rel_widths = c(1,1.4))) #Mean+SEM
+
 ggsave(fig5,
        filename = './Fig5_tet32tetW_qPCR_lineplot_INFfeedINFinjectINFnm.jpeg',
        width = 180,
