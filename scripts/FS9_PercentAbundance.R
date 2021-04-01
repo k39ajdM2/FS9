@@ -60,9 +60,9 @@ head(fobar.order)
 fobar.gather.order <- fobar.order %>% gather(Order, value, -(group:All))
 head(fobar.gather.order)
 
-#Reorder days -3 to 7 in 'fobar.gather' plot
-fobar.gather.order$Day <- factor(fobar.gather.order$Day, levels=c("DNEG3", "D0", "D4", "D7"))
-levels(sample_data(fobar.gather.order)$Day) #"DNEG3" "D0"    "D4"    "D7"  
+#Reorder days 4 to 14 in 'fobar.gather' plot
+fobar.gather.order$Day <- factor(fobar.gather.order$Day, levels=c("D4", "D7", "D11", "D14"))
+levels(sample_data(fobar.gather.order)$Day) #"D4"  "D7"  "D11" "D14"
 
 #Count the number of unique items in 'fobar.gather'. We're interested in the total unique number of order
 fobar.gather.order %>% summarise(n_distinct(fobar.gather.order$Order)) #48 total unique order
@@ -76,63 +76,16 @@ fobar.gather.order <- fobar.gather.order %>% group_by(All) %>% mutate(value2=(va
 
 #Order Figures
 
-#Day -3 Order
-DNEG3Order <- fobar.gather.order %>% 
-    subset(Day == "DNEG3") %>% 
-    group_by(Order) %>% 
-    select(Order, Treatment) %>% 
-    count(Treatment)
-#Decide which order to remove from plot that isn't present in all 4 treatment groups
-
-OrderFig_DNEG3 <- fobar.gather.order %>% filter(Day == 'DNEG3') %>% 
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap(~Order, scales = 'free') + 
-    ylab('Percent of Total Community') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day -3") +
-    scale_fill_igv(name = "Order") +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic")) +
-    guides(fill= guide_legend(ncol = 2))
-OrderFig_DNEG3
-
-#Day 0 Order
-D0Order <- fobar.gather.order %>% 
-    subset(Day == "D0") %>% 
-    group_by(Order) %>% 
-    select(Order, Treatment) %>% 
-    count(Treatment)
-#Decide which order to remove from plot that isn't present in all 4 treatment groups
-
-OrderFig_D0 <- fobar.gather.order %>% filter(Day == 'D0') %>%
-    ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
-    geom_boxplot(position = 'identity') +
-    geom_jitter(shape=21, width = .15)+
-    facet_wrap(~Order, scales = 'free') + 
-    ylab('Percent of Total Community') +
-    xlab ('') +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    ggtitle("Day 0") +
-    scale_fill_igv(name = "Order") +
-    theme(axis.text.x=element_text(angle=45, hjust=1),
-          axis.title.x = element_blank(),
-          legend.text = element_text(face = "italic")) +
-    guides(fill= guide_legend(ncol = 2))
-OrderFig_D0
-
 #Day 4 Order
 D4Order <- fobar.gather.order %>% 
     subset(Day == "D4") %>% 
     group_by(Order) %>% 
     select(Order, Treatment) %>% 
     count(Treatment)
+
 #Decide which order to remove from plot that isn't present in all 4 treatment groups
 
-OrderFig_D4 <- fobar.gather.order %>% filter(Day == 'D4') %>%
+(OrderFig_D4 <- fobar.gather.order %>% filter(Day == 'D4') %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -145,8 +98,7 @@ OrderFig_D4 <- fobar.gather.order %>% filter(Day == 'D4') %>%
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_blank(),
           legend.text = element_text(face = "italic")) +
-    guides(fill= guide_legend(ncol = 2))
-OrderFig_D4
+    guides(fill= guide_legend(ncol = 2)))
 
 #Day 7 Order
 D7Order <- fobar.gather.order %>% 
@@ -155,8 +107,9 @@ D7Order <- fobar.gather.order %>%
     select(Order, Treatment) %>% 
     count(Treatment)
 #Decide which order to remove from plot that isn't present in all 4 treatment groups
+write.csv(D7Order, file = "FS9_D7Order_OutDoubletons.csv")
 
-OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
+(OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7') %>%
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
@@ -169,8 +122,55 @@ OrderFig_D7 <- fobar.gather.order %>% filter(Day == 'D7' & value2 > 0) %>%
     theme(axis.text.x=element_text(angle=45, hjust=1),
           axis.title.x = element_blank(),
           legend.text = element_text(face = "italic")) +
-    guides(fill= guide_legend(ncol = 1))
-OrderFig_D7
+    guides(fill= guide_legend(ncol = 2)))
+
+#Day 11 Order
+D11Order <- fobar.gather.order %>% 
+    subset(Day == "D11") %>% 
+    group_by(Order) %>% 
+    select(Order, Treatment) %>% 
+    count(Treatment)
+#Decide which order to remove from plot that isn't present in all 4 treatment groups
+write.csv(D11Order, file = "FS9_D11Order_OutDoubletons.csv")
+
+(OrderFig_D11 <- fobar.gather.order %>% filter(Day == 'D11') %>%
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
+    geom_boxplot(position = 'identity') +
+    geom_jitter(shape=21, width = .15)+
+    facet_wrap(~Order, scales = 'free') + 
+    ylab('Percent of Total Community') +
+    xlab ('') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    ggtitle("Day 11") +
+    scale_fill_igv(name = "Order") +
+    theme(axis.text.x=element_text(angle=45, hjust=1),
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic")) +
+    guides(fill= guide_legend(ncol = 2)))
+
+#Day 14 Order
+D14Order <- fobar.gather.order %>% 
+    subset(Day == "D14") %>% 
+    group_by(Order) %>% 
+    select(Order, Treatment) %>% 
+    count(Treatment)
+#Decide which order to remove from plot that isn't present in all 4 treatment groups
+write.csv(D14Order, file = "FS9_D14Order_OutDoubletons.csv")
+
+(OrderFig_D14 <- fobar.gather.order %>% filter(Day == 'D14' & value2 > 0) %>%
+    ggplot(aes(x=Treatment, y=value2, group=All, fill=Order)) +
+    geom_boxplot(position = 'identity') +
+    geom_jitter(shape=21, width = .15)+
+    facet_wrap(~Order, scales = 'free') + 
+    ylab('Percent of Total Community') +
+    xlab ('') +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    ggtitle("Day 14") +
+    scale_fill_igv(name = "Order") +
+    theme(axis.text.x=element_text(angle=45, hjust=1),
+          axis.title.x = element_blank(),
+          legend.text = element_text(face = "italic")) +
+    guides(fill= guide_legend(ncol = 1)))
 
 write.csv(fobar.gather.order, file = "FS9_Order_OutDoubletons.csv")
 
@@ -240,7 +240,7 @@ OrderFig_DNEG3_Q1
 
 ggsave("Q1_NONINFnm_INFnm_Order_DNEG3_PercentAbundance_WithDeSeq2Data.tiff", plot=OrderFig_DNEG3_Q1, width = 9, height = 6, dpi = 500, units =c("in"))
 
-###################################################### Q2 Day 7 Order NONINFnm vs INFnm #####################################################
+###################################################### Q2 Day 14 Order NONINFnm vs INFnm #####################################################
 
 FS9.order <- tax_glom(FS9, 'Order')
 order_tab <- as.data.frame(t(FS9.order@otu_table)) #Transpose 'FS9.order' by "otu_table"
@@ -256,14 +256,14 @@ head(fobar.order)
 fobar.gather.order <- fobar.order %>% gather(Order, value, -(group:All))
 head(fobar.gather.order)
 
-#Reorder days -3 to 7 in 'fobar.gather' plot
-fobar.gather.order$Day <- factor(fobar.gather.order$Day, levels=c("DNEG3", "D0", "D4", "D7"))
-levels(sample_data(fobar.gather.order)$Day) #"DNEG3" "D0"    "D4"    "D7"  
+#Reorder days 4 to 14 in 'fobar.gather' plot
+fobar.gather.order$Day <- factor(fobar.gather.order$Day, levels=c("D4", "D7", "D11", "D14"))
+levels(sample_data(fobar.gather.order)$Day) #"D4"  "D7"  "D11" "D14"
 
-#Remove DNEG3, D0, D4, NONINFnm
+#Remove D4, D7, D11, NONINFnm
 fobar.gather.order.2 <- fobar.gather.order %>% 
     select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value") %>% 
-    filter(Day == "D7") %>% 
+    filter(Day == "D14") %>% 
     filter(Treatment != "NONINFnm")
 
 unique(fobar.gather.order.2$Treatment) #"INFfeed"   "INFinject" "INFnm"
@@ -280,26 +280,26 @@ fobar.gather.order.2 <- fobar.gather.order.2 %>% group_by(All) %>% mutate(value2
 
 unique(fobar.gather.order.2$Order) #33 unique orders
 
-#Day 7 Order Figure: only Coriobacteriales, Mollicutes_RF39, and Verrucomicrobiales have % total community figures that match with DESeq2 data.
+#Day 14 Order Figure: only Coriobacteriales, Mollicutes_RF39, and Verrucomicrobiales have % total community figures that match with DESeq2 data.
 #Therefore, I will make a DESeq2-only figure that highlights all orders for Q2 D4, D7 that pass the log2-fold change > 0.25.
 #Make figure that shows enriched in "INFfeed", "INFinject" or depleted in "INFfeed", "INFinject"
-OrderFig_D7_2 <- fobar.gather.order.2 %>% filter(Day == "D7") %>% 
+(OrderFig_D14_2 <- fobar.gather.order.2 %>% filter(Day == "D14") %>% 
     select("group", "Day", "Pig", "Treatment", "Sample.type", "All", "Order", "value2") %>% 
-    #filter(Order %in% c("Mollicutes_RF39", "Verrucomicrobiales", "Coriobacteriales")) %>% 
+    filter(Order %in% c("Mollicutes_RF39", "Verrucomicrobiales", "Coriobacteriales", "Gammaproteobacteria_unclassified", "Rhodospirillales")) %>% 
     ggplot(aes(x=Treatment, y=value2, group=All, fill=Treatment)) +
     geom_boxplot(position = 'identity') +
     geom_jitter(shape=21, width = .15)+
+    theme(axis.title.x = element_blank(),
+          axis.text.x = element_blank()) +
     facet_wrap("Order", scales = "free") +
     ylab('Percent of Total Community') +
     xlab ('') +
     theme(plot.title = element_text(hjust = 0.5)) +
-    theme(axis.title.x = element_blank()) +
-          #axis.text.x=element_text(angle=45, hjust=1),
-          #legend.text = element_text(face = "italic")) +
     guides(fill= guide_legend(ncol = 1)) +
-    scale_fill_manual(values = c(INFnm='#CC0066', INFfeed='#999999', INFinject='#E69F00')) +
-    theme_bw()
-OrderFig_D7_2
+    scale_fill_manual(values = c(INFinject='#00BA38',
+                                 INFnm='#F8766D',
+                                 INFfeed='#619CFF')) +
+    theme_bw())
 
 
 ###################################################### Phylum 3 Infected groups #####################################################
