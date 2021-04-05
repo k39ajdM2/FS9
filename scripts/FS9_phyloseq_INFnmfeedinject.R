@@ -16,8 +16,6 @@ library(phyloseq)
 sessionInfo()
 #R version 4.0.2 (2020-06-22)
 
-#########################################
-
 #Read files for metadata and OTU table
 meta <- read.csv("./data/FS9_metadata_INF_InjectFeedNM.csv", row.names = 1)
 otu <- read.csv("./data/FS9.OTUtable.doubleton.csv", row.names=1)
@@ -149,9 +147,7 @@ phyloseq.FS9
 #sample_data() Sample Data:       [ 72 samples by 5 sample variables ]
 #tax_table()   Taxonomy Table:    [ 1042 taxa by 6 taxonomic ranks ]
 
-save(phyloseq.FS9, file="phyloseq.FS9.doubleton.RData") #Use for FS9_alpha_beta_diversity.R when loading phyloseq.FS9 object
-
-###############################################################################
+#save(phyloseq.FS9, file="phyloseq.FS9.doubleton.RData") #Use for FS9_alpha_beta_diversity.R when loading phyloseq.FS9 object
 
 #Distance calculation
 phyloseq.vegdistq2 <- vegdist(phyloseq.FS9@otu_table, method="bray") 

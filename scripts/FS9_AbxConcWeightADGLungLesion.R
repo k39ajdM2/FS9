@@ -1,9 +1,8 @@
 #####################################################################################################
-#FS9 Antibiotic concentration, weight, average daily gain, Bordetella bronchiseptica and Pasteurella multocida colonization, lung lesion
+#FS9 Antibiotic concentration, weight, average daily gain (ADG), lung lesion
 #Kathy Mou
 
-#Purpose: This code graphs concentration of oxytetracycline of each tissue for each group and also relative to weight; ADG, B. bronchiseptica and
-#P. multocida colonization in each tissue; lung lesion
+#Purpose: This code graphs concentration of oxytetracycline in each tissue for each group and also relative to weight, ADG, and lung lesion
 #This was taken from Jules' code (FS1_ABX_conc.R) with some modifications to fit FS9 dataset.
 
 #Load library packages
@@ -37,8 +36,8 @@ tis.melt$Tissue <- ifelse(tis.melt$variable == 'PlasmaOxytet', 'Plasma',
 unique(tis.melt$Treatment)
 tis.melt$Treatment <- factor(tis.melt$Treatment, levels = c('NONINFnm', 'INFnm', 'INFinject', 'INFfeed'))
 
-######################################################################################################################################################
-#Oxytetracycline Levels, Weight
+#######################################################################################################################################
+#Oxytetracycline Levels, Weight (Figure 3)
 
 #Plasma oxytetracycline only
 plasmaoxytet <- tis.melt %>% filter(Tissue == 'Plasma') %>% filter(Treatment %in% c('INFinject', "INFfeed")) %>% 
@@ -157,107 +156,10 @@ fig_3
 
 ggsave("Fig3_OxytetLevelsWeight.tiff", plot=fig_3, width = 10, height = 8, dpi = 200, units =c("in"))
 
-########################################################################################################
-#Colonization
 
-# install.packages("mdthemes")
-library("mdthemes")
-
-#Import file
-bb <- read.csv('./data/FS9_Bordetella_bronchiseptica_colonization.csv', stringsAsFactors = FALSE)  # reads in data, already cleaned a little
-pm <- read.csv('./data/FS9_Pasteurella_multocida_colonization.csv', stringsAsFactors = FALSE)
-
-#Bordetella
-bb2 <- pivot_longer(bb, cols=c("Nasal._Wash", "Tonsil", "Tracheal_Wash", "Lung_Lavage", "Lung_Tissue"), names_to="Sample", values_to="log10CFU/g_or_mL")
-bb2$Sample <- as.character((bb2$Sample))
-bb2$Sample[bb2$Sample == "Nasal._Wash"] <- "Nasal_Wash"
-colnames(bb2)
-names(bb2)[names(bb2)== "log10CFU/g_or_mL"] <- "log10CFU"
-
-#Samples
-bb2 %>% filter(Sample == 'Nasal_Wash') %>%
-  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#00BA38',
-                                INFnm='#F8766D',
-                                INFfeed='#619CFF')) +
-  geom_boxplot() + ylab('Bordetella bronchiseptica log10CFU per mL in nasal wash')
-
-bb2 %>% filter(Sample == 'Tonsil') %>%
-  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#00BA38',
-                                INFnm='#F8766D',
-                                INFfeed='#619CFF')) +
-  geom_boxplot() + ylab('Bordetella bronchiseptica log10CFU per gram in tonsil')
-
-bb2 %>% filter(Sample == 'Tracheal_Wash') %>%
-  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#00BA38',
-                                INFnm='#F8766D',
-                                INFfeed='#619CFF')) +
-  geom_boxplot() + ylab('Bordetella bronchiseptica log10CFU per mL in tracheal wash')
-
-bb2 %>% filter(Sample == 'Lung_Lavage') %>%
-  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#00BA38',
-                                INFnm='#F8766D',
-                                INFfeed='#619CFF')) +
-  geom_boxplot() + ylab('Bordetella bronchiseptica log10CFU per mL in lung lavage')
-
-bb2 %>% filter(Sample == 'Lung_Tissue') %>%
-  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#00BA38',
-                                INFnm='#F8766D',
-                                INFfeed='#619CFF')) +
-  geom_boxplot() + ylab('Bordetella bronchiseptica log10CFU per gram in lung tissue')
-
-stats <- bb2 %>% 
-  group_by(Treatment, Day, Sample) %>% 
-  summarise(Sum=sum(log10CFU, na.rm = TRUE), Mean=(mean(log10CFU, na.rm = TRUE)), sd = sd(log10CFU, na.rm = TRUE))
-stats$sd <- round(stats$sd, 3)
-stats$Mean <- round(stats$Mean, 3)
-stats$meanSD <- with(stats, paste0(Mean, sep="+/-", sd)) 
-write.csv(stats, file= "FS9_Q2_Bordetella_colonizationstats.csv")
-
-#Pasteurella
-pm2 <- pivot_longer(pm, cols=c("Nasal_Wash", "Tonsil"), names_to="Sample", values_to="log10CFU")
-pm2$Sample <- as.character((pm2$Sample))
-colnames(pm2)
-
-#Nasal wash
-pm_nasal <- pm2 %>% filter(Sample == 'Nasal_Wash') %>%
-  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#00BA38',
-                                INFnm='#F8766D',
-                                INFfeed='#619CFF')) +
-  geom_boxplot() + labs(y= '*Pasteurella multocida* log10CFU per mL in nasal wash') + md_theme_linedraw() +
-  ylim(0, 7)
-pm_nasal
-ggsave(pm_nasal,
-       filename = './figure_Pm_nasal.jpeg',
-       width = 120,
-       height = 140,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
-
-#Tonsil
-pm2 %>% filter(Sample == 'Tonsil') %>%
-  ggplot(aes(x=Day, y=log10CFU, color=Treatment)) +
-  scale_color_manual(values = c(INFinject='#00BA38',
-                                INFnm='#F8766D',
-                                INFfeed='#619CFF')) +
-  geom_boxplot() + ylab('Pasteurella multocida log10CFU per gram in tonsil') + md_theme_linedraw()
-
-stats2 <- pm2 %>% 
-  group_by(Treatment, Day, Sample) %>% 
-  summarise(Sum=sum(log10CFU, na.rm = TRUE), Mean=(mean(log10CFU, na.rm = TRUE)), sd = sd(log10CFU, na.rm = TRUE))
-stats2$sd <- round(stats2$sd, 3)
-stats2$Mean <- round(stats2$Mean, 3)
-stats2$meanSD <- with(stats2, paste0(Mean, sep=" + ", sd)) 
-write.csv(stats2, file= "FS9_Q2_Pasteurella_colonizationstats.csv")
 
 ########################################################################################################
-#ADG
+#ADG (Figure 2)
 
 #Import file
 adg <- read.csv('./data/FS9_AverageDailyGain.csv', stringsAsFactors = FALSE)
@@ -332,7 +234,7 @@ fig_adg3plots
 ggsave("Fig2_ADG_abc.tiff", plot=fig_adg3plots, width = 15, height = 5, dpi = 500, units =c("in"))
 
 ########################################################################################################
-#Lung Lesion
+#Lung Lesion (Supplemental Figure)
 
 lung <- read.csv('./data/FS9_LungLesionScores.csv', stringsAsFactors = FALSE)
 colnames(lung)
@@ -353,23 +255,9 @@ fig_lung <- lung %>%
   theme_bw()
 fig_lung
 
-#Attempting to add significance bar with geom_signif package, but the line and asterisk 
-#keeps coming out as blue color. Not sure how to make it a different color.
-#fig_lung + geom_signif(
-#  y_position = c(7.5), xmin = c(2.1), xmax = c(2.4),
-#  annotation = c("*"), tip_length = 0, textsize = 5)
-
 stats <- lung %>% 
   group_by(lung$Treatment, Day) %>% 
   summarise(Sum=sum(WeightedAverage), Mean=(mean(WeightedAverage)), sd = sd(WeightedAverage), se = sd(WeightedAverage)/sqrt(n()))
 write.csv(stats, file= "FS9_LungLesionStats.csv")
 
 ggsave("SuppFig1_LungLesionSeverity.tiff", plot=fig_lung, width = 5, height = 7, dpi = 500, units =c("in"))
-
-#ggsave(fig_lung,
-#       filename = './figure_lung.jpeg',
-#       width = 160,
-#       height = 200,
-#       device = 'jpeg',
-#       dpi = 300,
-#       units = 'mm')

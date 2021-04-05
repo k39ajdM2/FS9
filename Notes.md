@@ -2,7 +2,7 @@
 
 ## To-do:
 1. Make new SRA submission for BioProject PRJNA693865 adding mock + NTC fastq files and associated metadata.
-2. Prepare public version of FS9 repo saving only the relevant code (all old code - save in a separate repo?)
+2. Prepare public version of FS9 repo saving only the relevant code (all old code - save in separate repo)
 
 ## BioProject PRJNA693865 SRA submission modification
 

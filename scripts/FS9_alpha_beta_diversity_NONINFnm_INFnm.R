@@ -1,10 +1,9 @@
 #######################################################################
-#FS9 16S alpha and beta diversity - Noninfected (NONINF) vs Infected (INF) (days -3, 0)
+#FS9 16S alpha and beta diversity - NONINFnm vs INFnm days 7, 11, 14 only
 #Kathy Mou
 
 #NOTES: 
-#This code analyzes alpha and beta diversity statistics for fecal samples from infected pigs (INFnm, INFfeed, INFinject) 
-#and non-infected pigs (NONINFnm)on days -3, 0; and associated plots
+#This code analyzes alpha and beta diversity statistics for fecal samples from days 7, 11, and 14 of NONINFnm and INFnm groups; and associated plots
 #This script uses files created in "FS9_phyloseq.R"
 
 #Clear workspace and load necessary packages
@@ -112,10 +111,7 @@ pairwise.adonis <- function(x,factors, sim.method = 'bray', p.adjust.m = 'none',
   return(pairw.res)
 }
 
-###########################################################################################################
-#Load 'phyloseq.FS9.RData' into environment
-load('./data/phyloseq.FS9.doubleton.RData')
-
+################################# Days 7, 11, and 14 only ################################
 #Setting up 'phyloseq' into dataframes for NMDS calculation
 meta <- data.frame(phyloseq.FS9@sam_data) #Make 'phyloseq.FS9' sam_data into dataframe
 otu <- data.frame((phyloseq.FS9@otu_table)) #Make 'phyloseq.FS9' otu_table into dataframe
@@ -126,10 +122,10 @@ head(meta)
 
 #NMDS calculation (aka beta diversity)
 otu[1:10,1:10]
-dim(otu) #166 1582 (singletons removed) 105 1223 (doubletons removed)
+dim(otu) #45 901 (doubletons removed)
 NMDS <- NMDS_ellipse(meta, otu, grouping_set = 'All')
 #Output:
-#[1] "Ordination stress: 0.194361182108003"
+#[1] "Ordination stress: 0.180271655110505"
 
 #Separate meta data and ellipse data to two lists to make NMDS plot
 head(NMDS)
@@ -145,47 +141,14 @@ df_ell <- df_ell %>% separate(group, into=c("Day","Treatment"), sep="_", remove=
 View(df_ell)
 
 #Restructure level order for 'metanmds' and 'df_ell'
-unique(metanmds$Day) #DNEG3 D0  
-unique(df_ell$Day) #"D0"  "DNEG3" 
-metanmds$Day = factor(metanmds$Day, levels = c("DNEG3", "D0"))
-df_ell$Day = factor(df_ell$Day, levels = c("DNEG3", "D0"))
-levels(df_ell$Day) #"DNEG3" "D0" 
-levels(metanmds$Day) #"DNEG3" "D0" 
-
-#Creating NMDS day+treatment plot from NMDS calculations
-nmdsplot <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
-  geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = 0.5) + 
-  geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment, group=group)) + 
-  facet_wrap(~Day, scales = 'free') +
-  #scale_color_brewer(palette="Dark2") +
-  theme_gray(base_size = 10) +
-  theme(strip.text.x = element_text(size=15), axis.text.x = element_text(size=13), axis.text.y = element_text(size=13), axis.title.x = element_text(size=14), axis.title.y = element_text(size=14), legend.text=element_text(size=14), legend.title=element_text(size=14)) +
-  labs(color="Treatment group")+
-  scale_color_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
-  labs(caption = 'Ordination stress = 0.194')
-#nmdsplot2 <- nmdsplot + scale_colour_manual(values=c("#E69F00", "#56B4E9")) + theme(legend.position = "right")
-nmdsplot
-#Save 'nmdsplot' as a .tiff for publication, 500dpi
-#ggsave("NMDS_DayAndTreatment.tiff", plot=nmdsplot, width = 11, height = 5, dpi = 500, units =c("in"))
-
-#Creating NMDS day plot from NMDS calculations
-nmdsplot_day <- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Day)) + geom_point() + 
-  geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
-  geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Day, group=group)) + 
-  labs(caption = 'Ordination stress = 0.194') 
-nmdsplot_day
-#Save 'nmdsplot_day' as a .tiff for publication, 500dpi
-#ggsave("NMDS_Day.tiff", plot=nmdsplot_day, width = 10, height = 6, dpi = 500, units =c("in"))
-
-#Creating NMDS treatment plot from NMDS calculations
-nmdsplot_treatment<- ggplot(data=metanmds, aes(x=MDS1, y=MDS2, color=Treatment)) + geom_point() + 
-  geom_segment(aes(x=MDS1, xend=centroidX, y=MDS2, yend=centroidY), alpha = .5) + 
-  geom_path(data=df_ell, aes(x=NMDS1, y=NMDS2, color=Treatment, group=group)) + 
-  scale_color_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
-  labs(caption = 'Ordination stress = 0.194')  
-nmdsplot_treatment
-#Save 'nmdsplot_treatment' as a .tiff for publication, 500dpi
-#ggsave("NMDS_Treatment.tiff", plot=nmdsplot_treatment, width = 10, height = 6, dpi = 500, units =c("in"))
+unique(metanmds$Day) #"D11" "D7"  "D14"
+unique(df_ell$Day) #"D11" "D7"  "D14"
+metanmds$Day = factor(metanmds$Day, levels = c("D7", "D11","D14"))
+df_ell$Day = factor(df_ell$Day, levels = c("D7", "D11","D14"))
+levels(df_ell$Day) #"D7"  "D11" "D14"
+levels(metanmds$Day) #"D7"  "D11" "D14"
+dim(metanmds) #45 10
+dim(df_ell) #606 5
 
 #All points, all days, all treatments, samples that aren't relevant are grayed out on plot
 #Plotting with gridlines and axes, gray points for All days
@@ -206,18 +169,17 @@ nmdsplot_treatment2<- ggplot(metanmds, aes(x=MDS1, y=MDS2)) +  annotate(x=metanm
         panel.border = element_rect(fill = NA, color = 'grey57'),
         axis.line = element_blank()) + facet_wrap(~Day) +
   theme_bw() +
-  scale_color_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
-  labs(caption = 'Ordination stress = 0.194', color="Treatment group")
+  scale_color_manual(values = c(INFnm='#619CFF', NONINFnm="#C77CFF")) +
+  labs(caption = 'Ordination stress = 0.18', color="Treatment group")
 nmdsplot_treatment2
-#Save 'nmdsplot_treatment2' as a .tiff for publication, 500dpi
-#ggsave("NMDS_DayAndTreatment_AllSamples.tiff", plot=nmdsplot_treatment2, width = 10, height = 6, dpi = 500, units =c("in"))
 
 #Using pairwise.adonis function (beta diversity)
 adon <- pairwise.adonis(otu, meta$All) #Run pairwise.adonis on 'otu' OTU table and "All" column of 'meta' dataframe
 #adon contains all the pairwise comparisons
 adon$pairs #List all comparisons in the "pairs" column of 'nw.adon'
-goodcomps <- c(grep('DNEG3_[A-Za-z]+ vs DNEG3_[A-Za-z]+', adon$pairs),
-               grep('D0_[A-Za-z]+ vs D0_[A-Za-z]+', adon$pairs))
+goodcomps <- c(grep('D7_[A-Za-z]+ vs D7_[A-Za-z]+', adon$pairs),
+               grep('D11_[A-Za-z]+ vs D11_[A-Za-z]+', adon$pairs),
+               grep('D14_[A-Za-z]+ vs D14_[A-Za-z]+', adon$pairs))
 # "[A-Za-z]" matches all capital and lowercase letters
 # "+" matches a whole word and not just one letter (if you didn't have "+", then it would match by one letter)
 # "c" creates the vector, lumps all pairs of specific groups of interest together
@@ -227,29 +189,29 @@ adon.good
 adon.good$p.adjusted <- p.adjust(adon.good$p.value, method = 'fdr') #"p.adjust" function returns a set of p-values adjusted with "fdr" method
 adon.good$p.adjusted2 <- round(adon.good$p.adjusted, 3) #Round p-values to 3 decimal points and list in new "p.adjusted2" column
 adon.good$p.adjusted2[adon.good$p.adjusted2 > 0.05] <- NA #For all p-values greater than 0.05, replace with "NA"
-write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.Q1.doubletons.txt', row.names=TRUE)
-
-
-
+write.csv(adon.good, file='FS9.WithinDayPairwiseComparisons.Q1.doubletons.D7D11D14.txt', row.names=TRUE)
+#No differences on days 7, 11, and 14
 
 #Alpha diversity
 #Calculating alpha diversity metrics: Shannon, Inverse Simpson
 meta$shannon <- diversity(otu) #"diversity" is a vegan function. The default index is set at "shannon". I added a shannon index column in 'meta'
 meta$invsimpson <- diversity(otu,index = 'invsimpson') #We used 'invsimpson' since it is easier to interpret than Simpson values and won't need to "inverse" the Simpson values to understand (With Simpson values, the lower the number, the higher the diversity)
 levels(sample_data(meta)$Day)
-meta$Day = factor(meta$Day, levels = c("DNEG3", "D0"))  # Set the level order of values in "Day" column
-levels(sample_data(meta)$Day) #"DNEG3" "D0"
+meta$Day = factor(meta$Day, levels = c("D7", "D11", "D14"))  # Set the level order of values in "Day" column
+levels(sample_data(meta)$Day) #"D7"  "D11" "D14"
 
 #Calculate the average shannon, invsimpson, numOTUs for each "All" subtype within meta
 shannon.invsimpson.numOTUs <- aggregate(meta[, 6:8], list(meta$All), mean)
 print(shannon.invsimpson.numOTUs)
 #Output (singletons removed):
 #        Group.1    numOTUS   shannon    invsimpson
-#1       D0_INF     84.92000  3.358896   16.38037
-#2    D0_NONINF     71.33333  3.089266   13.27419
-#3    DNEG3_INF     100.40741 3.895313   26.05418
-#4 DNEG3_NONINF     97.64706  3.864239   25.32537
-write.csv(shannon.invsimpson.numOTUs, file="FS9.shannon.invsimpson.num.OTUs.doubletons.txt", row.names=TRUE)
+#1    D11_INFnm 79.66667 3.202696  11.903607
+#2 D11_NONINFnm 77.60000 3.117897   9.115051
+#3    D14_INFnm 94.80000 3.661901  19.286844
+#4 D14_NONINFnm 92.37500 3.770617  18.321736
+#5     D7_INFnm 83.00000 3.153554  15.628239
+#6  D7_NONINFnm 71.33333 3.089266  13.274195
+write.csv(shannon.invsimpson.numOTUs, file="FS9.Q1.D7D11D14.shannon.invsimpson.num.OTUs.doubletons.txt", row.names=TRUE)
 
 #Shannon
 pairwise.wilcox.shannon.test <- pairwise.wilcox.test(meta$shannon, meta$All, p.adjust.method = 'none') #Calculate pairwise comparisons by "All" column of the shannon indices in "Shannon" column
@@ -259,8 +221,10 @@ print(pairwise.wilcox.shannon.test) #Look at the results of 'pairwise.wilcox.sha
 pairwise.wilcox.invsimpson.test <- pairwise.wilcox.test(meta$invsimpson, meta$All, p.adjust.method = 'none')
 print(pairwise.wilcox.invsimpson.test)
 
-#Generate a box and whisker plot of shannon (both shannon and inverse simpson diversity indices showed same trends: 
+# both shannon and inverse simpson diversity indices showed same trends: 
 #no significant differences between treatment groups within a day)
+
+#Generate a box and whisker plot of shannon
 shan <- ggplot(data = meta, aes(x=All, y=shannon, group=All, fill=Treatment)) +
   geom_boxplot(position = position_dodge2(preserve = 'total')) +
   facet_wrap(~Day, scales = 'free') +
@@ -269,14 +233,11 @@ shan <- ggplot(data = meta, aes(x=All, y=shannon, group=All, fill=Treatment)) +
         axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
         strip.text.x = element_text(size=14),
         axis.title.y = element_text(size=15)) +
-  scale_fill_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
+  scale_fill_manual(values = c(INFnm='#F8766D', NONINFnm="#C77CFF")) +
   theme(legend.position = "none")
 shan
 # "free" within "facet_wrap" allows each plot to customize the scale to the specific data set (no forced scaling applied to all plots)
 # "position = position_dodge2(preserve = 'total')" fixes the ggplot box width, making them wider, prevents narrow boxes from forming in the plot
-
-#Save 'shan' as a .tiff for publication, 500dpi
-#ggsave("FS9_Shannon.tiff", plot=shan, width = 7, height = 7, dpi = 500, units =c("in"))
 
 #Generate a box and whisker plot of inverse simpson 
 invsimp <- ggplot(data = meta, aes(x=All, y=invsimpson, group=All, fill=Treatment)) +
@@ -287,17 +248,6 @@ invsimp <- ggplot(data = meta, aes(x=All, y=invsimpson, group=All, fill=Treatmen
         axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
         strip.text.x = element_text(size=14),
         axis.title.y = element_text(size=15)) +
-  scale_fill_manual(values = c(INF='#CC0066', NONINF='#56B4E9')) +
+  scale_fill_manual(values = c(INFnm='#F8766D', NONINFnm="#C77CFF")) +
   theme(legend.position = "none")
 invsimp
-#Save 'invsimp' as a .tiff for publication, 500dpi
-#ggsave("FS9_InverseSimpson.tiff", plot=invsimp, width = 7, height = 7, dpi = 500, units =c("in"))
-
-alphadiv <- plot_grid(shan, invsimp, labels = c('A', 'B'), label_size = 12) #How to fix plot dimensions so that y-axis labels doesn't overlap the plots?
-ggsave(alphadiv,
-       filename = './results/alpha_diversity_NONINFvsINF.jpeg',
-       width = 300,
-       height = 120,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')

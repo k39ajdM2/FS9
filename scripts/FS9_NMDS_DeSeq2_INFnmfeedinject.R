@@ -1,8 +1,8 @@
 #####################################################################################################
-#FS9NMDS plot and DeSeq2 Order plot combined into one figure for Q2 days 7, 11, 14 - Infected: nm vs feed or inject.
+#FS9 NMDS plot and DeSeq2 (order level) plot combined into one figure for days 7, 11, 14 - Infected: nm vs feed or inject.
 #Kathy Mou
 
-#Purpose: Combine NMDS figure and PERMANOVA F magnitude of change figure for Q2 day 7, 11, 14 into one using cowplot package
+#Purpose: Combine NMDS figure and PERMANOVA F magnitude of change figure for INFnm vs INFfeed vs INFinject on days 7, 11, 14 into one using cowplot package
 
 #File needed:
 #FS9_Q2_MagnitudeOfChange.csv
@@ -450,4 +450,4 @@ deseqfinalplot
 Fig4ab<- plot_grid(nmdsplot_treatment2, deseqfinalplot, labels = c('A', 'B'), label_size = 18, ncol=1)
 Fig4ab
 
-ggsave("Q2_INFnm_inject_feed_NMDS_DESeq2.tiff", plot=Fig4ab, width = 10, height = 9, dpi = 500, units =c("in"))
+ggsave("INFnm_inject_feed_NMDS_DESeq2.tiff", plot=Fig4ab, width = 10, height = 9, dpi = 500, units =c("in"))

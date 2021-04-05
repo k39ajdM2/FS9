@@ -19,7 +19,7 @@ sessionInfo()
 
 tet32 <- read.csv('./data/FS9_tet32_qPCR_results.csv', stringsAsFactors = FALSE)
 tetw <- read.csv('./data/FS9_tetW_qPCR_results.csv', stringsAsFactors = FALSE)
-aph2 <- read.csv('./data/FS9_aph2_qPCR_results_Amali.csv', stringsAsFactors = FALSE)
+aph2 <- read.csv('./data/FS9_aph2_qPCR_results.csv', stringsAsFactors = FALSE)
 tet32$Day <- factor(tet32$Day, levels=c("7", "11", "14"))
 tetw$Day <- factor(tetw$Day, levels=c("7", "11", "14"))
 aph2$Day <- factor(aph2$Day, levels=c("7", "11", "14"))

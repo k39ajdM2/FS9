@@ -61,7 +61,7 @@ FS9.order <- tax_glom(FS9, taxrank = "Order")
 
 ##################################################################################################################################
 
-##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (ORDER LEVEL) BETWEEN TREATMENTS ###################################
+##################################### SIGNIFICANT CHANGES IN ABUNDANCE OF ORGANISMS (ORDER LEVEL) BETWEEN TREATMENTS #############
 
 ##################################################### Day 7 ######################################################################
 
@@ -315,7 +315,7 @@ final.sigtab <- rbind(final.sigtab.ji, sigtab.D14.oi)
 
 
 
-################### Create plot containing all significant orders with log2-fold changes > 0.25 for Q2 DeSeq2 results
+################### Create plot containing all significant orders with log2-fold changes > 0.25 for DeSeq2 results
 
 #ggplot
 deseqfinalplot <- ggplot(final.sigtab, aes(x=reorder(rownames(final.sigtab), log2FoldChange), y=log2FoldChange, fill = Treatment)) +

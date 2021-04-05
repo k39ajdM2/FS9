@@ -1,2 +1,0 @@
-"","baseMean","log2FoldChange","lfcSE","pvalue","padj","Kingdom","Phylum","Class","Order","Family","Genus","newp","Treatment","OTU","comp"
-"Otu0112",12.8134036685803,8.25769357270662e-07,0.00144269514626813,0.000614964346225792,0.0252135381952575,"Bacteria","Verrucomicrobia","Verrucomicrobiae","Verrucomicrobiales",NA,NA,"2.5e-02","INF","Otu0112","D0_INF_vs_NONINF"
