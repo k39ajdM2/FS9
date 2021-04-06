@@ -1,0 +1,258 @@
+---
+title: "FS9 report"
+author: "Created by: K. T. Mou"
+date: "Updated on: 6Apr2021"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+***
+# mothur
+**Goal**: Process 16S rRNA sequence data and generate output for R scripts.
+1. Used mothur version 1.40.1, silva release version 132 taxonomy, and fasta files.
+  - silva.nr_v132.tax
+  - silva.nr_v132.pcr.align (renamed as silva.v4.fasta)
+  - *.fastq
+2. Run the following commands in same directory where fastq files are. 
+3. Load mothur program.
+
+<details><summary>Mothur commands</summary>
+```{r echo=TRUE, eval=FALSE}
+make.file(inputdir=/project/fastq/, type=fastq, prefix=stability)
+
+make.contigs(file=stability.files, processors=40)
+
+summary.seqs(fasta=stability.trim.contigs.fasta)
+
+screen.seqs(fasta=stability.trim.contigs.fasta, maxambig=0, maxlength=275, maxhomop=6, group=stability.contigs.groups)
+
+summary.seqs(fasta=current)
+
+unique.seqs(fasta=stability.trim.contigs.good.fasta)
+
+count.seqs(name=current, group=stability.contigs.good.groups)
+
+summary.seqs(count=current, fasta=current, processors=39)
+
+pcr.seqs(fasta=silva.nr_v132.align, start=11894, end=25319, keepdots=F)
+
+rename.file(input=silva.nr_v132.pcr.align, new=silva.v4.fasta)
+
+summary.seqs(fasta=silva.v4.fasta)
+
+align.seqs(fasta=stability.trim.contigs.good.unique.fasta, reference=silva.v4.fasta, flip=T)
+
+summary.seqs(fasta=current, count=stability.trim.contigs.good.count_table)
+
+screen.seqs(fasta=stability.trim.contigs.good.unique.align, count=stability.trim.contigs.good.count_table, start=1968, end=11550, maxhomop=6)
+
+summary.seqs(fasta=current, count=current)
+
+filter.seqs(fasta=stability.trim.contigs.good.unique.good.align, vertical=T, trump=.)
+
+unique.seqs(fasta=stability.trim.contigs.good.unique.good.filter.fasta, count=stability.trim.contigs.good.good.count_table)
+
+pre.cluster(fasta=current, count=current, diffs=2)
+
+chimera.vsearch(fasta=current, count=current, dereplicate=t)
+
+remove.seqs(fasta=current, accnos=current)
+
+summary.seqs(fasta=current, count=current)
+
+classify.seqs(fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.fasta, count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.count_table, reference=silva.v4.fasta, taxonomy=silva.nr_v132.tax, cutoff=80)
+
+remove.lineage(fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.fasta, count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.count_table, taxonomy=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.nr_v132.wang.taxonomy, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)
+
+summary.tax(taxonomy=current, count=current)
+
+get.groups(count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.count_table, fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta, groups=Mock5)
+
+seq.error(fasta=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.fasta, count=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.pick.count_table, reference=mock_community_16S3.fna, aligned=F)
+
+#Rename these files to use for split.abund command (remove sequences with 2 or fewer occurrences)
+#rename.file(input=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta, new=stability.outdoubletons.fasta)
+#rename.file(input=stability.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.count_table, new=stability.outdoubletons.count_table)
+
+#Remove Mock group
+remove.groups(count=stability.outdoubletons.count_table, fasta=stability.outdoubletons.fasta, taxonomy=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.nr_v132.wang.pick.taxonomy, groups=Mock5)
+
+#Split out doubletons from fasta and count table data (they'll be put in the "rare" files)
+split.abund(fasta=stability.outdoubletons.fasta, count=stability.outdoubletons.count_table, cutoff=2, accnos=true)
+
+dist.seqs(fasta=stability.outdoubletons.abund.fasta, cutoff=0.03)
+
+cluster(column=current, count=stability.outdoubletons.abund.count_table)
+
+make.shared(list=current, count=stability.outdoubletons.abund.count_table, label=0.03)
+
+classify.otu(list=stability.outdoubletons.abund.opti_mcc.list, count=stability.outdoubletons.abund.count_table, taxonomy=stability.trim.contigs.good.unique.good.filter.unique.precluster.pick.nr_v132.wang.pick.taxonomy, label=0.03)
+
+count.groups(shared=stability.outdoubletons.abund.opti_mcc.shared)
+
+sub.sample(shared=stability.outdoubletons.abund.opti_mcc.shared, size=1300)
+```
+</details>
+
+## Prepare OTU table
+1. Create R Project.
+2. Files needed to make OTU table:
+- stability.outdoubletons.abund.opti_mcc.0.03.cons.taxonomy
+  - Save "stability.outdoubletons.abund.opti_mcc.0.03.cons.taxonomy" as a csv file in a spreadsheet editor
+- stability.outdoubletons.abund.opti_mcc.0.03.subsample.shared
+  - Save "stability.outdoubletons.abund.opti_mcc.0.03.subsample.shared" as a csv file in a spreadsheet editor; remove "label", and "numOtus" rows
+3. Run the files through the following R script.
+
+<details><summary>1_OTUtable.R script</summary>
+```{r echo=TRUE, eval=FALSE}
+#Load library packages
+library(tidyverse)
+
+#########################################
+
+#Edit taxonomy file
+taxonomy <- read.csv("./data/stability.outdoubletons.abund.opti_mcc.0.03.cons.taxonomy.csv")
+taxonomy
+taxonomy$Taxonomy <- gsub('*\\(.*?\\) *', '', taxonomy$Taxonomy) #Remove (100) from "Taxonomy" column
+taxonomy
+taxonomy[1:6,3] #Show Taxonomy column rows 1 through 6
+write.csv(taxonomy, file = "FS9.taxonomy.doubleton.csv") #In excel, remove the "Size" and numbered rownames
+
+#Edit subsample.shared file
+shared <- read.csv("./data/stability.outdoubletons.abund.opti_mcc.0.03.subsample.shared.csv")
+head(shared)
+shared[1:6,1]
+shared <- t(shared) #Transpose
+head(shared)
+shared[1:6,1]
+write.csv(shared, file = 'FS9.subsample.shared.doubleton.csv') #Open in a spreadsheet editor and remove the "V*" row
+
+#Read new subsample.shared file and edit column name
+shared <- read.csv("./data/FS9.subsample.shared.doubleton.csv")
+head(shared)
+colnames(shared) [1] <- "OTU" #Rename first column to "OTU"
+
+#Read new taxonomy file and merge with 'shared' dataframe
+taxonomy <- read.csv("./data/FS9.taxonomy.doubleton.csv")
+OTUtable <- merge(shared, taxonomy, by.x ="OTU", by.y = "OTU") #Merge 'shared' and 'taxonomy' via "OTU"
+head(OTUtable)
+nrow(OTUtable) #1583 (singletons removed), 1405 (doubletons removed)
+ncol(OTUtable) #170 (singletons removed), 169 (doubletons removed)
+write.csv(OTUtable, file= "FS9.OTUtable.doubleton.csv") #In a spreadsheet editor, open "FS9.OTUtable.doubleton.csv" and remove first column (unnecessary)
+
+#check OTU table
+OTUtable <-read.csv("./data/FS9.OTUtable.doubleton.csv")
+head(OTUtable)
+```
+</details>
+
+***
+# phyloseq
+**Goal**: Generate phyloseq object to use for 3a_alpha_beta_diversity_NONINFnm_INFnm.R and 3b_alpha_beta_diversity_INFnmfeedinject.R. Run adonis function with distance matrices to assess how variation is attributed to different experimental treatments or uncontrolled covariates.
+
+## NONINFnm vs INFnm
+<details><summary>2a_phyloseq_NONINFnm_INFnm.R</summary>
+```{r echo=TRUE, eval=FALSE}
+#Load library packages
+
+#########################################
+
+```
+</details>
+
+## INFnm vs INFfeed vs INFinject
+<details><summary>2b_phyloseq_INFnmfeedinject.R</summary>
+```{r echo=TRUE, eval=FALSE}
+#Load library packages
+
+#########################################
+
+```
+</details>
+
+***
+# alpha and beta diversity
+**Goal**:
+
+## NONINFnm vs INFnm
+<details><summary>3a_alpha_beta_diversity_NONINFnm_INFnm.R</summary>
+```{r echo=TRUE, eval=FALSE}
+#Load library packages
+
+#########################################
+
+```
+</details>
+
+## INFnm vs INFfeed vs INFinject
+<details><summary>3b_alpha_beta_diversity_INFnmfeedinject.R</summary>
+```{r echo=TRUE, eval=FALSE}
+#Load library packages
+
+#########################################
+
+```
+</details>
+
+***
+# DESeq2 
+**Goal**:
+
+## NONINFnm vs INFnm
+<details><summary>4a_DeSeq2_NONINFnm_INFnm.R</summary>
+```{r echo=TRUE, eval=FALSE}
+#Load library packages
+
+#########################################
+
+```
+</details>
+
+## INFnm vs INFfeed vs INFinject
+<details><summary>4b_DeSeq2_INFnmfeedinject.R</summary>
+```{r echo=TRUE, eval=FALSE}
+#Load library packages
+
+#########################################
+
+```
+</details>
+
+***
+## Figure 4 for INFnm vs INFfeed vs INFinject
+**Goal**:
+
+<details><summary>5b_NMDS_DeSeq2_INFnmfeedinject.R</summary>
+```{r echo=TRUE, eval=FALSE}
+#Load library packages
+
+#########################################
+
+```
+</details>
+
+***
+# Abx
+**Goal**:
+<details><summary>AbxConcWeightADGLungLesion.R</summary>
+```{r echo=TRUE, eval=FALSE}
+#Load library packages
+
+#########################################
+
+```
+</details>
+
+***
+# qPCR
+**Goal**:
+<details><summary>AMR_qPCR.R</summary>
+```{r echo=TRUE, eval=FALSE}
+#Load library packages
+
+#########################################
+
+```
+</details>
