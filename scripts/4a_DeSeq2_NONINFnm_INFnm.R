@@ -1,6 +1,6 @@
 #####################################################################################################
 #FS9 DESeq2 - Noninfected (NONINFnm) vs Infected (INFnm) only on all days, or days 7, 11, and 14
-#Kathy Mou
+#By Mou, KT
 
 #Purpose: This code uses DESeq2 package to identify fecal microbial taxa that were differentially 
 #abundant between the two groups NONINFnm and INFnm on all days and only days 7, 11, and 14 at the genus and order level

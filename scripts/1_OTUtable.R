@@ -1,6 +1,6 @@
 #########################################
 #FS9 OTU Table
-#Kathy Mou
+#By Mou, KT
 
 #NOTES: 
 #This code generates an OTU table

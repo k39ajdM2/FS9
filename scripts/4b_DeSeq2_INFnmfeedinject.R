@@ -1,6 +1,6 @@
 #####################################################################################################
 #FS9 DESeq2 - Infected: nm vs feed vs inject, days 7, 11, 14 - order level
-#Kathy Mou
+#By Mou, KT
 
 #Purpose: This code uses DESeq2 package to identify fecal microbial genera that were differentially 
 #abundant between the three groups on days 7, 11, 14

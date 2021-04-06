@@ -1,6 +1,6 @@
 #####################################################################################################
 #FS9 NMDS plot and DeSeq2 (order level) plot combined into one figure for days 7, 11, 14 - Infected: nm vs feed or inject.
-#Kathy Mou
+#By Mou, KT
 
 #Purpose: Combine NMDS figure and PERMANOVA F magnitude of change figure for INFnm vs INFfeed vs INFinject on days 7, 11, 14 into one using cowplot package
 
