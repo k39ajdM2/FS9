@@ -13,17 +13,17 @@ This repo includes all data, code, and relevant results for the study "Route of 
 ## Scripts description and the order to run them
 | Order | Script file name | Description |
 | -- | -- | -- |
-| 1a | mothur.md | First run `mothur.md` to process 16S sequence data and generate output for R scripts. |
-| 1b | 1_OTUtable.R | Generate OTU table from mothur output to use for creating phyloseq objects|
-| 2a | 2a_phyloseq_NONINFnm_INFnm.R | Generate phyloseq object to use for 3a_alpha_beta_diversity_NONINFnm_INFnm.R. Run [adonis](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/adonis) function with distance matrices to assess how variation is attributed to different experimental treatments or uncontrolled covariates. |
-| 2b | 2b_phyloseq_INFnmfeedinject.R | Generate phyloseq object to use for 3b_alpha_beta_diversity_INFnmfeedinject.R. Run [adonis](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/adonis) function with distance matrices to assess how variation is attributed to different experimental treatments or uncontrolled covariates.   |
-| 3a | 3a_alpha_beta_diversity_NONINFnm_INFnm.R | Run alpha (Shannon, Inverse Simpson) and beta diversity (generating NMDS, pairwise comparisons) analyses, data visualization |
-| 3b | 3b_alpha_beta_diversity_INFnmfeedinject.R | Run alpha (Shannon, Inverse Simpson) and beta diversity (generating NMDS, pairwise comparisons) analyses, data visualization |  
-| 4a | 4a_DeSeq2_NONINFnm_INFnm.R | Identify differentially abundant bacterial taxa (order and genus levels) between groups within each day, data visualization |
-| 4b | 4b_DeSeq2_INFnmfeedinject.R | Identify differentially abundant bacterial taxa (order level) between groups within each day, data visualization |
-| 5b | 5b_NMDS_DeSeq2_INFnmfeedinject.R | Combined steps 2b, 3b, and 4b into one script to generate figure for manuscript |
-| Anytime | AbxConcWeightADGLungLesion.R | Data visualization of oxytet concentration in various tissue sites, correlation between oxytet concentration and weight for each tissue site, average daily gain, and lung lesion severity |
-| Anytime | AMR_qPCR.R | Data visualization of mean relative abundance (log10) of each AMR gene using line plots; box plots of total abundance of each AMR gene using AULC calculation |
+| 1a | [mothur.md](https://github.com/k39ajdM2/FS9/tree/master/scripts/mothur.md) | First run `mothur.md` to process 16S sequence data and generate output for R scripts. |
+| 1b | [1_OTUtable.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/1_OTUtable.R) | Generate OTU table from mothur output to use for creating phyloseq objects|
+| 2a | [2a_phyloseq_NONINFnm_INFnm.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/2a_phyloseq_NONINFnm_INFnm.R) | Generate phyloseq object to use for 3a_alpha_beta_diversity_NONINFnm_INFnm.R. Run [adonis](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/adonis) function with distance matrices to assess how variation is attributed to different experimental treatments or uncontrolled covariates. |
+| 2b | [2b_phyloseq_INFnmfeedinject.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/2b_phyloseq_INFnmfeedinject.R)| Generate phyloseq object to use for 3b_alpha_beta_diversity_INFnmfeedinject.R. Run [adonis](https://www.rdocumentation.org/packages/vegan/versions/2.4-2/topics/adonis) function with distance matrices to assess how variation is attributed to different experimental treatments or uncontrolled covariates.   |
+| 3a | [3a_alpha_beta_diversity_NONINFnm_INFnm.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/3a_alpha_beta_diversity_NONINFnm_INFnm.R) | Run alpha (Shannon, Inverse Simpson) and beta diversity (generating NMDS, pairwise comparisons) analyses, data visualization |
+| 3b | [3b_alpha_beta_diversity_INFnmfeedinject.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/3b_alpha_beta_diversity_INFnmfeedinject.R) | Run alpha (Shannon, Inverse Simpson) and beta diversity (generating NMDS, pairwise comparisons) analyses, data visualization |  
+| 4a | [4a_DeSeq2_NONINFnm_INFnm.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/4a_DeSeq2_NONINFnm_INFnm.R) | Identify differentially abundant bacterial taxa (order and genus levels) between groups within each day, data visualization |
+| 4b | [4b_DeSeq2_INFnmfeedinject.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/4b_DeSeq2_INFnmfeedinject.R) | Identify differentially abundant bacterial taxa (order level) between groups within each day, data visualization |
+| 5b | [5b_NMDS_DeSeq2_INFnmfeedinject.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/5b_NMDS_DeSeq2_INFnmfeedinject.R) | Combined steps 2b, 3b, and 4b into one script to generate figure for manuscript |
+| Anytime | [AbxConcWeightADGLungLesion.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/AbxConcWeightADGLungLesion.R) | Data visualization of oxytet concentration in various tissue sites, correlation between oxytet concentration and weight for each tissue site, average daily gain, and lung lesion severity |
+| Anytime | [AMR_qPCR.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/AMR_qPCR.R) | Data visualization of mean relative abundance (log10) of each AMR gene using line plots; box plots of total abundance of each AMR gene using AULC calculation |
 
 * **Annotation Notes**
   * `(1/2/3/4)a` = NONINFnm vs INFnm
