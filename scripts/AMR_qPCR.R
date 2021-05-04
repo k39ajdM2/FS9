@@ -356,3 +356,40 @@ ggsave(fig_aulc,
        device = 'jpeg',
        dpi = 300,
        units = 'mm')
+
+######################### FOR AMALI #########################
+#Purpose: Create boxplots of relative log10-fold gene abundances of tetW, tet32, and aph2 for INFinject, INFfeed, INFnm
+
+#Box plot figures (need to write script for aph2)
+tet32fig <- tet32 %>%
+  ggplot(aes(x=Treatment, y=log10tet32, color=Day)) +
+  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
+  geom_boxplot() +
+  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+  theme(axis.text.x=element_text(color = 'black', size = 14),
+        axis.text.y=element_text(color = 'black', size=14)) +
+  ylab('log10 relative abundance of tet32 gene') +
+  theme_bw()
+tet32fig
+
+tetWfig <- tetw %>%
+  ggplot(aes(x=Treatment, y=log10tetW, color=Day)) +
+  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
+  geom_boxplot() +
+  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+  theme(axis.text.x=element_text(color = 'black', size = 14),
+        axis.text.y=element_text(color = 'black', size=14)) +
+  ylab('log10 relative abundance of tetW gene') +
+  theme_bw()
+tetWfig
+
+#Combine tet32, tetW, aph2 B&W plots and save combined figure (need to add aph2 to this)
+fig5 <- plot_grid(tet32fig, tetWfig, labels = c('A', 'B'), label_size = 12)
+fig5
+ggsave(fig8,
+       filename = './Fig5_tet32tetW_qPCR_INFfeedINFinjectINFnm.jpeg',
+       width = 180,
+       height = 120,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
