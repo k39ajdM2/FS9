@@ -171,8 +171,21 @@ adg2$Day <- as.character((adg2$Day))
 
 stats <- adg2 %>% 
   group_by(Treatment, Day_ADG) %>% 
-  summarise(Sum=sum(ADG, na.rm = TRUE), Mean=(mean(ADG, na.rm = TRUE)), sd = sd(ADG, na.rm = TRUE))
+  summarise(Sum=sum(ADG, na.rm = TRUE), Mean=(mean(ADG, na.rm = TRUE)), sd = sd(ADG, na.rm = TRUE)) %>% 
 write.csv(stats, file= "FS9_ADGstats.csv")
+
+stats2 <- adg %>% 
+  group_by(Treatment) %>% 
+  summarise(Sum=sum(D0, na.rm = TRUE), Mean=(mean(D0, na.rm = TRUE)), sd = sd(D0, na.rm = TRUE))
+write.csv(stats2, file="FS9_D0weight.csv")
+
+colnames(adg)
+
+stats3 <- adg %>% 
+  group_by(Treatment) %>% 
+  mutate(two_week_wt = (D14 - D0)) %>% 
+  summarise(Sum=sum(two_week_wt, na.rm = TRUE), Mean=(mean(two_week_wt, na.rm= TRUE)), sd = sd(two_week_wt, na.rm = TRUE))
+write.csv(stats3, file="FS9_two_week_wt.csv")
 
 #Figure 2a
 fig_day0adg <- adg %>% 
