@@ -27,58 +27,6 @@ levels(tetw$Day) #"7"  "11" "14"
 levels(tet32$Day) #"7"  "11" "14"
 levels(aph2$Day) #"7"  "11" "14"
 
-#Two-way ANOVA with repeated measures, Tukey multiple pairwise-comparisons: 
-#http://www.sthda.com/english/wiki/two-way-anova-test-in-r#multiple-pairwise-comparison-between-the-means-of-groups
-
-#Two way ANOVA
-tet32aov <- aov(log10tet32 ~ Treatment * Day, data=tet32) 
-summary(tet32aov)
-#               Df Sum Sq Mean Sq F value   Pr(>F)    
-#Treatment      2   3.42   1.711   2.383    0.0989 .  
-#Day            2  20.19  10.093  14.058    6.11e-06 ***
-#Treatment:Day  4   8.41   2.103   2.930    0.0260 *  
-#Residuals     78  56.00   0.718                     
-#---
-#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-#These results would lead us to believe that the levels of Day, and Day + Treatment interaction
-#are associated with significant different mean log10tet32 abundances.
-#In addition, the interaction between Day and Treatment indicates that the relationship between mean log10tet32 abundances
-#and Treatment depend on the day sampled.
-
-tetWaov <- aov(log10tetW ~ Treatment * Day, data=tetw)
-summary(tetWaov)
-#```````````````Df Sum Sq Mean Sq F value   Pr(>F)    
-#Treatment      2   6.88   3.440   5.110    0.00821 ** 
-#Day            2  18.05   9.025  13.408    9.88e-06 ***
-#Treatment:Day  4  11.16   2.791   4.146    0.00425 ** 
-#Residuals     78  52.50   0.673                     
-#---
-#  Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-#These results would lead us to believe that the levels of Day or Treatment, and Day + Treatment interaction
-#are associated with significant different mean log10tet32 abundances.
-#In addition, the interaction between Day and Treatment indicates that the relationship between mean log10tet32 abundances
-#and Day depend on the type of Treatment administered.
-
-aph2aov <- aov(log10aph2 ~ Treatment * Day, data=aph2)
-summary(aph2aov)
-#               Df  Sum Sq  Mean Sq   F value Pr(>F)    
-# Treatment      2   2.44   1.218   1.727   0.1853    
-# Day            2  16.40   8.198  11.620 4.39e-05 ***
-# Treatment:Day  4   8.77   2.194   3.109   0.0205 *  
-# Residuals     70  49.39   0.706                    
-#---
-#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-#Tukey multiple pairwise-comparisons
-TukeyHSD(tet32aov, which = "Treatment:Day")
-#Consistent with GraphPad results. Can't save as csv so I copied the results in console to excel as tet32_qPCR_summarystats_Tukey.xlsx
-TukeyHSD(tetWaov, which = "Treatment:Day")
-#Consistent with GraphPad results. Can't save as csv so I copied the results in console to excel as tetW_qPCR_summarystats_Tukey.xlsx
-TukeyHSD(aph2aov, which = "Treatment:Day")
-#Mostly consistent with GraphPad results. Can't save as csv so I copied the results in console to excel as aph2_qPCR_summarystats_Tukey.xlsx
-
 #Summary stats
 tet32stats <- tet32 %>% group_by(Day,Treatment) %>% summarise(mean=mean(log10tet32), 
                                                                    n=n(), 
@@ -92,51 +40,6 @@ aph2stats <- aph2 %>% group_by(Day,Treatment) %>% summarise(mean=mean(log10aph2)
                                                               n=n(), 
                                                               sd=sd(log10aph2), 
                                                               se=sd/n) #%>% write_csv('./results/aph2_qPCR_mean.csv')
-#Mean line plot figures
-pd = position_dodge(0.05)
-pdsd = position_dodge(0.25)
-(tet32linese <- ggplot(data=tet32stats, aes(x=Day, y=mean, group=Treatment)) + 
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.3, position=pdsd) +
-    geom_line(aes(color=Treatment), position=pdsd) +
-    geom_point(aes(color=Treatment), position=pdsd, size=1, shape=21, fill="white") +
-    scale_color_manual(values = c(INFinject='#00BA38',
-                                  INFnm='#F8766D',
-                                  INFfeed='#619CFF')) +
-    ylab('Mean log10 relative abundance of tet32 gene') +
-    ylim(0,5.5) +
-    theme_bw() +
-    theme(legend.position = "none"))
-(tetwlinese <- ggplot(data=tetWstats, aes(x=Day, y=mean, group=Treatment)) + 
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.3, position=pdsd) +
-    geom_line(aes(color=Treatment), position=pdsd) +
-    geom_point(aes(color=Treatment), position=pdsd, size=1, shape=21, fill="white") +
-    scale_color_manual(values = c(INFinject='#00BA38',
-                                  INFnm='#F8766D',
-                                  INFfeed='#619CFF')) +
-    ylab('Mean log10 relative abundance of tetW gene') +
-    ylim(0,5.5) +
-    theme_bw()
-      +theme(legend.position = 'none'))
-(aph2linese <- ggplot(data=aph2stats, aes(x=Day, y=mean, group=Treatment)) + 
-    geom_errorbar(aes(ymin=mean-se, ymax=mean+se), width=.3, position=pdsd) +
-    geom_line(aes(color=Treatment), position=pdsd) +
-    geom_point(aes(color=Treatment), position=pdsd, size=1, shape=21, fill="white") +
-    scale_color_manual(values = c(INFinject='#00BA38',
-                                  INFnm='#F8766D',
-                                  INFfeed='#619CFF')) +
-    ylab('Mean log10 relative abundance of aph2 gene') +
-    ylim(0,5.5) +
-    theme_bw())
-
-#Combine tet32 and tetW line graphs and save combined figure
-(fig5 <- plot_grid(tet32linese, tetwlinese, aph2linese, labels = c('A', 'B', 'C'), label_size = 12, vjust=1.1, nrow =1, rel_widths = c(1,1,1.5))) #Mean+SEM
-ggsave(fig5,
-       filename = './Fig5_tet32tetWaph2_qPCR_lineplot_INFfeedINFinjectINFnm_meanSE.jpeg',
-       width = 180,
-       height = 120,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
 
 ########################################################################################################
 #Purpose: This code calculates AULC of days 7, 11, 14 for gene abundances of tetW, tet32, and aph2 for 
@@ -174,126 +77,6 @@ sum_aph2 <- aph2 %>%
   summarise(AULC=trapz(Day, log10aph2),
             treatment=unique(Treatment))
 write.csv(sum_aph2, file = "aulc_aph2.csv", col.names = TRUE)
-
-### Run one-way ANOVA
-# One-way ANOVA test and multiple pairwise-comparisons test in R reference: 
-# http://www.sthda.com/english/wiki/one-way-anova-test-in-r
-
-# one-way ANOVA for tetW
-colnames(sum_tetw)
-tetw_anova <- aov(AULC~treatment, data=sum_tetw)
-anova(tetw_anova)
-# Results:
-# Response: AULC
-#           Df  Sum Sq  Mean Sq F value   Pr(>F)   
-# treatment  2   14.878  7.4389  5.5632    0.009745 **
-# Residuals 26   34.766  1.3372                    
-# There is a significant difference in AULC between the treatment groups (group means are different). Which pairs of groups are different?
-
-# Tukey multiple pairwise-comparisons
-TukeyHSD(tetw_anova)
-# Results:
-# Tukey multiple comparisons of means
-# 95% family-wise confidence level
-# Fit: aov(formula = AULC ~ treatment, data = sum_tetw)
-# $treatment
-#                     diff          lwr         upr         p adj
-# INFinject-INFfeed   -1.51570154   -2.8359527  -0.1954504  0.0220943
-# INFnm-INFfeed       -0.01680115   -1.3370523  1.3034500   0.9994489
-# INFnm-INFinject     1.49890039    0.2138623   2.7839385   0.0198859
-
-# Key for diff, lwr, upr, p adj:
-# diff: difference between means of the two groups
-# lwr, upr: the lower and the upper end point of the confidence interval at 95% (default)
-# p adj: p-value after adjustment for the multiple comparisons.
-
-# Pairwise t-test with corrections for multiple testing
-pairwise.t.test(sum_tetw$AULC, sum_tetw$treatment, p.adjust.method = "BH")
-# Pairwise comparisons using t tests with pooled SD 
-# data:  sum_tetw$AULC and sum_tetw$treatment 
-#           INFfeed INFinject
-# INFinject 0.013   -        
-# INFnm     0.975   0.013 
-
-# Conclusion for tetW:
-# Both Tukey's HSD and pairwise t-test agree that INFinject v INFfeed, and INFnm v INFinject have significantly different AULC
-
-# one-way ANOVA for tet32
-colnames(sum_tet32)
-tet32_anova <- aov(AULC~treatment, data=sum_tet32)
-anova(tet32_anova)
-# Results:
-# Response: AULC
-#           Df  Sum Sq  Mean Sq F value   Pr(>F)   
-# treatment  2  7.2275  3.6137  3.0171 0.06633 .
-# Residuals 26  31.1421 1.1978                    
-# The difference in AULC between the treatment groups approaches significant difference. Which pairs of groups are approaching significant difference?
-
-# Tukey multiple pairwise-comparisons
-TukeyHSD(tet32_anova)
-# Results:
-# Tukey multiple comparisons of means
-# 95% family-wise confidence level
-# Fit: aov(formula = AULC ~ treatment, data = sum_tetw)
-# $treatment
-#                     diff        lwr         upr       p adj
-# INFinject-INFfeed -1.09687068   -2.3464129  0.1526715 0.0933921
-# INFnm-INFfeed     -0.09429518   -1.3438374  1.1552470 0.9808157
-# INFnm-INFinject    1.00257550   -0.2136396  2.2187906 0.1207593
-
-# Pairwise t-test with corrections for multiple testing
-pairwise.t.test(sum_tet32$AULC, sum_tet32$treatment, p.adjust.method = "BH")
-# Pairwise comparisons using t tests with pooled SD 
-# data:  sum_tet32$AULC and sum_tet32$treatment 
-#           INFfeed INFinject
-# INFinject 0.076   -        
-# INFnm     0.853   0.076 
-
-# Conclusion for tet32:
-# Both Tukey's HSD and pairwise t-test agree that there were no significant differences in AULC for tet32 gene abundance
-# among the three treatment groups
-
-# one-way ANOVA for aph2
-colnames(sum_aph2)
-aph2_anova <- aov(AULC~treatment, data=sum_aph2)
-anova(aph2_anova)
-# Results:
-# Response: AULC
-#           Df  Sum Sq  Mean Sq F value   Pr(>F)   
-# treatment  2   8.337  4.1685  0.7497 0.4825
-# Residuals 26 144.571  5.5604                   
-# There is no significant difference in AULC between the treatment groups.
-
-# Tukey multiple pairwise-comparisons
-TukeyHSD(aph2_anova)
-# Results:
-# Tukey multiple comparisons of means
-# 95% family-wise confidence level
-# Fit: aov(formula = AULC ~ treatment, data = sum_tetw)
-# $treatment
-#                     diff      lwr       upr     p adj
-# INFinject-INFfeed -1.2391446 -3.931408 1.453119 0.4965952
-# INFnm-INFfeed     -0.2492572 -2.941521 2.443007 0.9712767
-# INFnm-INFinject    0.9898874 -1.630570 3.610344 0.6212423
-
-# Key for diff, lwr, upr, p adj:
-# diff: difference between means of the two groups
-# lwr, upr: the lower and the upper end point of the confidence interval at 95% (default)
-# p adj: p-value after adjustment for the multiple comparisons.
-
-# Pairwise t-test with corrections for multiple testing
-pairwise.t.test(sum_aph2$AULC, sum_aph2$treatment, p.adjust.method = "BH")
-# Results
-# Pairwise comparisons using t tests with pooled SD 
-# data:  sum_aph2$AULC and sum_aph2$treatment 
-#         INFfeed INFinject
-#INFinject 0.53    -        
-#INFnm     0.82    0.53     
-#P value adjustment method: BH 
-
-# Conclusion for aph2:
-# Both Tukey's HSD and pairwise t-test agree that there were no significant differences in AULC for aph2 gene abundance
-# among the three treatment groups
 
 # Graph b&w plot of AULC
 #tetW
@@ -357,10 +140,10 @@ ggsave(fig_aulc,
        dpi = 300,
        units = 'mm')
 
-######################### FOR AMALI #########################
+######################### AMALI #########################
 #Purpose: Create boxplots of relative log10-fold gene abundances of tetW, tet32, and aph2 for INFinject, INFfeed, INFnm
 
-#Box plot figures (need to write script for aph2, done! AIS)
+#Box plot figures (x-axis = treatment group)
 tet32fig <- tet32 %>%
   ggplot(aes(x=Treatment, y=log10tet32, color=as.factor(Day))) +
   scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
@@ -398,69 +181,7 @@ aph2fig <- aph2 %>%
   theme_bw()
 aph2fig+ theme(axis.title.x = element_blank())
 
-#Combine tet32, tetW, aph2 B&W plots and save combined figure (need to add aph2 to this)
-fig5 <- plot_grid(tet32fig+ theme(axis.title.x = element_blank()), tetWfig+ theme(axis.title.x = element_blank()),aph2fig+ theme(axis.title.x = element_blank()), labels = c('A', 'B', 'C'), label_size = 14)
-fig5
-ggsave(fig5,
-       filename = './Fig5_tet32tetWaph2_qPCR_INFfeedINFinjectINFnm.jpeg',
-       width = 180,
-       height = 120,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
-
-### remove the labels from the first figure 5 
-
-tet32fig <- tet32 %>%
-  ggplot(aes(x=Treatment, y=log10tet32, color=as.factor(Day))) +
-  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
-  geom_boxplot() +
-  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
-  theme(axis.text.x=element_blank(),
-        axis.text.y=element_text(color = 'black', size=14)) +
-  ylab('log10 relative abundance of tet32 gene') +
-  labs(color='Day')+
-  theme_bw()
-tet32fig
-
-tetWfig <- tetw %>%
-  ggplot(aes(x=Treatment, y=log10tetW, color=as.factor(Day))) +
-  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
-  geom_boxplot() +
-  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
-  theme(axis.text.x=element_text(color = 'black', size = 14),
-        axis.text.y=element_text(color = 'black', size=14)) +
-  ylab('log10 relative abundance of tetW gene') +
-  labs(color='Day')+
-  theme_bw()
-tetWfig
-
-aph2fig <- aph2 %>%
-  ggplot(aes(x=Treatment, y=log10aph2, color=as.factor(Day))) +
-  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
-  geom_boxplot() +
-  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
-  theme(axis.text.x=element_text(color = 'black', size = 14),
-        axis.text.y=element_text(color = 'black', size=14)) +
-  ylab('log10 relative abundance of aph2 gene') +
-  labs(color='Day')+
-  theme_bw()
-aph2fig
-
-#Combine tet32, tetW, aph2 B&W plots and save combined figure (need to add aph2 to this)
-fig5 <- plot_grid(tet32fig, tetWfig,aph2fig, labels = c('A', 'B', 'C'), label_size = 12)
-fig5
-ggsave(fig5,
-       filename = './Fig5_tet32tetWaph2_qPCR_INFfeedINFinjectINFnm.jpeg',
-       width = 180,
-       height = 120,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
-
-
-############################################AMALI make box plot with day on X axis aand treatment groups on the y #######
-#Box plot figures (need to write script for aph2)
+#Box plot figures (x-axis = day)
 tet32fig1 <- tet32 %>%
   ggplot(aes(x=Day, y=log10tet32, color=as.factor(Treatment))) +
   scale_color_manual(values = c('INFinject'='#00BA38', 'INFnm'='#F8766D', 'INFfeed'='#619CFF')) +
@@ -472,10 +193,6 @@ tet32fig1 <- tet32 %>%
   labs(color='Treatment')+
   theme_bw()
 tet32fig1
-tet32fig
-#c(INFinject='#00BA38',
-#  INFnm='#F8766D',
-#  INFfeed='#619CFF')) 
 
 tetWfig1 <- tetw %>%
   ggplot(aes(x=Day, y=log10tetW, color=as.factor(Treatment))) +
@@ -488,7 +205,6 @@ tetWfig1 <- tetw %>%
   labs(color='Treatment')+
   theme_bw()
 tetWfig1
-tetWfig
 
 aph2fig1 <- aph2 %>%
   ggplot(aes(x=Day, y=log10aph2, color=as.factor(Treatment))) +
@@ -502,25 +218,13 @@ aph2fig1 <- aph2 %>%
   
   theme_bw()
 aph2fig1
-aph2fig
 
-#Combine tet32, tetW, aph2 B&W plots and save combined figure (need to add aph2 to this)
-fig5.1 <- plot_grid(tet32fig1, tetWfig1, aph2fig1, labels = c('D', 'E', 'F'), label_size = 12)
-fig5.1
-ggsave(fig5.1,
-       filename = './Fig5_1_tet32tetWaph2_1_qPCR_INFfeedINFinjectINFnm.jpeg',
-       width = 180,
-       height = 120,
-       device = 'jpeg',
-       dpi = 300,
-       units = 'mm')
-
-fig5.2 <- plot_grid(tet32fig+ theme(axis.title.x = element_blank()), tetWfig+ theme(axis.title.x = element_blank()),aph2fig+ theme(axis.title.x = element_blank()), tet32fig1, tetWfig1, aph2fig1, labels = c('A','B','C','D','E','F'), label_size = 12)
-fig5.2
-ggsave(fig5.2,
-       filename = './Fig5_2_tet32tetWaph2_1_qPCR_INFfeedINFinjectINFnm.jpeg',
-       width = 180,
-       height = 120,
+fig5 <- plot_grid(tet32fig+ theme(axis.title.x = element_blank()), tetWfig+ theme(axis.title.x = element_blank()),aph2fig+ theme(axis.title.x = element_blank()), tet32fig1, tetWfig1, aph2fig1, labels = c('A','B','C','D','E','F'), label_size = 12)
+fig5
+ggsave(fig5,
+       filename = './Fig5_tet32tetWaph2_1_qPCR_INFfeedINFinjectINFnm.jpeg',
+       width = 250,
+       height = 180,
        device = 'jpeg',
        dpi = 300,
        units = 'mm')
