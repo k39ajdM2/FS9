@@ -362,32 +362,46 @@ ggsave(fig_aulc,
 
 #Box plot figures (need to write script for aph2)
 tet32fig <- tet32 %>%
-  ggplot(aes(x=Treatment, y=log10tet32, color=Day)) +
+  ggplot(aes(x=Treatment, y=log10tet32, color=as.factor(Day))) +
   scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
   geom_boxplot() +
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 14),
         axis.text.y=element_text(color = 'black', size=14)) +
   ylab('log10 relative abundance of tet32 gene') +
+  labs(color='Day')+
   theme_bw()
 tet32fig
 
 tetWfig <- tetw %>%
-  ggplot(aes(x=Treatment, y=log10tetW, color=Day)) +
+  ggplot(aes(x=Treatment, y=log10tetW, color=as.factor(Day))) +
+    scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
+    geom_boxplot() +
+    geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+    theme(axis.text.x=element_text(color = 'black', size = 14),
+          axis.text.y=element_text(color = 'black', size=14)) +
+    ylab('log10 relative abundance of tetW gene') +
+  labs(color='Day')+
+    theme_bw()
+tetWfig
+
+aph2fig <- aph2 %>%
+  ggplot(aes(x=Treatment, y=log10aph2, color=as.factor(Day))) +
   scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
   geom_boxplot() +
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 14),
         axis.text.y=element_text(color = 'black', size=14)) +
-  ylab('log10 relative abundance of tetW gene') +
+  ylab('log10 relative abundance of aph2 gene') +
+  labs(color='Day')+
   theme_bw()
-tetWfig
+aph2fig
 
 #Combine tet32, tetW, aph2 B&W plots and save combined figure (need to add aph2 to this)
-fig5 <- plot_grid(tet32fig, tetWfig, labels = c('A', 'B'), label_size = 12)
+fig5 <- plot_grid(tet32fig, tetWfig,aph2fig, labels = c('A', 'B', 'C'), label_size = 12)
 fig5
 ggsave(fig8,
-       filename = './Fig5_tet32tetW_qPCR_INFfeedINFinjectINFnm.jpeg',
+       filename = './Fig5_tet32tetWaph2_qPCR_INFfeedINFinjectINFnm.jpeg',
        width = 180,
        height = 120,
        device = 'jpeg',
