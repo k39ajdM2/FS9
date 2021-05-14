@@ -360,7 +360,7 @@ ggsave(fig_aulc,
 ######################### FOR AMALI #########################
 #Purpose: Create boxplots of relative log10-fold gene abundances of tetW, tet32, and aph2 for INFinject, INFfeed, INFnm
 
-#Box plot figures (need to write script for aph2)
+#Box plot figures (need to write script for aph2, done! AIS)
 tet32fig <- tet32 %>%
   ggplot(aes(x=Treatment, y=log10tet32, color=as.factor(Day))) +
   scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
@@ -371,7 +371,7 @@ tet32fig <- tet32 %>%
   ylab('log10 relative abundance of tet32 gene') +
   labs(color='Day')+
   theme_bw()
-tet32fig
+tet32fig+ theme(axis.title.x = element_blank())
 
 tetWfig <- tetw %>%
   ggplot(aes(x=Treatment, y=log10tetW, color=as.factor(Day))) +
@@ -379,10 +379,60 @@ tetWfig <- tetw %>%
     geom_boxplot() +
     geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
     theme(axis.text.x=element_text(color = 'black', size = 14),
-          axis.text.y=element_text(color = 'black', size=14)) +
+          axis.text.y=element_text(color = 'black', size=4)) +
     ylab('log10 relative abundance of tetW gene') +
   labs(color='Day')+
     theme_bw()
+tetWfig+ theme(axis.title.x = element_blank())
+
+aph2fig <- aph2 %>%
+  ggplot(aes(x=Treatment, y=log10aph2, color=as.factor(Day))) +
+  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
+  geom_boxplot() +
+  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+  theme(axis.text.x=element_text(color = 'black', size = 30),
+        axis.text.y=element_text(color = 'black', size=14))+
+  ylab('log10 relative abundance of aph2 gene')+
+  theme(axis.title.x = element_blank())+
+  labs(color='Day')+
+  theme_bw()
+aph2fig+ theme(axis.title.x = element_blank())
+
+#Combine tet32, tetW, aph2 B&W plots and save combined figure (need to add aph2 to this)
+fig5 <- plot_grid(tet32fig+ theme(axis.title.x = element_blank()), tetWfig+ theme(axis.title.x = element_blank()),aph2fig+ theme(axis.title.x = element_blank()), labels = c('A', 'B', 'C'), label_size = 14)
+fig5
+ggsave(fig5,
+       filename = './Fig5_tet32tetWaph2_qPCR_INFfeedINFinjectINFnm.jpeg',
+       width = 180,
+       height = 120,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
+
+### remove the labels from the first figure 5 
+
+tet32fig <- tet32 %>%
+  ggplot(aes(x=Treatment, y=log10tet32, color=as.factor(Day))) +
+  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
+  geom_boxplot() +
+  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+  theme(axis.text.x=element_blank(),
+        axis.text.y=element_text(color = 'black', size=14)) +
+  ylab('log10 relative abundance of tet32 gene') +
+  labs(color='Day')+
+  theme_bw()
+tet32fig
+
+tetWfig <- tetw %>%
+  ggplot(aes(x=Treatment, y=log10tetW, color=as.factor(Day))) +
+  scale_color_manual(values = c('7'='#E69F00', '11'='#CC0066', '14'='#999999')) +
+  geom_boxplot() +
+  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+  theme(axis.text.x=element_text(color = 'black', size = 14),
+        axis.text.y=element_text(color = 'black', size=14)) +
+  ylab('log10 relative abundance of tetW gene') +
+  labs(color='Day')+
+  theme_bw()
 tetWfig
 
 aph2fig <- aph2 %>%
@@ -400,8 +450,75 @@ aph2fig
 #Combine tet32, tetW, aph2 B&W plots and save combined figure (need to add aph2 to this)
 fig5 <- plot_grid(tet32fig, tetWfig,aph2fig, labels = c('A', 'B', 'C'), label_size = 12)
 fig5
-ggsave(fig8,
+ggsave(fig5,
        filename = './Fig5_tet32tetWaph2_qPCR_INFfeedINFinjectINFnm.jpeg',
+       width = 180,
+       height = 120,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
+
+
+############################################AMALI make box plot with day on X axis aand treatment groups on the y #######
+#Box plot figures (need to write script for aph2)
+tet32fig1 <- tet32 %>%
+  ggplot(aes(x=Day, y=log10tet32, color=as.factor(Treatment))) +
+  scale_color_manual(values = c('INFinject'='#00BA38', 'INFnm'='#F8766D', 'INFfeed'='#619CFF')) +
+  geom_boxplot() +
+  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+  theme(axis.text.x=element_text(color = 'black', size = 14),
+        axis.text.y=element_text(color = 'black', size=14)) +
+  ylab('log10 relative abundance of tet32 gene') +
+  labs(color='Treatment')+
+  theme_bw()
+tet32fig1
+tet32fig
+#c(INFinject='#00BA38',
+#  INFnm='#F8766D',
+#  INFfeed='#619CFF')) 
+
+tetWfig1 <- tetw %>%
+  ggplot(aes(x=Day, y=log10tetW, color=as.factor(Treatment))) +
+  scale_color_manual(values = c('INFinject'='#00BA38', 'INFnm'='#F8766D', 'INFfeed'='#619CFF')) +
+  geom_boxplot() +
+  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+  theme(axis.text.x=element_text(color = 'black', size = 14),
+        axis.text.y=element_text(color = 'black', size=14)) +
+  ylab('log10 relative abundance of tetW gene') +
+  labs(color='Treatment')+
+  theme_bw()
+tetWfig1
+tetWfig
+
+aph2fig1 <- aph2 %>%
+  ggplot(aes(x=Day, y=log10aph2, color=as.factor(Treatment))) +
+  scale_color_manual(values = c('INFinject'='#00BA38', 'INFnm'='#F8766D', 'INFfeed'='#619CFF')) +
+  geom_boxplot() +
+  geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
+  theme(axis.text.x=element_text(color = 'black', size = 14),
+        axis.text.y=element_text(color = 'black', size=14)) +
+  ylab('log10 relative abundance of aph2 gene') +
+  labs(color='Treatment')+
+  
+  theme_bw()
+aph2fig1
+aph2fig
+
+#Combine tet32, tetW, aph2 B&W plots and save combined figure (need to add aph2 to this)
+fig5.1 <- plot_grid(tet32fig1, tetWfig1, aph2fig1, labels = c('D', 'E', 'F'), label_size = 12)
+fig5.1
+ggsave(fig5.1,
+       filename = './Fig5_1_tet32tetWaph2_1_qPCR_INFfeedINFinjectINFnm.jpeg',
+       width = 180,
+       height = 120,
+       device = 'jpeg',
+       dpi = 300,
+       units = 'mm')
+
+fig5.2 <- plot_grid(tet32fig+ theme(axis.title.x = element_blank()), tetWfig+ theme(axis.title.x = element_blank()),aph2fig+ theme(axis.title.x = element_blank()), tet32fig1, tetWfig1, aph2fig1, labels = c('A','B','C','D','E','F'), label_size = 12)
+fig5.2
+ggsave(fig5.2,
+       filename = './Fig5_2_tet32tetWaph2_1_qPCR_INFfeedINFinjectINFnm.jpeg',
        width = 180,
        height = 120,
        device = 'jpeg',
