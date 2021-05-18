@@ -1,6 +1,6 @@
 #####################################################################################################
 #FS9 Antibiotic concentration, weight, average daily gain (ADG), lung lesion
-#Kathy Mou
+#By Mou, KT
 
 #Purpose: This code graphs concentration of oxytetracycline in each tissue for each group and also relative to weight, ADG, and lung lesion
 #This was taken from Jules' code (FS1_ABX_conc.R) with some modifications to fit FS9 dataset.

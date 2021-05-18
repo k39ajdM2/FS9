@@ -1,6 +1,6 @@
 #####################################################################################################
 #FS9 tetW, tet32, aph2 qPCR - log10-fold gene abundance of INFinject and INFfeed relative to INFnm
-#Kathy Mou
+#By Mou, KT; Stephens, A
 
 #Purpose: This code graphs log10-fold gene abundances of tetW, tet32, and aph2 for INFinject, INFfeed, INFnm
 #from qPCR studies
@@ -140,7 +140,7 @@ ggsave(fig_aulc,
        dpi = 300,
        units = 'mm')
 
-######################### AMALI #########################
+########################################################################################################
 #Purpose: Create boxplots of relative log10-fold gene abundances of tetW, tet32, and aph2 for INFinject, INFfeed, INFnm
 
 #Box plot figures (x-axis = treatment group)
