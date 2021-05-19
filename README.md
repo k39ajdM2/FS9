@@ -23,7 +23,7 @@ This repo includes all data, code, and relevant results for the study "Route of 
 | 4b | [4b_DeSeq2_INFnmfeedinject.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/4b_DeSeq2_INFnmfeedinject.R) | Identify differentially abundant bacterial taxa (order level) between groups within each day, data visualization |
 | 5b | [5b_NMDS_DeSeq2_INFnmfeedinject.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/5b_NMDS_DeSeq2_INFnmfeedinject.R) | Combined steps 2b, 3b, and 4b into one script to generate figure for manuscript |
 | Anytime | [AbxConcWeightADGLungLesion.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/AbxConcWeightADGLungLesion.R) | Data visualization of oxytet concentration in various tissue sites, correlation between oxytet concentration and weight for each tissue site, average daily gain, and lung lesion severity |
-| Anytime | [AMR_qPCR.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/AMR_qPCR.R) | Data visualization of mean relative abundance (log10) of each AMR gene using line plots; box plots of total abundance of each AMR gene using AULC calculation |
+| Anytime | [AMR_qPCR.R](https://github.com/k39ajdM2/FS9/tree/master/scripts/AMR_qPCR.R) | Data visualization of relative abundance (log10) of each AMR gene using scatter point box plots; and box plots of total abundance of each AMR gene using AULC calculation |
 
 * **Annotation Notes**
   * `(1/2/3/4)a` = NONINFnm vs INFnm
