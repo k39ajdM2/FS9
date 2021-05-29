@@ -1,6 +1,6 @@
 #####################################################################################################
 #FS9 tetW, tet32, aph2 qPCR - log10-fold gene abundance of INFinject and INFfeed relative to INFnm
-#By Mou, KT; Stephens, A
+#By Mou, KT; Stephens, AI
 
 #Purpose: This code graphs log10-fold gene abundances of tetW, tet32, and aph2 for INFinject, INFfeed, INFnm
 #from qPCR studies
@@ -151,9 +151,10 @@ tet32fig <- tet32 %>%
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 14),
         axis.text.y=element_text(color = 'black', size=14)) +
-  ylab('log10 relative abundance of tet32 gene') +
+  labs(y=expression(log[10]~relative~abundance~of~tet32~gene)) +
   labs(color='Day')+
-  theme_bw()
+  theme_bw() + 
+  ylim(0,7)
 tet32fig+ theme(axis.title.x = element_blank())
 
 tetWfig <- tetw %>%
@@ -163,9 +164,10 @@ tetWfig <- tetw %>%
     geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
     theme(axis.text.x=element_text(color = 'black', size = 14),
           axis.text.y=element_text(color = 'black', size=4)) +
-    ylab('log10 relative abundance of tetW gene') +
+  labs(y=expression(log[10]~relative~abundance~of~tetW~gene)) +
   labs(color='Day')+
-    theme_bw()
+  theme_bw() +
+  ylim(0,7)
 tetWfig+ theme(axis.title.x = element_blank())
 
 aph2fig <- aph2 %>%
@@ -175,10 +177,11 @@ aph2fig <- aph2 %>%
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 30),
         axis.text.y=element_text(color = 'black', size=14))+
-  ylab('log10 relative abundance of aph2 gene')+
   theme(axis.title.x = element_blank())+
+  labs(y=expression(log[10]~relative~abundance~of~aph2~gene)) +
   labs(color='Day')+
-  theme_bw()
+  theme_bw() +
+  ylim(0,7)
 aph2fig+ theme(axis.title.x = element_blank())
 
 #Box plot figures (x-axis = day)
@@ -189,9 +192,10 @@ tet32fig1 <- tet32 %>%
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 14),
         axis.text.y=element_text(color = 'black', size=14)) +
-  ylab('log10 relative abundance of tet32 gene') +
+  labs(y=expression(log[10]~relative~abundance~of~tet32~gene)) +
   labs(color='Treatment')+
-  theme_bw()
+  theme_bw() +
+  ylim(0,7)
 tet32fig1
 
 tetWfig1 <- tetw %>%
@@ -201,9 +205,10 @@ tetWfig1 <- tetw %>%
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 14),
         axis.text.y=element_text(color = 'black', size=14)) +
-  ylab('log10 relative abundance of tetW gene') +
+  labs(y=expression(log[10]~relative~abundance~of~tetW~gene)) +
   labs(color='Treatment')+
-  theme_bw()
+  theme_bw() +
+  ylim(0,7)
 tetWfig1
 
 aph2fig1 <- aph2 %>%
@@ -213,10 +218,10 @@ aph2fig1 <- aph2 %>%
   geom_jitter(position=position_jitterdodge(jitter.width = .20)) +
   theme(axis.text.x=element_text(color = 'black', size = 14),
         axis.text.y=element_text(color = 'black', size=14)) +
-  ylab('log10 relative abundance of aph2 gene') +
-  labs(color='Treatment')+
-  
-  theme_bw()
+  labs(y=expression(log[10]~relative~abundance~of~aph2~gene)) +
+  labs(color='Treatment') +
+  theme_bw() +
+  ylim(0,7)
 aph2fig1
 
 fig5 <- plot_grid(tet32fig+ theme(axis.title.x = element_blank()), tetWfig+ theme(axis.title.x = element_blank()),aph2fig+ theme(axis.title.x = element_blank()), tet32fig1, tetWfig1, aph2fig1, labels = c('A','B','C','D','E','F'), label_size = 12)

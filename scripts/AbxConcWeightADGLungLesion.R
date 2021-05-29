@@ -14,7 +14,7 @@ library(dplyr)
 #library("ggsignif")
 
 sessionInfo()
-#R version 4.0.2 (2020-06-22)
+#R version 4.0.5 (2021-03-31)
 
 ########################################################################################################
 
@@ -45,7 +45,7 @@ plasmaoxytet <- tis.melt %>% filter(Tissue == 'Plasma') %>% filter(Treatment %in
   scale_color_manual(values = c(INFinject='#00BA38',
                                INFfeed='#619CFF')) +
   geom_boxplot() + 
-  ylab('Concentration of Oxytet \n (ng/mL plasma)') + 
+  ylab('PLASMA OXYTET \n (ng/mL plasma)') + 
   theme_bw() + 
   geom_jitter(position=position_jitterdodge(jitter.width = 1)) +
   ylim(0,800)
@@ -58,7 +58,7 @@ lungoxytet <- tis.melt %>% filter(Tissue == 'Lung') %>% filter(Treatment %in% c(
                                INFfeed='#619CFF')) +
   geom_boxplot() + 
   geom_jitter(position = position_jitterdodge(jitter.width = 1)) +
-  ylab('Concentration of Oxytet \n (ng/2g lung tissue)') + 
+  ylab('LUNG OXYTET \n (ng/2g lung tissue)') + 
   theme_bw() +
   ylim(0,450)
 lungoxytet
@@ -70,7 +70,7 @@ nasaloxytet <- tis.melt %>% filter(Tissue == 'Nasal') %>% filter(Treatment %in% 
                                INFfeed='#619CFF')) +
   geom_boxplot() + 
   geom_jitter(position = position_jitterdodge(jitter.width = 1)) +
-  ylab('Concentration of Oxytet \n (ng/mL nasal wash)') +
+  ylab('NASAL OXYTET \n (ng/mL nasal wash)') +
   theme_bw() +
   ylim(0,550)
 nasaloxytet
@@ -81,7 +81,7 @@ Lung.abx <- tis.melt %>% filter(Tissue == 'Lung') #subset lung data
 tmp <- tis.melt %>% group_by(Day, Tissue, Treatment) %>% summarise(mean=mean(value), 
                                                                    n=n(), 
                                                                    sd=sd(value), 
-                                                                   se=sd/n) %>% write_csv('./results/mean_abx_conc.csv')
+                                                                   se=sd/n) %>% write_csv('./FS9_Mean_Oxytet_Concentration_in_Tissues.csv')
 
 #Weight and oxytetracycline plots
 
@@ -101,7 +101,7 @@ plasmaweight <- tis.melt %>%
   geom_smooth(method = 'lm') + 
   geom_point() + 
   theme_bw() +
-  ylab('Concentration of Oxytet \n (ng/mL plasma)') + 
+  ylab('PLASMA OXYTET \n (ng/mL plasma)') + 
   xlab("Weight (lbs)") +
   facet_wrap(vars(Day), scales = "free") +
   xlim(13,34) +
@@ -119,7 +119,7 @@ lungweight <- tis.melt %>%
   geom_smooth(method = 'lm') + 
   geom_point() + 
   theme_bw() +
-  ylab('Concentration of Oxytet \n (ng/2g lung tissue)') + 
+  ylab('LUNG OXYTET \n (ng/2g lung tissue)') + 
   xlab("Weight (lbs)") +
   facet_wrap(vars(Day), scales = "free") +
   xlim(13,34) +
@@ -137,7 +137,7 @@ nasalweight <- tis.melt %>%
   geom_smooth(method = 'lm') + 
   geom_point() + 
   theme_bw() +
-  ylab('Concentration of Oxytet \n (ng/mL nasal wash)') + 
+  ylab('NASAL OXYTET \n (ng/mL nasal wash)') + 
   xlab("Weight (lbs)") +
   theme(axis.title.y = element_text(size=10)) +
   facet_wrap(vars(Day), scales = "free") +
@@ -154,7 +154,7 @@ fig_3 <- plot_grid(lungoxytet, lungweight, nasaloxytet, nasalweight, plasmaoxyte
                    rel_widths = c(1, 1.5))
 fig_3
 
-ggsave("Fig3_OxytetLevelsWeight.tiff", plot=fig_3, width = 10, height = 8, dpi = 200, units =c("in"))
+ggsave("Fig3_OxytetLevelsWeight.tiff", plot=fig_3, width = 10, height = 8, dpi = 300, units =c("in"))
 
 
 
@@ -164,7 +164,7 @@ ggsave("Fig3_OxytetLevelsWeight.tiff", plot=fig_3, width = 10, height = 8, dpi =
 #Import file
 adg <- read.csv('./data/FS9_AverageDailyGain.csv', stringsAsFactors = FALSE)
 colnames(adg)
-adg1 <- pivot_longer(adg, cols=c("D0", "D11", "D14"), names_to="Day", values_to="Weight_lbs")
+adg1 <- pivot_longer(adg, cols=c("DNEG1", "D11", "D14"), names_to="Day", values_to="Weight_lbs")
 adg2 <- pivot_longer(adg1, cols=c("D11_ADG", "D14_ADG"), names_to="Day_ADG", values_to="ADG")
 adg2$Day_ADG <- as.character((adg2$Day_ADG))
 adg2$Day <- as.character((adg2$Day))
@@ -188,21 +188,21 @@ stats3 <- adg %>%
 write.csv(stats3, file="FS9_two_week_wt.csv")
 
 #Figure 2a
-fig_day0adg <- adg %>% 
-  ggplot(aes(x=Treatment, y=D0, color=Treatment)) +
+fig_dayneg1adg <- adg %>% 
+  ggplot(aes(x=Treatment, y=DNEG1, color=Treatment)) +
   scale_color_manual(values = c(INFinject='#00BA38',
                                 INFnm='#F8766D',
                                 INFfeed='#619CFF',
                                 NONINFnm="#C77CFF")) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'Weight (lbs) on day 0', x= NULL) +
+  labs(y= 'Weight (lbs) on day -1', x= NULL) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         axis.title.y = element_text(size=12)) +
   theme_bw() + 
   theme(legend.position = "none")
-fig_day0adg
+fig_dayneg1adg
 
 #Figure 2b
 fig_day11adg <- adg %>% 
@@ -213,7 +213,7 @@ fig_day11adg <- adg %>%
                                 NONINFnm="#C77CFF")) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'Average daily gain (lbs) from day 0 to day 11', x= NULL) +
+  labs(y= 'Average daily gain (lbs) from day -1 to day 11', x= NULL) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         axis.title.y = element_text(size=12)) +
@@ -231,7 +231,7 @@ fig_day14adg <- adg %>%
                                 NONINFnm="#C77CFF")) +
   geom_boxplot() + 
   geom_jitter(position=position_jitterdodge(jitter.width = .20))+
-  labs(y= 'Average daily gain (lbs) from day 0 to day 14', x= NULL) +
+  labs(y= 'Average daily gain (lbs) from day -1 to day 14', x= NULL) +
   theme(axis.text.x = element_text(size=12),
         axis.text.y = element_text(size=12),
         legend.text = element_text(size=12),
@@ -242,9 +242,9 @@ fig_day14adg <- adg %>%
 fig_day14adg
 
 #Combined Weight + ADG figures
-fig_adg3plots <- plot_grid(fig_day0adg, fig_day11adg, fig_day14adg, labels = c('A', 'B', 'C'), label_size = 12, nrow = 1, rel_widths = c(1, 1, 1.2))
+fig_adg3plots <- plot_grid(fig_dayneg1adg, fig_day11adg, fig_day14adg, labels = c('A', 'B', 'C'), label_size = 12, nrow = 1, rel_widths = c(1, 1, 1.2))
 fig_adg3plots
-ggsave("Fig2_ADG_abc.tiff", plot=fig_adg3plots, width = 15, height = 5, dpi = 500, units =c("in"))
+ggsave("Fig2_ADG_abc.tiff", plot=fig_adg3plots, width = 15, height = 5, dpi = 300, units =c("in"))
 
 ########################################################################################################
 #Lung Lesion (Supplemental Figure)
