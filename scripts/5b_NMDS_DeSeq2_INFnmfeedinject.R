@@ -440,7 +440,8 @@ deseqfinalplot <- ggplot(final.sigtab, aes(x=reorder(OTU, log2FoldChange), y=log
         axis.title.x=element_text(size = 12),
         axis.title.y =element_text(size = 12),
         legend.text = element_text(size=11), 
-        legend.title = element_text(size=12))
+        legend.title = element_text(size=12)) +
+  ylab("Magnitude of depletion relative to INFnm (log2FoldChange)")
 deseqfinalplot
 #light green for depleted in INFinject
 #light blue for INFfeed
